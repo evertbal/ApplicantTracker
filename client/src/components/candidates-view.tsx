@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Plus, Filter, Download, MoreHorizontal, Edit, StickyNote, Users, Route } from "lucide-react";
+import { Search, Plus, Filter, Download, MoreHorizontal, Edit, StickyNote, Users, Route, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,8 +26,29 @@ export default function CandidatesView() {
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
 
   const { data: candidates = [], isLoading, refetch } = useQuery({
-    queryKey: ['/api/candidates', search, selectedStatuses, selectedRegion, selectedLicenses],
+    queryKey: ['/api/candidates'],
     enabled: true,
+  });
+
+  // Filter candidates client-side
+  const filteredCandidates = candidates.filter((candidate: any) => {
+    // Search filter
+    const matchesSearch = search === "" || 
+      candidate.name?.toLowerCase().includes(search.toLowerCase()) ||
+      candidate.email?.toLowerCase().includes(search.toLowerCase()) ||
+      candidate.city?.toLowerCase().includes(search.toLowerCase());
+
+    // Status filter
+    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(candidate.status);
+
+    // Region filter
+    const matchesRegion = selectedRegion === "" || selectedRegion === "alle" || candidate.region === selectedRegion;
+
+    // License filter
+    const matchesLicense = selectedLicenses.length === 0 || 
+      (candidate.drivingLicenses && selectedLicenses.some(license => candidate.drivingLicenses.includes(license)));
+
+    return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
   });
 
   const getStatusBadge = (status: string) => {
@@ -149,9 +170,9 @@ export default function CandidatesView() {
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
             <div className="space-y-2">
               {[
-                { value: 'active', label: 'Actief', count: candidates.filter(c => c.status === 'active').length },
-                { value: 'placed', label: 'Geplaatst', count: candidates.filter(c => c.status === 'placed').length },
-                { value: 'inactive', label: 'Inactief', count: candidates.filter(c => c.status === 'inactive').length },
+                { value: 'active', label: 'Actief', count: candidates.filter((c: any) => c.status === 'active').length },
+                { value: 'placed', label: 'Geplaatst', count: candidates.filter((c: any) => c.status === 'placed').length },
+                { value: 'inactive', label: 'Inactief', count: candidates.filter((c: any) => c.status === 'inactive').length },
               ].map((status) => (
                 <div key={status.value} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -179,10 +200,11 @@ export default function CandidatesView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="alle">Alle regio's</SelectItem>
-                <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
-                <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
-                <SelectItem value="Utrecht">Utrecht</SelectItem>
-                <SelectItem value="Gelderland">Gelderland</SelectItem>
+                {Array.from(new Set(candidates.filter((c: any) => c.region).map((c: any) => c.region))).map((region: string) => (
+                  <SelectItem key={region} value={region}>
+                    {region} ({candidates.filter((c: any) => c.region === region).length})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
