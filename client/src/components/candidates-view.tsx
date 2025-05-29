@@ -82,7 +82,7 @@ export default function CandidatesView() {
 
   const clearFilters = () => {
     setSearch("");
-    setSelectedStatuses(["active"]);
+    setSelectedStatuses([]);
     setSelectedRegion("");
     setSelectedLicenses([]);
   };
@@ -301,7 +301,7 @@ export default function CandidatesView() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {candidates.length} kandidaten gevonden
+                  {filteredCandidates.length} van {candidates.length} kandidaten
                 </span>
               </div>
               <div className="flex items-center space-x-2">
