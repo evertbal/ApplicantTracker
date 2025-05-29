@@ -151,26 +151,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let importedCount = 0;
       const errors: string[] = [];
 
-      for (const [index, row] of data.entries()) {
+      for (let index = 0; index < data.length; index++) {
+        const row = data[index];
         try {
           const rowData = row as any;
           
+          // Skip empty rows
+          if (!rowData || Object.keys(rowData).length === 0) {
+            continue;
+          }
+          
           // Map Excel columns to candidate fields
           const candidateData = {
-            name: rowData.naam || rowData.Name || rowData.NAAM || '',
-            email: rowData.email || rowData.Email || rowData.EMAIL || null,
-            phone: rowData.telefoon || rowData.Phone || rowData.TELEFOON || null,
-            city: rowData.stad || rowData.City || rowData.STAD || null,
-            region: rowData.regio || rowData.Region || rowData.REGIO || null,
-            status: rowData.status || rowData.Status || rowData.STATUS || 'active',
-            drivingLicenses: rowData.rijbewijs ? [rowData.rijbewijs] : [],
-            description: rowData.beschrijving || rowData.Description || rowData.BESCHRIJVING || null,
-            marketing: rowData.marketing || rowData.Marketing || rowData.MARKETING || null,
-            phase: rowData.fase || rowData.Phase || rowData.FASE || null
+            name: String(rowData.Naam || rowData.naam || rowData.Name || rowData.NAAM || '').trim(),
+            email: String(rowData.Mailadres || rowData.email || rowData.Email || rowData.EMAIL || '').trim() || null,
+            phone: String(rowData.Telefoonnummer || rowData.telefoon || rowData.Phone || rowData.TELEFOON || '').trim() || null,
+            city: String(rowData.Woonplaats || rowData.stad || rowData.City || rowData.STAD || '').trim() || null,
+            region: String(rowData.Regio || rowData.regio || rowData.Region || rowData.REGIO || '').trim() || null,
+            status: String(rowData.Status || rowData.status || rowData.STATUS || 'active').trim(),
+            drivingLicenses: rowData.Rijbewijs || rowData.rijbewijs ? 
+              String(rowData.Rijbewijs || rowData.rijbewijs).split(/[,;]/).map(s => s.trim()).filter(s => s) : 
+              [],
+            description: String(rowData.Beschrijving || rowData.beschrijving || rowData.Description || rowData.BESCHRIJVING || '').trim() || null,
+            marketing: String(rowData.Marketing || rowData.marketing || rowData.MARKETING || '').trim() || null,
+            phase: String(rowData.fase || rowData.Phase || rowData.FASE || '').trim() || null
           };
 
           // Validate required fields
-          if (!candidateData.name) {
+          if (!candidateData.name || candidateData.name === '') {
             errors.push(`Rij ${index + 2}: Naam is verplicht`);
             continue;
           }
