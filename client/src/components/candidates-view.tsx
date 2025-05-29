@@ -32,8 +32,11 @@ export default function CandidatesView() {
     enabled: true,
   });
 
+  // Type-safe access to candidates data
+  const candidatesArray = Array.isArray(candidates) ? candidates as any[] : [];
+
   // Filter candidates client-side
-  const filteredCandidates = candidates.filter((candidate: any) => {
+  const filteredCandidates = candidatesArray.filter((candidate: any) => {
     // Search filter
     const matchesSearch = search === "" || 
       candidate.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -226,9 +229,9 @@ export default function CandidatesView() {
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
             <div className="space-y-2">
               {[
-                { value: 'active', label: 'Actief', count: candidates.filter((c: any) => c.status === 'active').length },
-                { value: 'placed', label: 'Geplaatst', count: candidates.filter((c: any) => c.status === 'placed').length },
-                { value: 'inactive', label: 'Inactief', count: candidates.filter((c: any) => c.status === 'inactive').length },
+                { value: 'active', label: 'Actief', count: candidatesArray.filter((c: any) => c.status === 'active').length },
+                { value: 'placed', label: 'Geplaatst', count: candidatesArray.filter((c: any) => c.status === 'placed').length },
+                { value: 'inactive', label: 'Inactief', count: candidatesArray.filter((c: any) => c.status === 'inactive').length },
               ].map((status) => (
                 <div key={status.value} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -256,9 +259,9 @@ export default function CandidatesView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="alle">Alle regio's</SelectItem>
-                {Array.from(new Set(candidates.filter((c: any) => c.region).map((c: any) => c.region))).map((region: string) => (
+                {Array.from(new Set(candidatesArray.filter((c: any) => c.region).map((c: any) => c.region))).map((region: string) => (
                   <SelectItem key={region} value={region}>
-                    {region} ({candidates.filter((c: any) => c.region === region).length})
+                    {region} ({candidatesArray.filter((c: any) => c.region === region).length})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -269,18 +272,26 @@ export default function CandidatesView() {
           <div className="mb-6">
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</Label>
             <div className="space-y-2">
-              {['B', 'C', 'D'].map((license) => (
-                <div key={license} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`license-${license}`}
-                    checked={selectedLicenses.includes(license)}
-                    onCheckedChange={(checked) => handleLicenseChange(license, checked as boolean)}
-                  />
-                  <Label htmlFor={`license-${license}`} className="text-sm">
-                    {license} ({license === 'B' ? 'Auto' : license === 'C' ? 'Vrachtwagen' : 'Bus'})
-                  </Label>
-                </div>
-              ))}
+              {['B', 'C', 'D', 'BE', 'T'].map((license: any) => {
+                const count = candidatesArray.filter((c: any) => 
+                  c.drivingLicenses && c.drivingLicenses.includes(license)
+                ).length;
+                return (
+                  <div key={license} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`license-${license}`}
+                        checked={selectedLicenses.includes(license)}
+                        onCheckedChange={(checked) => handleLicenseChange(license, checked as boolean)}
+                      />
+                      <Label htmlFor={`license-${license}`} className="text-sm">
+                        {license} ({license === 'B' ? 'Auto' : license === 'C' ? 'Vrachtwagen' : license === 'D' ? 'Bus' : license})
+                      </Label>
+                    </div>
+                    <span className="text-xs text-gray-500">({count})</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -301,7 +312,7 @@ export default function CandidatesView() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {filteredCandidates.length} van {candidates.length} kandidaten
+                  {filteredCandidates.length} van {candidatesArray.length} kandidaten
                 </span>
               </div>
               <div className="flex items-center space-x-2">
