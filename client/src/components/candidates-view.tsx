@@ -228,11 +228,13 @@ export default function CandidatesView() {
           <div className="mb-6">
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
             <div className="space-y-2">
-              {[
-                { value: 'active', label: 'Actief', count: candidatesArray.filter((c: any) => c.status === 'active').length },
-                { value: 'placed', label: 'Geplaatst', count: candidatesArray.filter((c: any) => c.status === 'placed').length },
-                { value: 'inactive', label: 'Inactief', count: candidatesArray.filter((c: any) => c.status === 'inactive').length },
-              ].map((status) => (
+              {Array.from(new Set(candidatesArray.filter((c: any) => c.status).map((c: any) => c.status)))
+                .sort()
+                .map((statusValue: any) => {
+                  const count = candidatesArray.filter((c: any) => c.status === statusValue).length;
+                  return { value: statusValue, label: statusValue, count };
+                })
+                .map((status) => (
                 <div key={status.value} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -272,7 +274,14 @@ export default function CandidatesView() {
           <div className="mb-6">
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</Label>
             <div className="space-y-2">
-              {['B', 'C', 'D', 'BE', 'T'].map((license: any) => {
+              {Array.from(new Set(
+                candidatesArray
+                  .filter((c: any) => c.drivingLicenses && c.drivingLicenses.length > 0)
+                  .flatMap((c: any) => c.drivingLicenses)
+                  .filter((license: any) => license && typeof license === 'string' && license.trim() !== '')
+              ))
+                .sort()
+                .map((license: any) => {
                 const count = candidatesArray.filter((c: any) => 
                   c.drivingLicenses && c.drivingLicenses.includes(license)
                 ).length;
