@@ -249,9 +249,7 @@ export default function CandidatesView() {
               {candidates.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-gray-500 text-xl">👥</span>
-                    </div>
+                    <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       Geen kandidaten gevonden
                     </h3>

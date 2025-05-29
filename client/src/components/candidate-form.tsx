@@ -208,7 +208,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="geen">Selecteer regio</SelectItem>
+                          <SelectItem value="">Selecteer regio</SelectItem>
                           <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
                           <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
                           <SelectItem value="Utrecht">Utrecht</SelectItem>
@@ -287,7 +287,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="geen">Selecteer bron</SelectItem>
+                          <SelectItem value="">Selecteer bron</SelectItem>
                           <SelectItem value="LinkedIn">LinkedIn</SelectItem>
                           <SelectItem value="Indeed">Indeed</SelectItem>
                           <SelectItem value="Website">Website</SelectItem>
