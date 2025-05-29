@@ -200,7 +200,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         imported: importedCount,
         total: data.length,
-        errors: errors
+        errors: errors,
+        debug: {
+          firstRowData: data[0],
+          sampleKeys: data[0] ? Object.keys(data[0]) : []
+        }
       });
 
     } catch (error) {

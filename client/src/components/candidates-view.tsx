@@ -134,7 +134,18 @@ export default function CandidatesView() {
       if (response.ok) {
         const result = await response.json();
         queryClient.invalidateQueries({ queryKey: ['/api/candidates'] });
-        alert(`Import succesvol! ${result.imported} kandidaten toegevoegd.`);
+        
+        let message = `Import resultaat: ${result.imported} van ${result.total} kandidaten geïmporteerd.`;
+        if (result.errors && result.errors.length > 0) {
+          message += `\n\nFouten:\n${result.errors.slice(0, 5).join('\n')}`;
+          if (result.errors.length > 5) {
+            message += `\n... en ${result.errors.length - 5} meer`;
+          }
+        }
+        if (result.debug) {
+          console.log('Import debug info:', result.debug);
+        }
+        alert(message);
       } else {
         const error = await response.json();
         alert(`Import fout: ${error.message}`);
