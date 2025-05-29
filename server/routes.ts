@@ -146,7 +146,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(worksheet);
+      
+      // Get all data as array of arrays first to handle custom headers
+      const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Find the header row (look for row with "Naam" in it)
+      let headerRowIndex = -1;
+      let headers: string[] = [];
+      
+      for (let i = 0; i < Math.min(5, rawData.length); i++) {
+        const row = rawData[i] as any[];
+        if (row && row.some(cell => cell && String(cell).includes('Naam'))) {
+          headerRowIndex = i;
+          headers = row.map(cell => String(cell || '').trim());
+          break;
+        }
+      }
+      
+      if (headerRowIndex === -1) {
+        return res.status(400).json({ message: "Geen geldige header rij gevonden. Zorg ervoor dat de header 'Naam' bevat." });
+      }
+      
+      // Convert to objects using the found headers
+      const data = rawData.slice(headerRowIndex + 1).map(row => {
+        const obj: any = {};
+        const rowArray = row as any[];
+        headers.forEach((header, index) => {
+          if (header && rowArray[index] !== undefined) {
+            obj[header] = rowArray[index];
+          }
+        });
+        return obj;
+      }).filter(row => Object.keys(row).length > 0);
 
       let importedCount = 0;
       const errors: string[] = [];
