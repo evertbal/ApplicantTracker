@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, Filter, Download, MoreHorizontal, Edit, StickyNote, Users, Route, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ export default function CandidatesView() {
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
+
+  const queryClient = useQueryClient();
 
   const { data: candidates = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/candidates'],
@@ -116,6 +118,35 @@ export default function CandidatesView() {
     closeForm();
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/candidates/import', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        queryClient.invalidateQueries({ queryKey: ['/api/candidates'] });
+        alert(`Import succesvol! ${result.imported} kandidaten toegevoegd.`);
+      } else {
+        const error = await response.json();
+        alert(`Import fout: ${error.message}`);
+      }
+    } catch (error) {
+      alert('Er is een fout opgetreden bij het importeren van het bestand.');
+    }
+
+    // Reset file input
+    event.target.value = '';
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -149,6 +180,20 @@ export default function CandidatesView() {
               />
               <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
             </div>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileUpload}
+              style={{ display: 'none' }}
+              id="excel-upload"
+            />
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('excel-upload')?.click()}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Import Excel
+            </Button>
             <Button
               className="bg-primary hover:bg-primary-hover text-white"
               onClick={() => setShowForm(true)}

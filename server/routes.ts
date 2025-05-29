@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import multer from "multer";
+import * as XLSX from "xlsx";
 import { 
   insertCandidateSchema, 
   insertClientSchema, 
@@ -12,6 +14,26 @@ import {
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Multer configuration for file uploads
+  const upload = multer({ 
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'text/csv' // .csv
+      ];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Alleen Excel (.xlsx, .xls) en CSV bestanden zijn toegestaan'));
+      }
+    },
+    limits: {
+      fileSize: 10 * 1024 * 1024 // 10MB limit
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
 
@@ -110,6 +132,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting candidate:", error);
       res.status(500).json({ message: "Failed to delete candidate" });
+    }
+  });
+
+  // Excel import route for candidates
+  app.post("/api/candidates/import", isAuthenticated, upload.single('file'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Geen bestand geüpload" });
+      }
+
+      // Parse Excel file
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+
+      let importedCount = 0;
+      const errors: string[] = [];
+
+      for (const [index, row] of data.entries()) {
+        try {
+          const rowData = row as any;
+          
+          // Map Excel columns to candidate fields
+          const candidateData = {
+            name: rowData.naam || rowData.Name || rowData.NAAM || '',
+            email: rowData.email || rowData.Email || rowData.EMAIL || null,
+            phone: rowData.telefoon || rowData.Phone || rowData.TELEFOON || null,
+            city: rowData.stad || rowData.City || rowData.STAD || null,
+            region: rowData.regio || rowData.Region || rowData.REGIO || null,
+            status: rowData.status || rowData.Status || rowData.STATUS || 'active',
+            drivingLicenses: rowData.rijbewijs ? [rowData.rijbewijs] : [],
+            description: rowData.beschrijving || rowData.Description || rowData.BESCHRIJVING || null,
+            marketing: rowData.marketing || rowData.Marketing || rowData.MARKETING || null,
+            phase: rowData.fase || rowData.Phase || rowData.FASE || null
+          };
+
+          // Validate required fields
+          if (!candidateData.name) {
+            errors.push(`Rij ${index + 2}: Naam is verplicht`);
+            continue;
+          }
+
+          // Validate and create candidate
+          const validatedData = insertCandidateSchema.parse(candidateData);
+          await storage.createCandidate(validatedData);
+          
+          // Log audit
+          await storage.logAudit("candidate", 0, "import", candidateData, req.user.claims.sub);
+          
+          importedCount++;
+        } catch (error) {
+          console.error(`Error importing row ${index + 2}:`, error);
+          errors.push(`Rij ${index + 2}: ${error instanceof Error ? error.message : 'Onbekende fout'}`);
+        }
+      }
+
+      res.json({
+        imported: importedCount,
+        total: data.length,
+        errors: errors
+      });
+
+    } catch (error) {
+      console.error("Error importing Excel file:", error);
+      res.status(500).json({ message: "Fout bij het importeren van het Excel bestand" });
     }
   });
 
