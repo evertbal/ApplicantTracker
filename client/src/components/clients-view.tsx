@@ -106,7 +106,7 @@ export default function ClientsView() {
                 <SelectValue placeholder="Alle werkzaamheden" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Alle werkzaamheden</SelectItem>
+                <SelectItem value="alle">Alle werkzaamheden</SelectItem>
                 <SelectItem value="transport">Transport</SelectItem>
                 <SelectItem value="logistiek">Logistiek</SelectItem>
                 <SelectItem value="distributie">Distributie</SelectItem>

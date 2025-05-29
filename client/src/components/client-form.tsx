@@ -168,7 +168,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Selecteer werkzaamheden</SelectItem>
+                        <SelectItem value="bouw">Bouw</SelectItem>
                         <SelectItem value="Transport">Transport</SelectItem>
                         <SelectItem value="Logistiek">Logistiek</SelectItem>
                         <SelectItem value="Distributie">Distributie</SelectItem>

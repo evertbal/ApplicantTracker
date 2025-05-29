@@ -178,7 +178,7 @@ export default function CandidatesView() {
                 <SelectValue placeholder="Alle regio's" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Alle regio's</SelectItem>
+                <SelectItem value="alle">Alle regio's</SelectItem>
                 <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
                 <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
                 <SelectItem value="Utrecht">Utrecht</SelectItem>
