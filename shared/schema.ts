@@ -11,11 +11,10 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// Session storage table (required for Replit Auth)
 export const sessions = pgTable(
   "sessions",
   {
@@ -26,8 +25,7 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// User storage table (required for Replit Auth)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
@@ -44,7 +42,7 @@ export const candidates = pgTable("candidates", {
   dateAdded: timestamp("date_added").defaultNow(),
   name: text("name").notNull(),
   description: text("description"),
-  drivingLicense: text("driving_license").array(),
+  drivingLicenses: text("driving_licenses").array().default([]),
   city: text("city"),
   region: text("region"),
   marketing: text("marketing"),
@@ -56,7 +54,7 @@ export const candidates = pgTable("candidates", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Clients (Opdrachtgevers) table
+// Clients/Employers table
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -74,8 +72,8 @@ export const trajectories = pgTable("trajectories", {
   clientId: integer("client_id").references(() => clients.id),
   startDate: date("start_date"),
   status: text("status").default("interview"), // interview, proposed, placed
-  position: text("position"),
-  rate: text("rate"),
+  jobTitle: text("job_title"),
+  hourlyRate: text("hourly_rate"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -86,9 +84,9 @@ export const notes = pgTable("notes", {
   id: serial("id").primaryKey(),
   entityType: text("entity_type").notNull(), // candidate, trajectory, client
   entityId: integer("entity_id").notNull(),
-  text: text("text").notNull(),
+  content: text("content").notNull(),
   authorId: varchar("author_id").references(() => users.id),
-  timestamp: timestamp("timestamp").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Documents table
@@ -101,16 +99,15 @@ export const documents = pgTable("documents", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
-// Audit trail table
-export const auditLogs = pgTable("audit_logs", {
+// Audit log table
+export const auditLog = pgTable("audit_log", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id),
-  action: text("action").notNull(), // create, update, delete
   entityType: text("entity_type").notNull(),
   entityId: integer("entity_id").notNull(),
-  oldValues: jsonb("old_values"),
-  newValues: jsonb("new_values"),
-  timestamp: timestamp("timestamp").defaultNow(),
+  action: text("action").notNull(), // create, update, delete
+  changes: jsonb("changes"),
+  userId: varchar("user_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Relations
@@ -146,12 +143,20 @@ export const notesRelations = relations(notes, ({ one }) => ({
   }),
 }));
 
-// Zod schemas
+export const documentsRelations = relations(documents, ({ one }) => ({
+  // Relations can be added if needed for specific entity types
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  notes: many(notes),
+  auditLogs: many(auditLog),
+}));
+
+// Insert schemas
 export const insertCandidateSchema = createInsertSchema(candidates).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  dateAdded: true,
 });
 
 export const insertClientSchema = createInsertSchema(clients).omit({
@@ -168,7 +173,7 @@ export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
 
 export const insertNoteSchema = createInsertSchema(notes).omit({
   id: true,
-  timestamp: true,
+  createdAt: true,
 });
 
 export const insertDocumentSchema = createInsertSchema(documents).omit({
@@ -176,19 +181,23 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({
   uploadedAt: true,
 });
 
+export const upsertUserSchema = createInsertSchema(users);
+
 // Types
-export type UpsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
 export type Candidate = typeof candidates.$inferSelect;
-export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
 export type Client = typeof clients.$inferSelect;
-export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Trajectory = typeof trajectories.$inferSelect;
-export type InsertTrajectory = z.infer<typeof insertTrajectorySchema>;
 export type Note = typeof notes.$inferSelect;
-export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type Document = typeof documents.$inferSelect;
+export type User = typeof users.$inferSelect;
+export type AuditLogEntry = typeof auditLog.$inferSelect;
+
+export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
+export type InsertClient = z.infer<typeof insertClientSchema>;
+export type InsertTrajectory = z.infer<typeof insertTrajectorySchema>;
+export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type UpsertUser = z.infer<typeof upsertUserSchema>;
 
 // Extended types with relations
 export type CandidateWithRelations = Candidate & {

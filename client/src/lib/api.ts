@@ -1,0 +1,153 @@
+import { apiRequest } from "./queryClient";
+import type { 
+  InsertCandidate, 
+  InsertClient, 
+  InsertTrajectory, 
+  InsertNote, 
+  InsertDocument,
+  Candidate,
+  Client,
+  Trajectory,
+  Note,
+  Document
+} from "@shared/schema";
+
+// Candidate API
+export const candidateApi = {
+  getAll: (filters?: {
+    search?: string;
+    status?: string[];
+    region?: string;
+    drivingLicenses?: string[];
+    dateFrom?: Date;
+    dateTo?: Date;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.status?.length) params.append('status', filters.status.join(','));
+    if (filters?.region) params.append('region', filters.region);
+    if (filters?.drivingLicenses?.length) params.append('drivingLicenses', filters.drivingLicenses.join(','));
+    if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom.toISOString());
+    if (filters?.dateTo) params.append('dateTo', filters.dateTo.toISOString());
+    
+    const queryString = params.toString();
+    return fetch(`/api/candidates${queryString ? `?${queryString}` : ''}`, {
+      credentials: 'include'
+    }).then(res => res.json());
+  },
+
+  getById: (id: number) => 
+    fetch(`/api/candidates/${id}`, { credentials: 'include' }).then(res => res.json()),
+
+  create: async (data: InsertCandidate): Promise<Candidate> => {
+    const response = await apiRequest('POST', '/api/candidates', data);
+    return response.json();
+  },
+
+  update: async (id: number, data: Partial<InsertCandidate>): Promise<Candidate> => {
+    const response = await apiRequest('PUT', `/api/candidates/${id}`, data);
+    return response.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiRequest('DELETE', `/api/candidates/${id}`);
+  }
+};
+
+// Client API
+export const clientApi = {
+  getAll: (filters?: {
+    search?: string;
+    workType?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.workType) params.append('workType', filters.workType);
+    
+    const queryString = params.toString();
+    return fetch(`/api/clients${queryString ? `?${queryString}` : ''}`, {
+      credentials: 'include'
+    }).then(res => res.json());
+  },
+
+  getById: (id: number) => 
+    fetch(`/api/clients/${id}`, { credentials: 'include' }).then(res => res.json()),
+
+  create: async (data: InsertClient): Promise<Client> => {
+    const response = await apiRequest('POST', '/api/clients', data);
+    return response.json();
+  },
+
+  update: async (id: number, data: Partial<InsertClient>): Promise<Client> => {
+    const response = await apiRequest('PUT', `/api/clients/${id}`, data);
+    return response.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiRequest('DELETE', `/api/clients/${id}`);
+  }
+};
+
+// Trajectory API
+export const trajectoryApi = {
+  getAll: (filters?: {
+    search?: string;
+    status?: string[];
+    candidateId?: number;
+    clientId?: number;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.status?.length) params.append('status', filters.status.join(','));
+    if (filters?.candidateId) params.append('candidateId', filters.candidateId.toString());
+    if (filters?.clientId) params.append('clientId', filters.clientId.toString());
+    
+    const queryString = params.toString();
+    return fetch(`/api/trajectories${queryString ? `?${queryString}` : ''}`, {
+      credentials: 'include'
+    }).then(res => res.json());
+  },
+
+  getById: (id: number) => 
+    fetch(`/api/trajectories/${id}`, { credentials: 'include' }).then(res => res.json()),
+
+  create: async (data: InsertTrajectory): Promise<Trajectory> => {
+    const response = await apiRequest('POST', '/api/trajectories', data);
+    return response.json();
+  },
+
+  update: async (id: number, data: Partial<InsertTrajectory>): Promise<Trajectory> => {
+    const response = await apiRequest('PUT', `/api/trajectories/${id}`, data);
+    return response.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiRequest('DELETE', `/api/trajectories/${id}`);
+  }
+};
+
+// Notes API
+export const notesApi = {
+  getByEntity: (entityType: string, entityId: number) =>
+    fetch(`/api/notes/${entityType}/${entityId}`, { credentials: 'include' }).then(res => res.json()),
+
+  create: async (data: InsertNote): Promise<Note> => {
+    const response = await apiRequest('POST', '/api/notes', data);
+    return response.json();
+  }
+};
+
+// Documents API
+export const documentsApi = {
+  getByEntity: (entityType: string, entityId: number) =>
+    fetch(`/api/documents/${entityType}/${entityId}`, { credentials: 'include' }).then(res => res.json()),
+
+  create: async (data: InsertDocument): Promise<Document> => {
+    const response = await apiRequest('POST', '/api/documents', data);
+    return response.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiRequest('DELETE', `/api/documents/${id}`);
+  }
+};

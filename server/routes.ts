@@ -2,12 +2,12 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import {
-  insertCandidateSchema,
-  insertClientSchema,
+import { 
+  insertCandidateSchema, 
+  insertClientSchema, 
   insertTrajectorySchema,
   insertNoteSchema,
-  insertDocumentSchema,
+  insertDocumentSchema
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -34,9 +34,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         search: req.query.search as string,
         status: req.query.status ? (req.query.status as string).split(',') : undefined,
         region: req.query.region as string,
-        drivingLicense: req.query.drivingLicense ? (req.query.drivingLicense as string).split(',') : undefined,
-        dateFrom: req.query.dateFrom as string,
-        dateTo: req.query.dateTo as string,
+        drivingLicenses: req.query.drivingLicenses ? (req.query.drivingLicenses as string).split(',') : undefined,
+        dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom as string) : undefined,
+        dateTo: req.query.dateTo ? new Date(req.query.dateTo as string) : undefined,
       };
       
       const candidates = await storage.getCandidates(filters);
@@ -51,11 +51,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const candidate = await storage.getCandidate(id);
-      
       if (!candidate) {
         return res.status(404).json({ message: "Candidate not found" });
       }
-      
       res.json(candidate);
     } catch (error) {
       console.error("Error fetching candidate:", error);
@@ -68,20 +66,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const candidateData = insertCandidateSchema.parse(req.body);
       const candidate = await storage.createCandidate(candidateData);
       
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "create",
-        "candidate",
-        candidate.id,
-        null,
-        candidate
-      );
+      // Log audit
+      await storage.logAudit("candidate", candidate.id, "create", candidateData, req.user.claims.sub);
       
       res.status(201).json(candidate);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid candidate data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error creating candidate:", error);
       res.status(500).json({ message: "Failed to create candidate" });
@@ -92,28 +83,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const candidateData = insertCandidateSchema.partial().parse(req.body);
+      const candidate = await storage.updateCandidate(id, candidateData);
       
-      const oldCandidate = await storage.getCandidate(id);
-      if (!oldCandidate) {
-        return res.status(404).json({ message: "Candidate not found" });
-      }
+      // Log audit
+      await storage.logAudit("candidate", id, "update", candidateData, req.user.claims.sub);
       
-      const updatedCandidate = await storage.updateCandidate(id, candidateData);
-      
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "update",
-        "candidate",
-        id,
-        oldCandidate,
-        updatedCandidate
-      );
-      
-      res.json(updatedCandidate);
+      res.json(candidate);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid candidate data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error updating candidate:", error);
       res.status(500).json({ message: "Failed to update candidate" });
@@ -123,23 +101,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/candidates/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      
-      const candidate = await storage.getCandidate(id);
-      if (!candidate) {
-        return res.status(404).json({ message: "Candidate not found" });
-      }
-      
       await storage.deleteCandidate(id);
       
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "delete",
-        "candidate",
-        id,
-        candidate,
-        null
-      );
+      // Log audit
+      await storage.logAudit("candidate", id, "delete", {}, req.user.claims.sub);
       
       res.status(204).send();
     } catch (error) {
@@ -153,6 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const filters = {
         search: req.query.search as string,
+        workType: req.query.workType as string,
       };
       
       const clients = await storage.getClients(filters);
@@ -167,11 +133,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const client = await storage.getClient(id);
-      
       if (!client) {
         return res.status(404).json({ message: "Client not found" });
       }
-      
       res.json(client);
     } catch (error) {
       console.error("Error fetching client:", error);
@@ -184,20 +148,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clientData = insertClientSchema.parse(req.body);
       const client = await storage.createClient(clientData);
       
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "create",
-        "client",
-        client.id,
-        null,
-        client
-      );
+      // Log audit
+      await storage.logAudit("client", client.id, "create", clientData, req.user.claims.sub);
       
       res.status(201).json(client);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid client data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error creating client:", error);
       res.status(500).json({ message: "Failed to create client" });
@@ -208,28 +165,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const clientData = insertClientSchema.partial().parse(req.body);
+      const client = await storage.updateClient(id, clientData);
       
-      const oldClient = await storage.getClient(id);
-      if (!oldClient) {
-        return res.status(404).json({ message: "Client not found" });
-      }
+      // Log audit
+      await storage.logAudit("client", id, "update", clientData, req.user.claims.sub);
       
-      const updatedClient = await storage.updateClient(id, clientData);
-      
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "update",
-        "client",
-        id,
-        oldClient,
-        updatedClient
-      );
-      
-      res.json(updatedClient);
+      res.json(client);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid client data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error updating client:", error);
       res.status(500).json({ message: "Failed to update client" });
@@ -239,23 +183,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/clients/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      
-      const client = await storage.getClient(id);
-      if (!client) {
-        return res.status(404).json({ message: "Client not found" });
-      }
-      
       await storage.deleteClient(id);
       
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "delete",
-        "client",
-        id,
-        client,
-        null
-      );
+      // Log audit
+      await storage.logAudit("client", id, "delete", {}, req.user.claims.sub);
       
       res.status(204).send();
     } catch (error) {
@@ -286,11 +217,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const trajectory = await storage.getTrajectory(id);
-      
       if (!trajectory) {
         return res.status(404).json({ message: "Trajectory not found" });
       }
-      
       res.json(trajectory);
     } catch (error) {
       console.error("Error fetching trajectory:", error);
@@ -303,20 +232,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trajectoryData = insertTrajectorySchema.parse(req.body);
       const trajectory = await storage.createTrajectory(trajectoryData);
       
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "create",
-        "trajectory",
-        trajectory.id,
-        null,
-        trajectory
-      );
+      // Log audit
+      await storage.logAudit("trajectory", trajectory.id, "create", trajectoryData, req.user.claims.sub);
       
       res.status(201).json(trajectory);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid trajectory data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error creating trajectory:", error);
       res.status(500).json({ message: "Failed to create trajectory" });
@@ -327,28 +249,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const trajectoryData = insertTrajectorySchema.partial().parse(req.body);
+      const trajectory = await storage.updateTrajectory(id, trajectoryData);
       
-      const oldTrajectory = await storage.getTrajectory(id);
-      if (!oldTrajectory) {
-        return res.status(404).json({ message: "Trajectory not found" });
-      }
+      // Log audit
+      await storage.logAudit("trajectory", id, "update", trajectoryData, req.user.claims.sub);
       
-      const updatedTrajectory = await storage.updateTrajectory(id, trajectoryData);
-      
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "update",
-        "trajectory",
-        id,
-        oldTrajectory,
-        updatedTrajectory
-      );
-      
-      res.json(updatedTrajectory);
+      res.json(trajectory);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid trajectory data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error updating trajectory:", error);
       res.status(500).json({ message: "Failed to update trajectory" });
@@ -358,23 +267,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/trajectories/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      
-      const trajectory = await storage.getTrajectory(id);
-      if (!trajectory) {
-        return res.status(404).json({ message: "Trajectory not found" });
-      }
-      
       await storage.deleteTrajectory(id);
       
-      // Log audit trail
-      await storage.logAudit(
-        req.user.claims.sub,
-        "delete",
-        "trajectory",
-        id,
-        trajectory,
-        null
-      );
+      // Log audit
+      await storage.logAudit("trajectory", id, "delete", {}, req.user.claims.sub);
       
       res.status(204).send();
     } catch (error) {
@@ -383,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Note routes
+  // Notes routes
   app.get("/api/notes/:entityType/:entityId", isAuthenticated, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
@@ -401,19 +297,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         authorId: req.user.claims.sub,
       });
-      
       const note = await storage.createNote(noteData);
       res.status(201).json(note);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid note data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error creating note:", error);
       res.status(500).json({ message: "Failed to create note" });
     }
   });
 
-  // Document routes
+  // Documents routes
   app.get("/api/documents/:entityType/:entityId", isAuthenticated, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
@@ -432,7 +327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(document);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid document data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       console.error("Error creating document:", error);
       res.status(500).json({ message: "Failed to create document" });
