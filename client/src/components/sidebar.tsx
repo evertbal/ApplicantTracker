@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 interface SidebarProps {
   activeSection: string;
@@ -12,24 +13,40 @@ interface SidebarProps {
 export default function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   const { user } = useAuth();
 
+  // Fetch actual counts from API
+  const { data: candidates = [] } = useQuery({
+    queryKey: ['/api/candidates'],
+    retry: false,
+  });
+
+  const { data: trajectories = [] } = useQuery({
+    queryKey: ['/api/trajectories'],
+    retry: false,
+  });
+
+  const { data: clients = [] } = useQuery({
+    queryKey: ['/api/clients'],
+    retry: false,
+  });
+
   const navigationItems = [
     {
       id: 'candidates',
       label: 'Kandidaten',
       icon: Users,
-      count: 127,
+      count: candidates.length,
     },
     {
       id: 'trajectories',
       label: 'Trajecten',
       icon: Route,
-      count: 89,
+      count: trajectories.length,
     },
     {
       id: 'clients',
       label: 'Opdrachtgevers',
       icon: Building,
-      count: 34,
+      count: clients.length,
     },
   ];
 
