@@ -335,7 +335,7 @@ export default function CandidatesView() {
 
             {/* Candidates List */}
             <div className="space-y-4">
-              {candidates.length === 0 ? (
+              {filteredCandidates.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center">
                     <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -352,7 +352,7 @@ export default function CandidatesView() {
                   </CardContent>
                 </Card>
               ) : (
-                candidates.map((candidate) => (
+                filteredCandidates.map((candidate: any) => (
                   <Card
                     key={candidate.id}
                     className="hover:shadow-md transition-shadow cursor-pointer"
