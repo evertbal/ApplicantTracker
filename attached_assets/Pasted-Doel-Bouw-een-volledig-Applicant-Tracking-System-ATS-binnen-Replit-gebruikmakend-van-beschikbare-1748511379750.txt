@@ -1,0 +1,266 @@
+Doel: Bouw een volledig Applicant Tracking System (ATS) binnen Replit, gebruikmakend van beschikbare hosting- en databasediensten. Gebruik PostgreSQL (Replit DB of externe verbinding), HTML/CSS/JS voor frontend en eventueel Python of Node.js als backend. Houd rekening met uitbreidbaarheid, audittrail, en desktop-first gebruik.
+
+1. 📦 
+Algemene Architectuur
+Frontend: Desktop-first layout in HTML, CSS (optioneel met Tailwind), JavaScript voor interactie
+
+
+Backend: Gebruik Python (Flask/FastAPI) of Node.js (Express) – afhankelijk van Replit-voorkeur
+
+
+Database: PostgreSQL (extern verbonden of via Replit DB)
+
+
+Hosting: Replit project met publieke toegang, gebruik eventueel Secrets voor beveiliging
+
+
+
+2. 🧱 
+Data-entiteiten en relaties
+Entiteiten:
+Kandidaat
+
+
+Opdrachtgever
+
+
+Traject (verbindt kandidaat ↔ opdrachtgever)
+
+
+Notitie
+
+
+Document
+
+
+Relaties:
+Eén kandidaat ↔ meerdere trajecten
+
+
+Eén traject ↔ één opdrachtgever
+
+
+Eén traject ↔ één kandidaat
+
+
+Notities en documenten kunnen gekoppeld zijn aan kandidaat, traject of opdrachtgever
+
+
+
+3. 📊 
+Datamodel (voorbeeld in SQL)
+CREATE TABLE Kandidaten (
+  id SERIAL PRIMARY KEY,
+  datum_toegevoegd TIMESTAMP,
+  naam TEXT NOT NULL,
+  beschrijving TEXT,
+  rijbewijs TEXT[],
+  woonplaats TEXT,
+  regio TEXT,
+  marketing TEXT,
+  telefoon TEXT,
+  mail TEXT,
+  status TEXT,
+  fase TEXT
+);
+
+CREATE TABLE Opdrachtgevers (
+  id SERIAL PRIMARY KEY,
+  naam TEXT NOT NULL,
+  contactpersoon TEXT,
+  locatie TEXT,
+  soort_werkzaamheden TEXT
+);
+
+CREATE TABLE Trajecten (
+  id SERIAL PRIMARY KEY,
+  kandidaat_id INT REFERENCES Kandidaten(id),
+  opdrachtgever_id INT REFERENCES Opdrachtgevers(id),
+  startdatum DATE,
+  status TEXT,
+  functie TEXT,
+  tarief TEXT,
+  opmerking TEXT
+);
+
+CREATE TABLE Notities (
+  id SERIAL PRIMARY KEY,
+  entiteit_type TEXT,
+  entiteit_id INT,
+  tekst TEXT,
+  tijdstempel TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Documenten (
+  id SERIAL PRIMARY KEY,
+  entiteit_type TEXT,
+  entiteit_id INT,
+  bestandsnaam TEXT,
+  opslag_url TEXT,
+  geupload_op TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+4. 🧭 
+Gebruikersinterface (UX/UI)
+Layout: Linker zijpaneel met navigatie (Kandidaten, Trajecten, Opdrachtgevers)
+
+
+Hoofdscherm: Lijstweergave met kolommen (naam, status, laatste wijziging)
+
+
+Detailweergave: Kaart bovenin met basisinfo, daaronder tabjes:
+
+
+Informatie
+
+
+Notities
+
+
+Documenten
+
+
+Trajecten
+
+
+UX-vereisten:
+Desktop-first (geschikt voor groot scherm)
+
+
+Filterbare lijsten per status, fase, regio, rijbewijs
+
+
+Visuele statusindicatoren
+
+
+Mobiel gebruik: enkel voor notities toevoegen, contact opzoeken
+
+
+
+5. 🔍 
+Filtering & Zoekfunctionaliteit
+Implementeer filter- en zoekopties op:
+Naam
+
+
+Woonplaats
+
+
+Status
+
+
+Fase
+
+
+Rijbewijs (via checkbox)
+
+
+Opdrachtgever
+
+
+Beschikbaarheid (afgeleid)
+
+
+Datum toegevoegd (range filter)
+
+
+
+6. 📂 
+Functionaliteiten
+Kandidaatbeheer:
+CRUD-operaties
+
+
+Relatie met trajecten en opdrachtgevers
+
+
+Toevoegen rijbewijs via checkboxes
+
+
+Notities met datum/initialen, niet-bewerkbaar
+
+
+Trajectbeheer:
+Workflow-status: Gesprek, Voorgesteld, Geplaatst
+
+
+Status/fase per traject
+
+
+Visuele indicatoren bij verloop of urgentie
+
+
+Documentbeheer:
+Uploads mogelijk per kandidaat, traject, opdrachtgever
+
+
+Opslag via externe link of object storage (simuleer met S3-link)
+
+
+Logging & audit:
+Elke wijziging loggen met datum, type actie, gebruiker
+
+
+Export/Import:
+Excel-import en -export (minimaal CSV-parser)
+
+
+Filterbare exports naar Excel of PDF
+
+
+
+7. ⚙️ 
+Admin & Beheer
+Adminpaneel voor gebruikersbeheer
+
+
+Responsive dashboard voor mobiel gebruik
+
+
+View-only toegang op mobiel voor externe gebruikers
+
+
+
+8. 🔐 
+Beveiliging & Privacy (AVG-proof)
+Gebruik login/auth (JWT of session-based)
+
+
+Opslag van documenten met versleuteling of enkel via link
+
+
+Log gebruikersacties
+
+
+Gebruikerstoegang beperken per rol
+
+
+
+9. 📈 
+Toekomstige uitbreidingen (optioneel)
+Workflow automatisering (bijv. via Zapier, Make of AI triggers)
+
+
+Koppeling met e-mail/SMS
+
+
+Koppeling met CRM of Slack
+
+
+Rapportage-dashboard (bijv. met Chart.js of externe BI-tool)
+
+
+
+10. 🎨 
+Design-specificaties
+Kleuraccent: #3CC517 (groen)
+
+
+
+Gebruik:
+
+
+#btn1:hover achtergrondkleur: #8f6a42
+
+
+
