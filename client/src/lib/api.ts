@@ -12,6 +12,20 @@ import type {
   Document
 } from "@shared/schema";
 
+// Get headers for requests - includes admin token if available
+function getRequestHeaders() {
+  const adminToken = localStorage.getItem('adminToken');
+  const headers: Record<string, string> = {
+    'credentials': 'include'
+  };
+  
+  if (adminToken) {
+    headers['Authorization'] = `Bearer ${adminToken}`;
+  }
+  
+  return headers;
+}
+
 // Candidate API
 export const candidateApi = {
   getAll: (filters?: {
@@ -32,12 +46,13 @@ export const candidateApi = {
     
     const queryString = params.toString();
     return fetch(`/api/candidates${queryString ? `?${queryString}` : ''}`, {
-      credentials: 'include'
+      credentials: 'include',
+      headers: getRequestHeaders()
     }).then(res => res.json());
   },
 
   getById: (id: number) => 
-    fetch(`/api/candidates/${id}`, { credentials: 'include' }).then(res => res.json()),
+    fetch(`/api/candidates/${id}`, { credentials: 'include', headers: getRequestHeaders() }).then(res => res.json()),
 
   create: async (data: InsertCandidate): Promise<Candidate> => {
     const response = await apiRequest('POST', '/api/candidates', data);
