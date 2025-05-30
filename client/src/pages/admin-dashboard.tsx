@@ -31,6 +31,32 @@ export default function AdminDashboard() {
   const [newUserDialog, setNewUserDialog] = useState(false);
   const [newAdminDialog, setNewAdminDialog] = useState(false);
 
+  // Fetch users
+  const { data: users = [], isLoading: usersLoading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/users', {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch users');
+      return response.json();
+    },
+    enabled: !loading && adminUser?.role === 'admin',
+  });
+
+  // Fetch admin users
+  const { data: adminUsers = [], isLoading: adminUsersLoading } = useQuery({
+    queryKey: ['admin-admin-users'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/admin-users', {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch admin users');
+      return response.json();
+    },
+    enabled: !loading && adminUser?.role === 'admin',
+  });
+
   // Show loading while checking authentication
   if (loading) {
     return (
@@ -48,32 +74,6 @@ export default function AdminDashboard() {
     setLocation('/admin/login');
     return null;
   }
-
-  // Fetch users
-  const { data: users = [], isLoading: usersLoading } = useQuery({
-    queryKey: ['admin-users'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/users', {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error('Failed to fetch users');
-      return response.json();
-    },
-    enabled: adminUser?.role === 'admin',
-  });
-
-  // Fetch admin users
-  const { data: adminUsers = [], isLoading: adminUsersLoading } = useQuery({
-    queryKey: ['admin-admin-users'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/admin-users', {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error('Failed to fetch admin users');
-      return response.json();
-    },
-    enabled: adminUser?.role === 'admin',
-  });
 
   // Update user role mutation
   const updateUserRoleMutation = useMutation({
