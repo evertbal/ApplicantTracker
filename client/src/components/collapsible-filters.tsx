@@ -102,7 +102,7 @@ export default function CollapsibleFilters({
                   <SelectValue placeholder="Selecteer regio" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Alle regio's</SelectItem>
+                  <SelectItem value="alle">Alle regio's</SelectItem>
                   {regionOptions.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
