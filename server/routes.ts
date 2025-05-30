@@ -2,6 +2,16 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { 
+  authenticateAdmin, 
+  requireRole, 
+  requirePermission, 
+  hashPassword, 
+  verifyPassword, 
+  generateToken,
+  type AdminAuthRequest 
+} from "./adminAuth";
+import { insertAdminUserSchema } from "@shared/schema";
 import multer from "multer";
 import * as XLSX from "xlsx";
 import { 
@@ -46,6 +56,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Admin authentication routes
+  app.post('/api/admin/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: 'Gebruikersnaam en wachtwoord zijn vereist' });
+      }
+
+      const adminUser = await storage.getAdminUser(username);
+      if (!adminUser || !adminUser.isActive) {
+        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      const isValidPassword = await verifyPassword(password, adminUser.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      // Update last login
+      await storage.updateAdminUserLastLogin(adminUser.id);
+
+      const token = generateToken({
+        id: adminUser.id,
+        username: adminUser.username,
+        role: adminUser.role
+      });
+
+      res.json({
+        token,
+        user: {
+          id: adminUser.id,
+          username: adminUser.username,
+          role: adminUser.role
+        }
+      });
+    } catch (error) {
+      console.error('Admin login error:', error);
+      res.status(500).json({ message: 'Server fout' });
+    }
+  });
+
+  // Admin user management routes
+  app.get('/api/admin/users', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Fout bij ophalen gebruikers' });
+    }
+  });
+
+  app.get('/api/admin/admin-users', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const adminUsers = await storage.getAllAdminUsers();
+      // Remove password hashes from response
+      const safeAdminUsers = adminUsers.map(user => {
+        const { passwordHash, ...safeUser } = user;
+        return safeUser;
+      });
+      res.json(safeAdminUsers);
+    } catch (error) {
+      console.error('Error fetching admin users:', error);
+      res.status(500).json({ message: 'Fout bij ophalen admin gebruikers' });
+    }
+  });
+
+  app.post('/api/admin/admin-users', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const validatedData = insertAdminUserSchema.parse(req.body);
+      
+      // Hash the password
+      const passwordHash = await hashPassword(validatedData.passwordHash);
+      
+      const adminUser = await storage.createAdminUser({
+        ...validatedData,
+        passwordHash
+      });
+
+      // Remove password hash from response
+      const { passwordHash: _, ...safeUser } = adminUser;
+      res.status(201).json(safeUser);
+    } catch (error) {
+      console.error('Error creating admin user:', error);
+      res.status(500).json({ message: 'Fout bij aanmaken admin gebruiker' });
+    }
+  });
+
+  app.patch('/api/admin/users/:id/role', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { role } = req.body;
+      
+      if (!['admin', 'recruiter', 'viewer'].includes(role)) {
+        return res.status(400).json({ message: 'Ongeldige rol' });
+      }
+
+      const user = await storage.updateUserRole(id, role);
+      res.json(user);
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      res.status(500).json({ message: 'Fout bij bijwerken gebruikersrol' });
+    }
+  });
+
+  app.patch('/api/admin/users/:id/status', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body;
+      
+      const user = await storage.updateUserActiveStatus(id, isActive);
+      res.json(user);
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      res.status(500).json({ message: 'Fout bij bijwerken gebruikersstatus' });
+    }
+  });
+
+  app.patch('/api/admin/admin-users/:id', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // If password is being updated, hash it
+      if (updates.passwordHash) {
+        updates.passwordHash = await hashPassword(updates.passwordHash);
+      }
+
+      const adminUser = await storage.updateAdminUser(parseInt(id), updates);
+      
+      // Remove password hash from response
+      const { passwordHash: _, ...safeUser } = adminUser;
+      res.json(safeUser);
+    } catch (error) {
+      console.error('Error updating admin user:', error);
+      res.status(500).json({ message: 'Fout bij bijwerken admin gebruiker' });
+    }
+  });
+
+  app.delete('/api/admin/admin-users/:id', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      
+      const adminUser = await storage.deactivateAdminUser(parseInt(id));
+      
+      // Remove password hash from response
+      const { passwordHash: _, ...safeUser } = adminUser;
+      res.json(safeUser);
+    } catch (error) {
+      console.error('Error deactivating admin user:', error);
+      res.status(500).json({ message: 'Fout bij deactiveren admin gebruiker' });
     }
   });
 
