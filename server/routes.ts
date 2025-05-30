@@ -9,6 +9,7 @@ import {
   hashPassword, 
   verifyPassword, 
   generateToken,
+  verifyToken,
   type AdminAuthRequest 
 } from "./adminAuth";
 import { insertAdminUserSchema } from "@shared/schema";
@@ -214,8 +215,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Combined authentication middleware
+  const authenticateAny: any = async (req: any, res: any, next: any) => {
+    // First try admin authentication
+    const adminToken = req.headers.authorization?.replace('Bearer ', '');
+    if (adminToken) {
+      try {
+        const decoded = verifyToken(adminToken);
+        req.adminUser = decoded;
+        return next();
+      } catch (error) {
+        // Admin token invalid, continue to try Replit auth
+      }
+    }
+
+    // Try Replit authentication
+    return isAuthenticated(req, res, next);
+  };
+
   // Candidate routes
-  app.get("/api/candidates", isAuthenticated, async (req, res) => {
+  app.get("/api/candidates", authenticateAny, async (req, res) => {
     try {
       const filters = {
         search: req.query.search as string,
@@ -234,7 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/candidates/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/candidates/:id", authenticateAny, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const candidate = await storage.getCandidate(id);
@@ -248,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/candidates", isAuthenticated, async (req: any, res) => {
+  app.post("/api/candidates", authenticateAny, async (req: any, res) => {
     try {
       const candidateData = insertCandidateSchema.parse(req.body);
       const candidate = await storage.createCandidate(candidateData);
