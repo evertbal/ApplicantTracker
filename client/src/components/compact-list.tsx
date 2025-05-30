@@ -1,0 +1,252 @@
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Edit, Eye, FileText, Route } from "lucide-react";
+import { format } from "date-fns";
+import { nl } from "date-fns/locale";
+import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations } from "@shared/schema";
+
+interface CompactListProps {
+  items: (CandidateWithRelations | ClientWithRelations | TrajectoryWithRelations)[];
+  type: 'candidates' | 'clients' | 'trajectories';
+  onView: (item: any) => void;
+  onEdit: (item: any) => void;
+  isLoading?: boolean;
+}
+
+export default function CompactList({ items, type, onView, onEdit, isLoading }: CompactListProps) {
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardContent className="p-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="flex-1 space-y-1">
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  const getStatusColor = (status: string) => {
+    const colors = {
+      active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      inactive: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
+      pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    };
+    return colors[status as keyof typeof colors] || colors.active;
+  };
+
+  const renderCandidateItem = (candidate: any) => (
+    <Card key={candidate.id} className="hover:shadow-md transition-shadow">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+              <AvatarFallback className="bg-primary text-white">
+                {candidate.name?.substring(0, 2).toUpperCase() || 'K'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                  {candidate.name}
+                </h3>
+                <Badge className={`text-xs ${getStatusColor(candidate.status)}`}>
+                  {candidate.status}
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <span className="truncate">{candidate.email}</span>
+                <span className="hidden sm:inline">{candidate.city}</span>
+                {candidate.region && (
+                  <span className="hidden md:inline">{candidate.region}</span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 ml-2">
+            <div className="hidden sm:flex items-center space-x-2">
+              {candidate.trajectories?.length > 0 && (
+                <Badge variant="outline" className="text-xs">
+                  <Route className="w-3 h-3 mr-1" />
+                  {candidate.trajectories.length}
+                </Badge>
+              )}
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onView(candidate)}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Bekijk details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit(candidate)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Bewerk
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderClientItem = (client: any) => (
+    <Card key={client.id} className="hover:shadow-md transition-shadow">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+              <AvatarFallback className="bg-blue-500 text-white">
+                {client.companyName?.substring(0, 2).toUpperCase() || 'B'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                  {client.companyName}
+                </h3>
+                <Badge variant="outline" className="text-xs">
+                  {client.workType}
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <span className="truncate">{client.contactPerson}</span>
+                <span className="hidden sm:inline">{client.email}</span>
+                <span className="hidden md:inline">{client.city}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 ml-2">
+            <div className="hidden sm:flex items-center space-x-2">
+              {client.trajectories?.length > 0 && (
+                <Badge variant="outline" className="text-xs">
+                  <Route className="w-3 h-3 mr-1" />
+                  {client.trajectories.length}
+                </Badge>
+              )}
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onView(client)}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Bekijk details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit(client)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Bewerk
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderTrajectoryItem = (trajectory: any) => (
+    <Card key={trajectory.id} className="hover:shadow-md transition-shadow">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+              <AvatarFallback className="bg-purple-500 text-white">
+                <Route className="w-4 h-4" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                  {trajectory.candidate?.name} → {trajectory.client?.companyName}
+                </h3>
+                <Badge className={`text-xs ${getStatusColor(trajectory.status)}`}>
+                  {trajectory.status}
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <span className="truncate">{trajectory.function}</span>
+                {trajectory.startDate && (
+                  <span className="hidden sm:inline">
+                    Start: {format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 ml-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onView(trajectory)}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Bekijk details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit(trajectory)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Bewerk
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-2">
+      {items.map((item) => {
+        switch (type) {
+          case 'candidates':
+            return renderCandidateItem(item);
+          case 'clients':
+            return renderClientItem(item);
+          case 'trajectories':
+            return renderTrajectoryItem(item);
+          default:
+            return null;
+        }
+      })}
+      
+      {items.length === 0 && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-gray-500 dark:text-gray-400">
+              Geen {type === 'candidates' ? 'kandidaten' : type === 'clients' ? 'opdrachtgevers' : 'trajecten'} gevonden
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

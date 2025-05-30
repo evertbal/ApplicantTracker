@@ -66,7 +66,7 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
     },
   ];
 
-  const getInitials = (firstName?: string, lastName?: string) => {
+  const getInitials = (firstName?: string | null, lastName?: string | null) => {
     if (!firstName && !lastName) return 'U';
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
@@ -167,7 +167,7 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.profileImageUrl || undefined} />
             <AvatarFallback className="bg-primary text-white text-sm">
-              {user ? getInitials(user.firstName || undefined, user.lastName || undefined) : 'U'}
+              {user ? getInitials(user.firstName, user.lastName) : 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">

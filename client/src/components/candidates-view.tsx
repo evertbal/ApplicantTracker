@@ -1,20 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Filter, Download, MoreHorizontal, Edit, StickyNote, Users, Route, Upload } from "lucide-react";
+import { Search, Plus, Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { format } from "date-fns";
-import { nl } from "date-fns/locale";
 import type { CandidateWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import CandidateForm from "./candidate-form";
+import CollapsibleFilters from "./collapsible-filters";
+import CompactList from "./compact-list";
 
 export default function CandidatesView() {
   const [search, setSearch] = useState("");
@@ -172,28 +165,28 @@ export default function CandidatesView() {
     );
   }
 
+  // Extract filter options from data
+  const statusOptions = [...new Set(candidatesArray.map((c: any) => c.status).filter(Boolean))];
+  const regionOptions = [...new Set(candidatesArray.map((c: any) => c.region).filter(Boolean))];
+  const licenseOptions = [...new Set(candidatesArray.flatMap((c: any) => c.drivingLicenses || []))];
+
+  const activeFiltersCount = 
+    selectedStatuses.length + 
+    (selectedRegion ? 1 : 0) + 
+    selectedLicenses.length;
+
   return (
-    <>
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Kandidaten</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Kandidaten</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
               Beheer en volg alle kandidaten in het systeem
             </p>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Zoeken..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-64 pl-10"
-              />
-              <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-            </div>
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <input
               type="file"
               accept=".xlsx,.xls,.csv"
@@ -203,25 +196,66 @@ export default function CandidatesView() {
             />
             <Button
               variant="outline"
+              size="sm"
               onClick={() => document.getElementById('excel-upload')?.click()}
+              className="hidden sm:flex"
             >
               <Upload className="w-4 h-4 mr-2" />
               Import Excel
             </Button>
             <Button
-              className="bg-primary hover:bg-primary-hover text-white"
+              size="sm"
               onClick={() => setShowForm(true)}
+              className="bg-primary hover:bg-primary-hover text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Nieuwe Kandidaat
+              Nieuw
             </Button>
+          </div>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="mt-4">
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Zoeken..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full sm:w-80 pl-10"
+            />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
           </div>
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Filter Panel */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
+      {/* Main Content */}
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+        {/* Collapsible Filters */}
+        <CollapsibleFilters
+          statusOptions={statusOptions}
+          regionOptions={regionOptions}
+          licenseOptions={licenseOptions}
+          selectedStatuses={selectedStatuses}
+          selectedRegion={selectedRegion}
+          selectedLicenses={selectedLicenses}
+          onStatusChange={setSelectedStatuses}
+          onRegionChange={setSelectedRegion}
+          onLicenseChange={setSelectedLicenses}
+          activeFiltersCount={activeFiltersCount}
+        />
+
+        {/* Compact List */}
+        <div className="mt-4">
+          <CompactList
+            items={filteredCandidates}
+            type="candidates"
+            onView={setSelectedCandidate}
+            onEdit={openEditForm}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filters</h3>
           
           {/* Status Filter */}
