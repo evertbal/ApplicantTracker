@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import Sidebar from "@/components/sidebar";
+import ResponsiveLayout from "@/components/responsive-layout";
 import CandidatesView from "@/components/candidates-view";
 import TrajectoriesView from "@/components/trajectories-view";
 import ClientsView from "@/components/clients-view";

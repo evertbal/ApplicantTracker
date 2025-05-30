@@ -1,4 +1,4 @@
-import { Users, Route, Building, BarChart3, Settings, LogOut } from "lucide-react";
+import { Users, Route, Building, BarChart3, Settings, LogOut, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,9 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
+export default function Sidebar({ activeSection, onSectionChange, isOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
 
   // Fetch actual counts from API
@@ -69,17 +71,41 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
   };
 
   return (
-    <aside className="w-72 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 flex flex-col transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
       {/* Logo Section */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <Users className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">ATS Portal</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Recruitment Hub</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">ATS Portal</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Recruitment Hub</p>
-          </div>
+          {/* Close button for mobile */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden p-2"
+            onClick={onClose}
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
@@ -163,5 +189,6 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
         </div>
       </div>
     </aside>
+    </>
   );
 }
