@@ -33,7 +33,8 @@ export function useAdminAuth() {
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('adminToken');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
   };
 
   return {

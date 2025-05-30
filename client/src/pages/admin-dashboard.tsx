@@ -25,11 +25,23 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
-  const { adminUser, logout, getAuthHeaders } = useAdminAuth();
+  const { adminUser, loading, logout, getAuthHeaders } = useAdminAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newUserDialog, setNewUserDialog] = useState(false);
   const [newAdminDialog, setNewAdminDialog] = useState(false);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Laden...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Redirect if not authenticated
   if (!adminUser) {
