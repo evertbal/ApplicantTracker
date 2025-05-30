@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import ResponsiveLayout from "@/components/responsive-layout";
-import CandidatesView from "@/components/candidates-view";
+import CandidatesView from "@/components/candidates-view-responsive";
 import TrajectoriesView from "@/components/trajectories-view";
 import ClientsView from "@/components/clients-view";
 

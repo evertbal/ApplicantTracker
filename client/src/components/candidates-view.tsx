@@ -255,10 +255,29 @@ export default function CandidatesView() {
             isLoading={isLoading}
           />
         </div>
-      </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filters</h3>
-          
-          {/* Status Filter */}
+
+      {/* Detail Modal */}
+      {selectedCandidate && (
+        <DetailModal
+          entity={selectedCandidate}
+          entityType="candidate"
+          onClose={() => setSelectedCandidate(null)}
+          onEdit={() => openEditForm(selectedCandidate)}
+        />
+      )}
+
+      {/* Form Modal */}
+      {showForm && (
+        <CandidateForm
+          candidate={editingCandidate}
+          onClose={closeForm}
+          onSuccess={handleFormSuccess}
+        />
+      )}
+    </div>
+    </>
+  );
+}
           <div className="mb-6">
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
             <div className="space-y-2">
