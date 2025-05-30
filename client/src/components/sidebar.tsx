@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import type { User, Candidate, Trajectory, Client } from "@shared/schema";
 
 interface SidebarProps {
   activeSection: string;
@@ -13,20 +14,20 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeSection, onSectionChange, isOpen, onClose }: SidebarProps) {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | undefined };
 
   // Fetch actual counts from API
-  const { data: candidates = [] } = useQuery({
+  const { data: candidates = [] } = useQuery<Candidate[]>({
     queryKey: ['/api/candidates'],
     retry: false,
   });
 
-  const { data: trajectories = [] } = useQuery({
+  const { data: trajectories = [] } = useQuery<Trajectory[]>({
     queryKey: ['/api/trajectories'],
     retry: false,
   });
 
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [] } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
     retry: false,
   });
@@ -166,7 +167,7 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.profileImageUrl || undefined} />
             <AvatarFallback className="bg-primary text-white text-sm">
-              {getInitials(user?.firstName, user?.lastName)}
+              {user ? getInitials(user.firstName || undefined, user.lastName || undefined) : 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">

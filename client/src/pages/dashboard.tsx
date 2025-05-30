@@ -28,11 +28,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {renderActiveView()}
-      </main>
-    </div>
+    <ResponsiveLayout
+      activeSection={activeSection}
+      onSectionChange={setActiveSection}
+    >
+      {renderActiveView()}
+    </ResponsiveLayout>
   );
 }
