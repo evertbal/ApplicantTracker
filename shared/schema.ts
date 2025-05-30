@@ -32,6 +32,21 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  role: varchar("role").default("viewer").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Admin users table for internal authentication
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  username: varchar("username").unique().notNull(),
+  passwordHash: varchar("password_hash").notNull(),
+  role: varchar("role").default("viewer").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -183,6 +198,13 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({
 
 export const upsertUserSchema = createInsertSchema(users);
 
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastLogin: true,
+});
+
 // Types
 export type Candidate = typeof candidates.$inferSelect;
 export type Client = typeof clients.$inferSelect;
@@ -190,6 +212,7 @@ export type Trajectory = typeof trajectories.$inferSelect;
 export type Note = typeof notes.$inferSelect;
 export type Document = typeof documents.$inferSelect;
 export type User = typeof users.$inferSelect;
+export type AdminUser = typeof adminUsers.$inferSelect;
 export type AuditLogEntry = typeof auditLog.$inferSelect;
 
 export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
@@ -198,6 +221,7 @@ export type InsertTrajectory = z.infer<typeof insertTrajectorySchema>;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 
 // Extended types with relations
 export type CandidateWithRelations = Candidate & {

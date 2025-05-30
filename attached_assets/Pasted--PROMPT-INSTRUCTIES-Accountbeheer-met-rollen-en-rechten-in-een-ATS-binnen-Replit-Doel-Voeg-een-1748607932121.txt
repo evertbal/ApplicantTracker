@@ -1,0 +1,118 @@
+
+🧠 PROMPT-INSTRUCTIES: Accountbeheer met rollen en rechten in een ATS binnen Replit
+
+Doel: Voeg een beveiligde admin interface toe aan het bestaande ATS-systeem waarin beheerders (admin users) kunnen:
+	•	Inloggen
+	•	Nieuwe gebruikers aanmaken
+	•	Rollen toewijzen (bijv. Admin, Recruiter, Viewer)
+	•	Rechten beheren op entiteitsniveau (zoals Bewerken/Lezen voor Kandidaten, Trajecten, Notities)
+
+⸻
+
+1. 🔐 Authenticatie en Autorisatie
+
+Gebruik voor backend bijvoorbeeld Flask of Express.js.
+
+🧾 Gebruikerstabel (SQL)
+
+CREATE TABLE Gebruikers (
+  id SERIAL PRIMARY KEY,
+  gebruikersnaam TEXT UNIQUE NOT NULL,
+  wachtwoord_hash TEXT NOT NULL,
+  rol TEXT CHECK (rol IN ('admin', 'recruiter', 'viewer')) NOT NULL,
+  actief BOOLEAN DEFAULT TRUE
+);
+
+Gebruik bcrypt in Node.js of werkzeug.security in Python om wachtwoorden te hashen en controleren.
+
+⸻
+
+2. 👤 Inlog- en sessiesysteem
+
+Backend instructies:
+	•	Maak een login endpoint (/login) en een register endpoint (/admin/create-user)
+	•	Bij succesvolle login: geef een JWT-token of zet een sessie-cookie
+	•	Bescherm API-routes met een middleware die de rol van de gebruiker controleert
+	•	Voorbeeld: alleen 'admin' mag gebruikers aanmaken of rollen aanpassen
+
+Voorbeeld Flask-auth decorator:
+
+from functools import wraps
+def role_required(role):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if g.current_user.rol != role:
+                return {"error": "Forbidden"}, 403
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+
+⸻
+
+3. 🧭 Admin Dashboard functionaliteiten
+
+UI Tabs / Routes:
+	•	/admin/users → overzicht van gebruikers
+	•	/admin/users/new → formulier om nieuwe gebruiker aan te maken
+	•	/admin/roles → (optioneel) beheren van rolpermissies
+
+Features:
+	•	Gebruikers kunnen worden gedeactiveerd (soft delete)
+	•	Mogelijkheid om wachtwoord te resetten
+	•	Zicht op laatste login per gebruiker (timestamp veld toevoegen)
+	•	Visueel onderscheid tussen rollen in de UI
+
+⸻
+
+4. ✅ Rollen en Rechtenmatrix
+
+Voorzie in backend een PERMISSIES matrix (bijvoorbeeld als dict of configbestand):
+
+{
+  "admin": ["read_all", "write_all"],
+  "recruiter": ["read_all", "write_kandidaten", "write_notities"],
+  "viewer": ["read_all"]
+}
+
+Gebruik dit om:
+	•	Knoppen te verbergen in de frontend
+	•	Acties in backend te blokkeren op basis van rol
+
+⸻
+
+5. 🖥️ Frontend: Admin UI in HTML/JS
+
+Gebruik eenvoudige formulieren voor:
+	•	Inloggen
+	•	Aanmaken gebruiker (alleen zichtbaar voor admin)
+	•	Rollen dropdown per gebruiker
+	•	Tabel met:
+	•	Gebruikersnaam
+	•	Rol
+	•	Actief ja/nee
+	•	Laatst ingelogd
+	•	Actieknoppen (edit/deactivate/reset)
+
+⸻
+
+6. 🛡️ Beveiliging (Replit-specifiek)
+	•	Verberg .env of gebruik Replit’s Secret Manager voor API keys en JWT secrets
+	•	Gebruik @replit/database alleen voor development – voor productie: PostgreSQL
+	•	Gebruik TLS via Replit HTTPS of een externe proxy (bijv. Cloudflare)
+
+⸻
+
+7. 🔄 Extra: API routes
+
+POST   /auth/login
+POST   /auth/logout
+GET    /admin/users         (admin only)
+POST   /admin/users         (admin only)
+PATCH  /admin/users/:id     (admin only)
+DELETE /admin/users/:id     (admin only or self)
+
+
+⸻
+
