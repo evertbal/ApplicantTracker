@@ -23,6 +23,7 @@ import {
   insertDocumentSchema
 } from "@shared/schema";
 import { z } from "zod";
+import { normalizeDrivingLicense, batchNormalizeDrivingLicenses } from "./driverLicenseNormalizer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Multer configuration for file uploads
@@ -384,9 +385,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             city: String(rowData.Woonplaats || rowData.stad || rowData.City || rowData.STAD || '').trim() || null,
             region: String(rowData.Regio || rowData.regio || rowData.Region || rowData.REGIO || '').trim() || null,
             status: String(rowData.Status || rowData.status || rowData.STATUS || 'active').trim(),
-            drivingLicenses: rowData.Rijbewijs || rowData.rijbewijs ? 
-              String(rowData.Rijbewijs || rowData.rijbewijs).split(/[,;]/).map(s => s.trim()).filter(s => s) : 
-              [],
+            drivingLicenses: (() => {
+              const rawLicense = rowData.Rijbewijs || rowData.rijbewijs || rowData['Rijbewijs type'] || rowData['Rijbewijzen'] || '';
+              if (!rawLicense) return [];
+              
+              // Normaliseer de rijbewijs invoer
+              const normalized = normalizeDrivingLicense(String(rawLicense));
+              return normalized.licenses;
+            })(),
             description: String(rowData.Beschrijving || rowData.beschrijving || rowData.Description || rowData.BESCHRIJVING || '').trim() || null,
             marketing: String(rowData.Marketing || rowData.marketing || rowData.MARKETING || '').trim() || null,
             phase: String(rowData.fase || rowData.Phase || rowData.FASE || '').trim() || null
@@ -425,6 +431,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error importing Excel file:", error);
       res.status(500).json({ message: "Fout bij het importeren van het Excel bestand" });
+    }
+  });
+
+  // Rijbewijs normalisatie API endpoint
+  app.post("/api/normalize-license", isAuthenticated, async (req, res) => {
+    try {
+      const { input } = req.body;
+      
+      if (typeof input === 'string') {
+        // Enkele invoer normaliseren
+        const result = normalizeDrivingLicense(input);
+        res.json(result);
+      } else if (Array.isArray(input)) {
+        // Meerdere invoerwaarden normaliseren
+        const results = batchNormalizeDrivingLicenses(input);
+        res.json(results);
+      } else {
+        res.status(400).json({ message: 'Ongeldige invoer. Verwacht string of array van strings.' });
+      }
+    } catch (error) {
+      console.error("Error normalizing license:", error);
+      res.status(500).json({ message: "Fout bij het normaliseren van rijbewijs" });
     }
   });
 
