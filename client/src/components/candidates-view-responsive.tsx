@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Download, Upload } from "lucide-react";
+import { Search, Plus, Download, Upload, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CandidateWithRelations } from "@shared/schema";
@@ -75,6 +75,31 @@ export default function CandidatesView() {
     refetch();
     closeForm();
   };
+
+  const normalizeLicensesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/normalize-all-licenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to normalize licenses');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      alert(`Rijbewijs normalisatie voltooid: ${data.message}`);
+      refetch(); // Herlaad de kandidaten data
+    },
+    onError: (error) => {
+      console.error('Error normalizing licenses:', error);
+      alert('Fout bij het normaliseren van rijbewijzen');
+    }
+  });
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -152,6 +177,16 @@ export default function CandidatesView() {
             >
               <Upload className="w-4 h-4 mr-2" />
               Import Excel
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => normalizeLicensesMutation.mutate()}
+              disabled={normalizeLicensesMutation.isPending}
+              className="hidden md:flex"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${normalizeLicensesMutation.isPending ? 'animate-spin' : ''}`} />
+              Normaliseer Rijbewijzen
             </Button>
             <Button
               size="sm"
