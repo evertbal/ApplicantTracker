@@ -118,9 +118,15 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
         <Label className="text-sm font-medium text-gray-700 mb-2 block">Rijbewijs</Label>
         <div className="space-y-2">
           {[
+            { value: "A", label: "A (Motor)" },
+            { value: "AM", label: "AM (Brommer)" },
             { value: "B", label: "B (Auto)" },
+            { value: "BE", label: "BE (Auto met aanhanger)" },
             { value: "C", label: "C (Vrachtwagen)" },
+            { value: "CE", label: "CE (Vrachtwagen met aanhanger)" },
             { value: "D", label: "D (Bus)" },
+            { value: "DE", label: "DE (Bus met aanhanger)" },
+            { value: "T", label: "T (Trekker)" },
           ].map((license) => (
             <div key={license.value} className="flex items-center space-x-2">
               <Checkbox

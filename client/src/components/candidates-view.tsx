@@ -278,8 +278,6 @@ export default function CandidatesView() {
     </>
   );
 }
-          <div className="mb-6">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
             <div className="space-y-2">
               {Array.from(new Set(candidatesArray.filter((c: any) => c.status).map((c: any) => c.status)))
                 .sort()
@@ -347,7 +345,18 @@ export default function CandidatesView() {
                         onCheckedChange={(checked) => handleLicenseChange(license, checked as boolean)}
                       />
                       <Label htmlFor={`license-${license}`} className="text-sm">
-                        {license} ({license === 'B' ? 'Auto' : license === 'C' ? 'Vrachtwagen' : license === 'D' ? 'Bus' : license})
+                        {license} ({
+                          license === 'A' ? 'Motor' :
+                          license === 'AM' ? 'Brommer' :
+                          license === 'B' ? 'Auto' :
+                          license === 'BE' ? 'Auto met aanhanger' :
+                          license === 'C' ? 'Vrachtwagen' :
+                          license === 'CE' ? 'Vrachtwagen met aanhanger' :
+                          license === 'D' ? 'Bus' :
+                          license === 'DE' ? 'Bus met aanhanger' :
+                          license === 'T' ? 'Trekker' :
+                          license
+                        })
                       </Label>
                     </div>
                     <span className="text-xs text-gray-500">({count})</span>

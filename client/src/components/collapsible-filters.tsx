@@ -133,7 +133,18 @@ export default function CollapsibleFilters({
                       htmlFor={`license-${license}`}
                       className="text-sm cursor-pointer"
                     >
-                      {license}
+                      {license} ({
+                        license === 'A' ? 'Motor' :
+                        license === 'AM' ? 'Brommer' :
+                        license === 'B' ? 'Auto' :
+                        license === 'BE' ? 'Auto met aanhanger' :
+                        license === 'C' ? 'Vrachtwagen' :
+                        license === 'CE' ? 'Vrachtwagen met aanhanger' :
+                        license === 'D' ? 'Bus' :
+                        license === 'DE' ? 'Bus met aanhanger' :
+                        license === 'T' ? 'Trekker' :
+                        license
+                      })
                     </Label>
                   </div>
                 ))}
