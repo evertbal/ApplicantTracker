@@ -48,7 +48,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   };
 
   const renderCandidateItem = (candidate: any) => (
-    <Card key={candidate.id} className="hover:shadow-md transition-shadow">
+    <Card key={candidate.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(candidate)}>
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -88,16 +88,16 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onView(candidate)}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(candidate); }}>
                   <Eye className="w-4 h-4 mr-2" />
                   Bekijk details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(candidate)}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(candidate); }}>
                   <Edit className="w-4 h-4 mr-2" />
                   Bewerk
                 </DropdownMenuItem>
@@ -110,7 +110,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   );
 
   const renderClientItem = (client: any) => (
-    <Card key={client.id} className="hover:shadow-md transition-shadow">
+    <Card key={client.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(client)}>
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -148,16 +148,16 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onView(client)}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(client); }}>
                   <Eye className="w-4 h-4 mr-2" />
                   Bekijk details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(client)}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(client); }}>
                   <Edit className="w-4 h-4 mr-2" />
                   Bewerk
                 </DropdownMenuItem>
@@ -170,7 +170,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   );
 
   const renderTrajectoryItem = (trajectory: any) => (
-    <Card key={trajectory.id} className="hover:shadow-md transition-shadow">
+    <Card key={trajectory.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(trajectory)}>
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -202,16 +202,16 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
           <div className="flex items-center space-x-2 ml-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onView(trajectory)}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(trajectory); }}>
                   <Eye className="w-4 h-4 mr-2" />
                   Bekijk details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(trajectory)}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(trajectory); }}>
                   <Edit className="w-4 h-4 mr-2" />
                   Bewerk
                 </DropdownMenuItem>
