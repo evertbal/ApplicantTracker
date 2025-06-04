@@ -171,17 +171,29 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rijbewijs</Label>
                 <div className="space-y-2">
-                  {['B', 'C', 'D'].map((license) => (
-                    <div key={license} className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={candidate.drivingLicenses?.includes(license) || false}
-                        disabled
-                      />
-                      <Label className="text-sm">
-                        {license} ({license === 'B' ? 'Auto' : license === 'C' ? 'Vrachtwagen' : 'Bus'})
-                      </Label>
-                    </div>
-                  ))}
+                  {candidate.drivingLicenses && candidate.drivingLicenses.length > 0 ? (
+                    candidate.drivingLicenses.map((license) => (
+                      <div key={license} className="flex items-center space-x-2">
+                        <Checkbox checked={true} disabled />
+                        <Label className="text-sm">
+                          {license} ({
+                            license === 'A' ? 'Motor' :
+                            license === 'AM' ? 'Brommer' :
+                            license === 'B' ? 'Auto' :
+                            license === 'BE' ? 'Auto met aanhanger' :
+                            license === 'C' ? 'Vrachtwagen' :
+                            license === 'CE' ? 'Vrachtwagen met aanhanger' :
+                            license === 'D' ? 'Bus' :
+                            license === 'DE' ? 'Bus met aanhanger' :
+                            license === 'T' ? 'Trekker' :
+                            'Onbekend'
+                          })
+                        </Label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Geen rijbewijs opgegeven</p>
+                  )}
                 </div>
               </div>
               <div>
