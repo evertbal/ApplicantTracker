@@ -51,12 +51,7 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
       icon: Building,
       count: clients.length,
     },
-    {
-      id: 'license-test',
-      label: 'Rijbewijs Test',
-      icon: Settings,
-      count: null,
-    },
+
   ];
 
   const managementItems = [

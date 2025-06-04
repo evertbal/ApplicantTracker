@@ -271,6 +271,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/candidates", authenticateAny, async (req: any, res) => {
     try {
       const candidateData = insertCandidateSchema.parse(req.body);
+      
+      // Normaliseer rijbewijs data als aanwezig
+      if (candidateData.drivingLicenses && candidateData.drivingLicenses.length > 0) {
+        const rawLicenseString = candidateData.drivingLicenses.join(', ');
+        const normalized = normalizeDrivingLicense(rawLicenseString);
+        candidateData.drivingLicenses = normalized.licenses;
+      }
+      
       const candidate = await storage.createCandidate(candidateData);
       
       // Log audit
@@ -290,6 +298,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const candidateData = insertCandidateSchema.partial().parse(req.body);
+      
+      // Normaliseer rijbewijs data als aanwezig
+      if (candidateData.drivingLicenses && candidateData.drivingLicenses.length > 0) {
+        const rawLicenseString = candidateData.drivingLicenses.join(', ');
+        const normalized = normalizeDrivingLicense(rawLicenseString);
+        candidateData.drivingLicenses = normalized.licenses;
+      }
+      
       const candidate = await storage.updateCandidate(id, candidateData);
       
       // Log audit
@@ -434,25 +450,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Rijbewijs normalisatie API endpoint
-  app.post("/api/normalize-license", isAuthenticated, async (req, res) => {
+  // Normaliseer alle bestaande kandidaat rijbewijzen
+  app.post("/api/normalize-all-licenses", isAuthenticated, async (req, res) => {
     try {
-      const { input } = req.body;
+      const candidates = await storage.getCandidates();
+      let updatedCount = 0;
+      let totalProcessed = 0;
       
-      if (typeof input === 'string') {
-        // Enkele invoer normaliseren
-        const result = normalizeDrivingLicense(input);
-        res.json(result);
-      } else if (Array.isArray(input)) {
-        // Meerdere invoerwaarden normaliseren
-        const results = batchNormalizeDrivingLicenses(input);
-        res.json(results);
-      } else {
-        res.status(400).json({ message: 'Ongeldige invoer. Verwacht string of array van strings.' });
+      for (const candidate of candidates) {
+        totalProcessed++;
+        
+        // Controleer of er rijbewijs data is die genormaliseerd moet worden
+        if (candidate.drivingLicenses && candidate.drivingLicenses.length > 0) {
+          // Voeg alle rijbewijs strings samen voor normalisatie
+          const rawLicenseString = candidate.drivingLicenses.join(', ');
+          const normalized = normalizeDrivingLicense(rawLicenseString);
+          
+          // Update alleen als er daadwerkelijk veranderingen zijn
+          if (JSON.stringify(normalized.licenses) !== JSON.stringify(candidate.drivingLicenses)) {
+            await storage.updateCandidate(candidate.id, {
+              drivingLicenses: normalized.licenses
+            });
+            updatedCount++;
+            
+            // Log de normalisatie actie
+            await storage.logAudit("candidate", candidate.id, "normalize_licenses", {
+              original: candidate.drivingLicenses,
+              normalized: normalized.licenses,
+              heeft_geen_geldig_rijbewijs: normalized.heeft_geen_geldig_rijbewijs
+            }, req.user.claims.sub);
+          }
+        }
       }
+      
+      res.json({
+        success: true,
+        totalProcessed,
+        updatedCount,
+        message: `${updatedCount} van ${totalProcessed} kandidaten bijgewerkt met genormaliseerde rijbewijs data`
+      });
     } catch (error) {
-      console.error("Error normalizing license:", error);
-      res.status(500).json({ message: "Fout bij het normaliseren van rijbewijs" });
+      console.error("Error normalizing all licenses:", error);
+      res.status(500).json({ message: "Fout bij het normaliseren van alle rijbewijzen" });
     }
   });
 

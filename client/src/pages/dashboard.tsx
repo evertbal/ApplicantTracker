@@ -4,7 +4,7 @@ import ResponsiveLayout from "@/components/responsive-layout";
 import CandidatesView from "@/components/candidates-view-responsive";
 import TrajectoriesView from "@/components/trajectories-view";
 import ClientsView from "@/components/clients-view";
-import LicenseNormalizerTest from "@/components/license-normalizer-test";
+
 
 export default function Dashboard() {
   const [location] = useLocation();
@@ -23,8 +23,7 @@ export default function Dashboard() {
         return <TrajectoriesView />;
       case 'clients':
         return <ClientsView />;
-      case 'license-test':
-        return <LicenseNormalizerTest />;
+
       default:
         return <CandidatesView />;
     }
