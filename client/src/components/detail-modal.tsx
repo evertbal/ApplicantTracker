@@ -128,10 +128,10 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     if (entityType === 'candidate') {
       const candidate = entity as CandidateWithRelations;
       return (
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Persoonlijke Gegevens</h3>
-            <div className="space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Persoonlijke Gegevens</h3>
+            <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Volledige Naam</Label>
                 <Input value={candidate.name} readOnly className="mt-1" />
@@ -203,13 +203,13 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
             </div>
           </div>
 
-          <div className="col-span-2 mt-8">
+          <div className="col-span-full mt-4 sm:mt-8">
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschrijving</Label>
             <Textarea
               value={candidate.description || ''}
               readOnly
-              rows={4}
-              className="resize-none"
+              rows={3}
+              className="resize-none text-sm"
             />
           </div>
         </div>
@@ -217,10 +217,10 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     } else if (entityType === 'trajectory') {
       const trajectory = entity as TrajectoryWithRelations;
       return (
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trajectinformatie</h3>
-            <div className="space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Trajectinformatie</h3>
+            <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Functie</Label>
                 <Input value={trajectory.jobTitle || ''} readOnly className="mt-1" />
@@ -247,8 +247,8 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Betrokken partijen</h3>
-            <div className="space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Betrokken partijen</h3>
+            <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Kandidaat</Label>
                 <Input value={trajectory.candidate?.name || 'Niet gekoppeld'} readOnly className="mt-1" />
@@ -260,13 +260,13 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
             </div>
           </div>
 
-          <div className="col-span-2 mt-8">
+          <div className="col-span-full mt-4 sm:mt-8">
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Opmerkingen</Label>
             <Textarea
               value={trajectory.notes || ''}
               readOnly
-              rows={4}
-              className="resize-none"
+              rows={3}
+              className="resize-none text-sm"
             />
           </div>
         </div>
@@ -274,10 +274,10 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     } else {
       const client = entity as ClientWithRelations;
       return (
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bedrijfsinformatie</h3>
-            <div className="space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Bedrijfsinformatie</h3>
+            <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Bedrijfsnaam</Label>
                 <Input value={client.name} readOnly className="mt-1" />
