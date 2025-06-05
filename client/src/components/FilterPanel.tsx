@@ -70,13 +70,13 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
   };
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 p-6 overflow-y-auto">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+    <div className="w-full sm:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-3 sm:p-6 overflow-y-auto">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Filters</h3>
       
       {/* Status Filter */}
-      <div className="mb-6">
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">Status</Label>
-        <div className="space-y-2">
+      <div className="mb-4 sm:mb-6">
+        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
+        <div className="space-y-1 sm:space-y-2">
           {[
             { value: "active", label: "Actief" },
             { value: "placed", label: "Geplaatst" },
@@ -88,7 +88,7 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
                 checked={filters.status.includes(status.value)}
                 onCheckedChange={(checked) => handleStatusChange(status.value, checked as boolean)}
               />
-              <Label htmlFor={status.value} className="text-sm text-gray-700">
+              <Label htmlFor={status.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
                 {status.label}
               </Label>
             </div>
@@ -97,8 +97,8 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       </div>
 
       {/* Region Filter */}
-      <div className="mb-6">
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">Regio</Label>
+      <div className="mb-4 sm:mb-6">
+        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Regio</Label>
         <Select value={filters.region} onValueChange={handleRegionChange}>
           <SelectTrigger>
             <SelectValue placeholder="Alle regio's" />
@@ -114,9 +114,9 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       </div>
 
       {/* Driving License Filter */}
-      <div className="mb-6">
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">Rijbewijs</Label>
-        <div className="space-y-2">
+      <div className="mb-4 sm:mb-6">
+        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</Label>
+        <div className="space-y-1 sm:space-y-2 max-h-48 overflow-y-auto">
           {[
             { value: "A", label: "A (Motor)" },
             { value: "AM", label: "AM (Brommer)" },
@@ -134,7 +134,7 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
                 checked={filters.drivingLicense.includes(license.value)}
                 onCheckedChange={(checked) => handleDrivingLicenseChange(license.value, checked as boolean)}
               />
-              <Label htmlFor={license.value} className="text-sm text-gray-700">
+              <Label htmlFor={license.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
                 {license.label}
               </Label>
             </div>
@@ -143,20 +143,22 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       </div>
 
       {/* Date Range Filter */}
-      <div className="mb-6">
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">Datum Toegevoegd</Label>
-        <div className="space-y-2">
+      <div className="mb-4 sm:mb-6">
+        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Datum Toegevoegd</Label>
+        <div className="space-y-1 sm:space-y-2">
           <Input
             type="date"
             value={filters.dateFrom}
             onChange={(e) => handleDateChange("dateFrom", e.target.value)}
             placeholder="Van"
+            className="text-xs sm:text-sm"
           />
           <Input
             type="date"
             value={filters.dateTo}
             onChange={(e) => handleDateChange("dateTo", e.target.value)}
             placeholder="Tot"
+            className="text-xs sm:text-sm"
           />
         </div>
       </div>
@@ -165,9 +167,10 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       <Button 
         variant="outline" 
         onClick={clearFilters}
-        className="w-full"
+        className="w-full text-xs sm:text-sm"
+        size="sm"
       >
-        <X className="h-4 w-4 mr-2" />
+        <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
         Filters Wissen
       </Button>
     </div>
