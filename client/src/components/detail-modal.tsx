@@ -302,12 +302,12 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-5/6 flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-full sm:h-5/6 flex flex-col">
         {/* Modal Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-16 h-16">
+        <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
+            <Avatar className="w-10 h-10 sm:w-16 sm:h-16 flex-shrink-0">
               <AvatarFallback className="bg-gray-200 text-gray-600 text-xl">
                 {getInitials(
                   entityType === 'candidate' ? (entity as CandidateWithRelations).name :
@@ -316,13 +316,13 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                 )}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white truncate">
                 {entityType === 'candidate' ? (entity as CandidateWithRelations).name :
                  entityType === 'trajectory' ? `${(entity as TrajectoryWithRelations).jobTitle} - ${(entity as TrajectoryWithRelations).client?.name}` :
                  (entity as ClientWithRelations).name}
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
                 {entityType === 'candidate' ? 
                   `${(entity as CandidateWithRelations).city}, ${(entity as CandidateWithRelations).region} • ${(entity as CandidateWithRelations).phone}` :
                  entityType === 'trajectory' ?
@@ -348,57 +348,58 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
             <Button
-              className="bg-primary hover:bg-primary-hover text-white"
+              className="bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm px-2 sm:px-4"
               onClick={onEdit}
+              size="sm"
             >
-              <Edit className="w-4 h-4 mr-2" />
-              Bewerken
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Bewerken</span>
             </Button>
-            <Button variant="ghost" onClick={onClose}>
-              <X className="w-5 h-5" />
+            <Button variant="ghost" onClick={onClose} size="sm">
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
         </div>
 
         {/* Modal Content */}
-        <div className="flex-1 flex overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex">
+        <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
             {/* Tab Navigation */}
-            <div className="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-4">
-              <TabsList className="flex flex-col h-auto space-y-1 bg-transparent">
+            <div className="w-full sm:w-64 bg-gray-50 dark:bg-gray-900 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 p-2 sm:p-4 overflow-x-auto sm:overflow-x-visible">
+              <TabsList className="flex sm:flex-col h-auto space-x-1 sm:space-x-0 sm:space-y-1 bg-transparent w-full overflow-x-auto">
                 <TabsTrigger 
                   value="information" 
-                  className="w-full justify-start data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
                 >
-                  Informatie
+                  Info
                 </TabsTrigger>
                 <TabsTrigger 
                   value="notes" 
-                  className="w-full justify-start data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
                 >
                   Notities
-                  <Badge variant="secondary" className="ml-auto">
+                  <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
                     {notes.length}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="documents" 
-                  className="w-full justify-start data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
                 >
-                  Documenten
-                  <Badge variant="secondary" className="ml-auto">
+                  Docs
+                  <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
                     {documents.length}
                   </Badge>
                 </TabsTrigger>
                 {entityType === 'candidate' && (
                   <TabsTrigger 
                     value="trajectories" 
-                    className="w-full justify-start data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
                   >
-                    Trajecten
-                    <Badge variant="secondary" className="ml-auto">
+                    Trajec
+                    <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
                       {(entity as CandidateWithRelations).trajectories?.length || 0}
                     </Badge>
                   </TabsTrigger>
@@ -407,7 +408,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6">
               <TabsContent value="information" className="mt-0">
                 {renderInformationTab()}
               </TabsContent>
