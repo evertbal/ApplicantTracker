@@ -662,7 +662,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notes routes
-  app.get("/api/notes/:entityType/:entityId", isAuthenticated, async (req, res) => {
+  app.get("/api/notes/:entityType/:entityId", authenticateAny, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const notes = await storage.getNotes(entityType, parseInt(entityId));
@@ -673,11 +673,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/notes", isAuthenticated, async (req: any, res) => {
+  app.post("/api/notes", authenticateAny, async (req: any, res) => {
     try {
+      const authorId = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
       const noteData = insertNoteSchema.parse({
         ...req.body,
-        authorId: req.user.claims.sub,
+        authorId,
       });
       const note = await storage.createNote(noteData);
       res.status(201).json(note);
@@ -691,7 +692,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Documents routes
-  app.get("/api/documents/:entityType/:entityId", isAuthenticated, async (req, res) => {
+  app.get("/api/documents/:entityType/:entityId", authenticateAny, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const documents = await storage.getDocuments(entityType, parseInt(entityId));
@@ -702,9 +703,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/documents", isAuthenticated, async (req, res) => {
+  app.post("/api/documents", authenticateAny, async (req: any, res) => {
     try {
-      const documentData = insertDocumentSchema.parse(req.body);
+      const uploadedBy = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
+      const documentData = insertDocumentSchema.parse({
+        ...req.body,
+        uploadedBy,
+      });
       const document = await storage.createDocument(documentData);
       res.status(201).json(document);
     } catch (error) {
@@ -716,7 +721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/documents/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/documents/:id", authenticateAny, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteDocument(id);

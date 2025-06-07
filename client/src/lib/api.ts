@@ -143,8 +143,13 @@ export const trajectoryApi = {
 
 // Notes API
 export const notesApi = {
-  getByEntity: (entityType: string, entityId: number) =>
-    fetch(`/api/notes/${entityType}/${entityId}`, { credentials: 'include' }).then(res => res.json()),
+  getByEntity: async (entityType: string, entityId: number) => {
+    const response = await fetch(`/api/notes/${entityType}/${entityId}`, { credentials: 'include' });
+    if (!response.ok) {
+      throw new Error(`${response.status}: Failed to fetch notes`);
+    }
+    return response.json();
+  },
 
   create: async (data: InsertNote): Promise<Note> => {
     const response = await apiRequest('POST', '/api/notes', data);
@@ -154,8 +159,13 @@ export const notesApi = {
 
 // Documents API
 export const documentsApi = {
-  getByEntity: (entityType: string, entityId: number) =>
-    fetch(`/api/documents/${entityType}/${entityId}`, { credentials: 'include' }).then(res => res.json()),
+  getByEntity: async (entityType: string, entityId: number) => {
+    const response = await fetch(`/api/documents/${entityType}/${entityId}`, { credentials: 'include' });
+    if (!response.ok) {
+      throw new Error(`${response.status}: Failed to fetch documents`);
+    }
+    return response.json();
+  },
 
   create: async (data: InsertDocument): Promise<Document> => {
     const response = await apiRequest('POST', '/api/documents', data);
