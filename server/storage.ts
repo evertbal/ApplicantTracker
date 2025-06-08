@@ -397,7 +397,7 @@ export class DatabaseStorage implements IStorage {
       client: undefined,
       notes: [],
       documents: []
-    }));
+    } as TrajectoryWithRelations));
   }
 
   async getTrajectory(id: number): Promise<TrajectoryWithRelations | undefined> {
@@ -429,7 +429,7 @@ export class DatabaseStorage implements IStorage {
       client,
       notes: trajectoryNotes,
       documents: trajectoryDocuments,
-    };
+    } as TrajectoryWithRelations;
   }
 
   async createTrajectory(trajectory: InsertTrajectory): Promise<Trajectory> {

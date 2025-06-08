@@ -482,7 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               original: candidate.drivingLicenses,
               normalized: normalized.licenses,
               heeft_geen_geldig_rijbewijs: normalized.heeft_geen_geldig_rijbewijs
-            }, req.user.claims.sub);
+            }, (req as any).user?.claims?.sub || 'system');
           }
         }
       }

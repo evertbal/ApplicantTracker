@@ -90,7 +90,6 @@ export const trajectories = pgTable("trajectories", {
   status: text("status").default("interview"), // interview, proposed, placed
   jobTitle: text("job_title"),
   hourlyRate: text("hourly_rate"),
-  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
