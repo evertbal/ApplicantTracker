@@ -165,18 +165,16 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
             <Label className="text-sm font-medium text-gray-700 mb-2 block">Rijbewijs</Label>
             <div className="grid grid-cols-3 gap-4">
               {[
-                { value: "B", label: "B (Auto)" },
-                { value: "C", label: "C (Vrachtwagen)" },
-                { value: "D", label: "D (Bus)" },
+                'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
               ].map((license) => (
-                <div key={license.value} className="flex items-center space-x-2">
+                <div key={license} className="flex items-center space-x-2">
                   <Checkbox
-                    id={license.value}
-                    checked={drivingLicenses.includes(license.value)}
-                    onCheckedChange={(checked) => handleDrivingLicenseChange(license.value, checked as boolean)}
+                    id={license}
+                    checked={drivingLicenses.includes(license)}
+                    onCheckedChange={(checked) => handleDrivingLicenseChange(license, checked as boolean)}
                   />
-                  <Label htmlFor={license.value} className="text-sm text-gray-700">
-                    {license.label}
+                  <Label htmlFor={license} className="text-sm text-gray-700 font-mono">
+                    {license}
                   </Label>
                 </div>
               ))}

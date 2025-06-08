@@ -170,26 +170,12 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rijbewijs</Label>
-                <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
                   {candidate.drivingLicenses && candidate.drivingLicenses.length > 0 ? (
                     candidate.drivingLicenses.map((license) => (
-                      <div key={license} className="flex items-center space-x-2">
-                        <Checkbox checked={true} disabled />
-                        <Label className="text-sm">
-                          {license} ({
-                            license === 'A' ? 'Motor' :
-                            license === 'AM' ? 'Brommer' :
-                            license === 'B' ? 'Auto' :
-                            license === 'BE' ? 'Auto met aanhanger' :
-                            license === 'C' ? 'Vrachtwagen' :
-                            license === 'CE' ? 'Vrachtwagen met aanhanger' :
-                            license === 'D' ? 'Bus' :
-                            license === 'DE' ? 'Bus met aanhanger' :
-                            license === 'T' ? 'Trekker' :
-                            'Onbekend'
-                          })
-                        </Label>
-                      </div>
+                      <Badge key={license} variant="secondary" className="font-mono">
+                        {license}
+                      </Badge>
                     ))
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400">Geen rijbewijs opgegeven</p>

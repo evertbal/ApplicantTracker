@@ -305,21 +305,28 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</Label>
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { value: 'B', label: 'B (Auto)' },
-                    { value: 'C', label: 'C (Vrachtwagen)' },
-                    { value: 'D', label: 'D (Bus)' },
+                    'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
                   ].map((license) => (
-                    <div key={license.value} className="flex items-center space-x-2">
+                    <div key={license} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`license-${license.value}`}
-                        checked={(form.getValues("drivingLicenses") || []).includes(license.value)}
-                        onCheckedChange={(checked) => handleLicenseChange(license.value, checked as boolean)}
+                        id={`license-${license}`}
+                        checked={(form.getValues("drivingLicenses") || []).includes(license)}
+                        onCheckedChange={(checked) => handleLicenseChange(license, checked as boolean)}
                       />
-                      <Label htmlFor={`license-${license.value}`} className="text-sm">
-                        {license.label}
+                      <Label htmlFor={`license-${license}`} className="text-sm font-mono">
+                        {license}
                       </Label>
                     </div>
                   ))}
+                </div>
+                <div className="mt-3">
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Aanvullende informatie rijbewijs</Label>
+                  <Input
+                    placeholder="Bijzonderheden, beperkingen of andere categorieën..."
+                    value={form.getValues("drivingLicenseNotes") || ""}
+                    onChange={(e) => form.setValue("drivingLicenseNotes", e.target.value)}
+                    className="mt-1 text-sm"
+                  />
                 </div>
               </div>
 

@@ -116,26 +116,18 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       {/* Driving License Filter */}
       <div className="mb-4 sm:mb-6">
         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</Label>
-        <div className="space-y-1 sm:space-y-2 max-h-48 overflow-y-auto">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
-            { value: "A", label: "A (Motor)" },
-            { value: "AM", label: "AM (Brommer)" },
-            { value: "B", label: "B (Auto)" },
-            { value: "BE", label: "BE (Auto met aanhanger)" },
-            { value: "C", label: "C (Vrachtwagen)" },
-            { value: "CE", label: "CE (Vrachtwagen met aanhanger)" },
-            { value: "D", label: "D (Bus)" },
-            { value: "DE", label: "DE (Bus met aanhanger)" },
-            { value: "T", label: "T (Trekker)" },
+            'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
           ].map((license) => (
-            <div key={license.value} className="flex items-center space-x-2">
+            <div key={license} className="flex items-center space-x-2">
               <Checkbox
-                id={license.value}
-                checked={filters.drivingLicense.includes(license.value)}
-                onCheckedChange={(checked) => handleDrivingLicenseChange(license.value, checked as boolean)}
+                id={license}
+                checked={filters.drivingLicense.includes(license)}
+                onCheckedChange={(checked) => handleDrivingLicenseChange(license, checked as boolean)}
               />
-              <Label htmlFor={license.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                {license.label}
+              <Label htmlFor={license} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-mono">
+                {license}
               </Label>
             </div>
           ))}
