@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Download, Upload, RefreshCw } from "lucide-react";
+import { Search, Plus, Download, Upload, RefreshCw, FileSpreadsheet, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import type { CandidateWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import CandidateForm from "./candidate-form";
@@ -17,6 +20,7 @@ export default function CandidatesView() {
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
+  const [showExcelTemplateModal, setShowExcelTemplateModal] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -172,10 +176,10 @@ export default function CandidatesView() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => document.getElementById('excel-upload')?.click()}
+              onClick={() => setShowExcelTemplateModal(true)}
               className="hidden sm:flex"
             >
-              <Upload className="w-4 h-4 mr-2" />
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
               Import Excel
             </Button>
             <Button
@@ -259,6 +263,159 @@ export default function CandidatesView() {
           onClose={closeForm}
           onSuccess={handleFormSuccess}
         />
+      )}
+
+      {/* Excel Template Modal */}
+      {showExcelTemplateModal && (
+        <Dialog open={showExcelTemplateModal} onOpenChange={setShowExcelTemplateModal}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl font-semibold">Excel Import Template - Kandidaten</DialogTitle>
+                <Button variant="ghost" size="sm" onClick={() => setShowExcelTemplateModal(false)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Instructies</h3>
+                <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                  <li>• Gebruik exact deze kolomnamen in de eerste rij van je Excel bestand</li>
+                  <li>• Rijbewijs categorieën: gebruik alleen A, AM, B, BE, C, CE, D, DE, T (gescheiden door komma's)</li>
+                  <li>• Status: active, placed, inactive</li>
+                  <li>• Fase: intake, matching, placed</li>
+                  <li>• Datum formaat: YYYY-MM-DD of DD-MM-YYYY</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Vereiste Excel Structuur:</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50 dark:bg-gray-800">
+                        <TableHead className="font-semibold">Kolom</TableHead>
+                        <TableHead className="font-semibold">Vereist</TableHead>
+                        <TableHead className="font-semibold">Type</TableHead>
+                        <TableHead className="font-semibold">Voorbeeld</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">name</TableCell>
+                        <TableCell><Badge variant="destructive">Ja</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>Jan de Vries</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">email</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Email</TableCell>
+                        <TableCell>jan@example.com</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">phone</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>06-12345678</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">city</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>Amsterdam</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">region</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>Noord-Holland</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">marketing</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>Website</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">drivingLicenses</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>B, BE, C</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">drivingLicenseNotes</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>Geldig tot 2026</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">description</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>Ervaren chauffeur met 10 jaar ervaring</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">status</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>active</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">phase</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Tekst</TableCell>
+                        <TableCell>intake</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">dateAdded</TableCell>
+                        <TableCell><Badge variant="secondary">Nee</Badge></TableCell>
+                        <TableCell>Datum</TableCell>
+                        <TableCell>2024-01-15</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-2">Rijbewijs Categorieën</h3>
+                <div className="grid grid-cols-3 gap-2 text-sm text-amber-800 dark:text-amber-200">
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">A</code> - Motorfiets</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">AM</code> - Bromfiets</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">B</code> - Personenauto</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">BE</code> - Auto + aanhanger</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">C</code> - Vrachtwagen</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">CE</code> - Vracht + aanhanger</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">D</code> - Autobus</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">DE</code> - Bus + aanhanger</div>
+                  <div><code className="bg-amber-200 dark:bg-amber-800 px-1 rounded">T</code> - Landbouwvoertuigen</div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowExcelTemplateModal(false)}
+                >
+                  Sluiten
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowExcelTemplateModal(false);
+                    document.getElementById('excel-upload')?.click();
+                  }}
+                  className="bg-primary hover:bg-primary-hover text-white"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Selecteer Excel Bestand
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
