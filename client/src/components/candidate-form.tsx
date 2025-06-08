@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { candidateApi } from "@/lib/api";
@@ -203,27 +204,29 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Regio</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecteer regio" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
-                          <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
-                          <SelectItem value="Utrecht">Utrecht</SelectItem>
-                          <SelectItem value="Gelderland">Gelderland</SelectItem>
-                          <SelectItem value="Noord-Brabant">Noord-Brabant</SelectItem>
-                          <SelectItem value="Overijssel">Overijssel</SelectItem>
-                          <SelectItem value="Groningen">Groningen</SelectItem>
-                          <SelectItem value="Friesland">Friesland</SelectItem>
-                          <SelectItem value="Drenthe">Drenthe</SelectItem>
-                          <SelectItem value="Flevoland">Flevoland</SelectItem>
-                          <SelectItem value="Zeeland">Zeeland</SelectItem>
-                          <SelectItem value="Limburg">Limburg</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <SearchableSelect
+                          options={[
+                            { value: "Noord-Holland", label: "Noord-Holland" },
+                            { value: "Zuid-Holland", label: "Zuid-Holland" },
+                            { value: "Utrecht", label: "Utrecht" },
+                            { value: "Gelderland", label: "Gelderland" },
+                            { value: "Noord-Brabant", label: "Noord-Brabant" },
+                            { value: "Overijssel", label: "Overijssel" },
+                            { value: "Groningen", label: "Groningen" },
+                            { value: "Friesland", label: "Friesland" },
+                            { value: "Drenthe", label: "Drenthe" },
+                            { value: "Flevoland", label: "Flevoland" },
+                            { value: "Zeeland", label: "Zeeland" },
+                            { value: "Limburg", label: "Limburg" }
+                          ]}
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                          placeholder="Selecteer regio"
+                          searchPlaceholder="Zoek regio..."
+                          emptyMessage="Geen regio's gevonden."
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

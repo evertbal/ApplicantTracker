@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { X } from "lucide-react";
 
 interface FilterPanelProps {
@@ -99,18 +100,28 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       {/* Region Filter */}
       <div className="mb-4 sm:mb-6">
         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Regio</Label>
-        <Select value={filters.region} onValueChange={handleRegionChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Alle regio's" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="alle">Alle regio's</SelectItem>
-            <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
-            <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
-            <SelectItem value="Utrecht">Utrecht</SelectItem>
-            <SelectItem value="Gelderland">Gelderland</SelectItem>
-          </SelectContent>
-        </Select>
+        <SearchableSelect
+          options={[
+            { value: "alle", label: "Alle regio's" },
+            { value: "Noord-Holland", label: "Noord-Holland" },
+            { value: "Zuid-Holland", label: "Zuid-Holland" },
+            { value: "Utrecht", label: "Utrecht" },
+            { value: "Gelderland", label: "Gelderland" },
+            { value: "Noord-Brabant", label: "Noord-Brabant" },
+            { value: "Overijssel", label: "Overijssel" },
+            { value: "Groningen", label: "Groningen" },
+            { value: "Friesland", label: "Friesland" },
+            { value: "Drenthe", label: "Drenthe" },
+            { value: "Flevoland", label: "Flevoland" },
+            { value: "Zeeland", label: "Zeeland" },
+            { value: "Limburg", label: "Limburg" }
+          ]}
+          value={filters.region}
+          onValueChange={handleRegionChange}
+          placeholder="Alle regio's"
+          searchPlaceholder="Zoek regio..."
+          emptyMessage="Geen regio's gevonden."
+        />
       </div>
 
       {/* Driving License Filter */}
