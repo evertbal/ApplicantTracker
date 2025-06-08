@@ -39,15 +39,13 @@ export default function CandidateDetail() {
 
   // Fetch notes
   const { data: notes = [] } = useQuery<Note[]>({
-    queryKey: ["/api/notes/candidate", id],
-    queryFn: () => fetch(`/api/notes/candidate/${id}`, { credentials: 'include' }).then(res => res.json()),
+    queryKey: [`/api/notes/candidate/${id}`],
     enabled: !!id,
   });
 
   // Fetch documents
   const { data: documents = [] } = useQuery<Document[]>({
-    queryKey: ["/api/documents/candidate", id],
-    queryFn: () => fetch(`/api/documents/candidate/${id}`, { credentials: 'include' }).then(res => res.json()),
+    queryKey: [`/api/documents/candidate/${id}`],
     enabled: !!id,
   });
 
@@ -75,7 +73,7 @@ export default function CandidateDetail() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/notes/candidate", id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/notes/candidate/${id}`] });
       setNewNote("");
       setIsAddingNote(false);
       toast({
