@@ -302,25 +302,18 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as any;
     }
 
     const clientResults = await query.orderBy(desc(clients.createdAt));
     
-    const clientsWithRelations: ClientWithRelations[] = [];
-    for (const client of clientResults) {
-      const clientTrajectories = await db
-        .select()
-        .from(trajectories)
-        .where(eq(trajectories.clientId, client.id));
-      
-      clientsWithRelations.push({
-        ...client,
-        trajectories: clientTrajectories,
-      });
-    }
-
-    return clientsWithRelations;
+    // Return clients without relations for performance - relations can be loaded on detail page
+    return clientResults.map(client => ({
+      ...client,
+      trajectories: [],
+      notes: [],
+      documents: []
+    }));
   }
 
   async getClient(id: number): Promise<ClientWithRelations | undefined> {
@@ -392,29 +385,19 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as any;
     }
 
     const trajectoryResults = await query.orderBy(desc(trajectories.createdAt));
     
-    const trajectoriesWithRelations: TrajectoryWithRelations[] = [];
-    for (const trajectory of trajectoryResults) {
-      const candidate = trajectory.candidateId 
-        ? await db.select().from(candidates).where(eq(candidates.id, trajectory.candidateId)).then(r => r[0])
-        : undefined;
-      
-      const client = trajectory.clientId
-        ? await db.select().from(clients).where(eq(clients.id, trajectory.clientId)).then(r => r[0])
-        : undefined;
-      
-      trajectoriesWithRelations.push({
-        ...trajectory,
-        candidate,
-        client,
-      });
-    }
-
-    return trajectoriesWithRelations;
+    // Return trajectories without relations for performance - relations can be loaded on detail page
+    return trajectoryResults.map(trajectory => ({
+      ...trajectory,
+      candidate: undefined,
+      client: undefined,
+      notes: [],
+      documents: []
+    }));
   }
 
   async getTrajectory(id: number): Promise<TrajectoryWithRelations | undefined> {
