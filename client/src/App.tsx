@@ -8,6 +8,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
+import CandidateDetail from "@/pages/candidate-detail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/candidates" component={Dashboard} />
+          <Route path="/candidate/:id" component={CandidateDetail} />
           <Route path="/trajectories" component={Dashboard} />
           <Route path="/clients" component={Dashboard} />
         </>
