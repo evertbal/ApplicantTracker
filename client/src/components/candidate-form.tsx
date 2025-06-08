@@ -21,6 +21,7 @@ const candidateFormSchema = insertCandidateSchema.extend({
   name: z.string().min(1, "Naam is verplicht"),
   email: z.string().email("Ongeldig e-mailadres").optional().or(z.literal("")),
   phone: z.string().optional(),
+  drivingLicenseNotes: z.string().optional(),
 });
 
 type CandidateFormData = z.infer<typeof candidateFormSchema>;
@@ -48,6 +49,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       status: candidate?.status || "active",
       phase: candidate?.phase || "intake",
       drivingLicenses: candidate?.drivingLicenses || [],
+      drivingLicenseNotes: candidate?.drivingLicenseNotes || "",
     },
   });
 

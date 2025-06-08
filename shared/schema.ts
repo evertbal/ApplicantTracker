@@ -58,6 +58,7 @@ export const candidates = pgTable("candidates", {
   name: text("name").notNull(),
   description: text("description"),
   drivingLicenses: text("driving_licenses").array().default([]),
+  drivingLicenseNotes: text("driving_license_notes"),
   city: text("city"),
   region: text("region"),
   marketing: text("marketing"),
