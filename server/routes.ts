@@ -230,8 +230,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
-    // Try Replit authentication
-    return isAuthenticated(req, res, next);
+    // Check if user is authenticated via Replit session
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      return next();
+    }
+
+    // If no valid authentication found
+    return res.status(401).json({ message: "Unauthorized" });
   };
 
   // Candidate routes

@@ -52,11 +52,25 @@ export default function CandidateDetail() {
   // Add note mutation
   const addNoteMutation = useMutation({
     mutationFn: async (content: string) => {
-      return apiRequest(`/api/notes`, "POST", {
-        entityType: "candidate",
-        entityId: parseInt(id!),
-        content,
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          entityType: "candidate",
+          entityId: parseInt(id!),
+          content,
+        }),
       });
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to create note');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notes/candidate", id] });
