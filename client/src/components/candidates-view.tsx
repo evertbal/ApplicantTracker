@@ -168,7 +168,7 @@ export default function CandidatesView() {
   // Extract filter options from data
   const statusOptions = [...new Set(candidatesArray.map((c: any) => c.status).filter(Boolean))];
   const regionOptions = [...new Set(candidatesArray.map((c: any) => c.region).filter(Boolean))];
-  const licenseOptions = [...new Set(candidatesArray.flatMap((c: any) => c.drivingLicenses || []))];
+  const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
 
   const activeFiltersCount = 
     selectedStatuses.length + 
