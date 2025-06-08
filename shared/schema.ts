@@ -172,18 +172,45 @@ export const insertCandidateSchema = createInsertSchema(candidates).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  name: z.string().min(1, "Naam is verplicht"),
+  email: z.string().email("Ongeldig e-mailadres").optional().nullable(),
+  dateAdded: z.date().optional().nullable(),
+  region: z.string().optional().nullable(),
+  status: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  drivingLicenses: z.array(z.string()).optional().nullable(),
+  drivingLicenseNotes: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  phase: z.string().optional().nullable(),
+  marketing: z.string().optional().nullable(),
 });
 
 export const insertClientSchema = createInsertSchema(clients).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  name: z.string().min(1, "Bedrijfsnaam is verplicht"),
+  contactPerson: z.string().optional().nullable(),
+  email: z.string().email("Ongeldig e-mailadres").optional().nullable(),
+  phone: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  workType: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
 });
 
 export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  candidateId: z.number().min(1, "Kandidaat is verplicht"),
+  clientId: z.number().min(1, "Opdrachtgever is verplicht"),
+  startDate: z.string().optional().nullable(),
+  status: z.string().optional().nullable(),
+  jobTitle: z.string().optional().nullable(),
+  hourlyRate: z.string().optional().nullable(),
 });
 
 export const insertNoteSchema = createInsertSchema(notes).omit({

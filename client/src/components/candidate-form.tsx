@@ -189,7 +189,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                     <FormItem>
                       <FormLabel>Woonplaats</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
