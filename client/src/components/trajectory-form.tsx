@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -181,23 +182,19 @@ export default function TrajectoryForm({ trajectory, onClose, onSuccess }: Traje
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Kandidaat *</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))} 
-                        defaultValue={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecteer kandidaat" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {candidates.map((candidate) => (
-                            <SelectItem key={candidate.id} value={candidate.id.toString()}>
-                              {candidate.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <SearchableSelect
+                          options={candidates.map((candidate) => ({
+                            value: candidate.id.toString(),
+                            label: candidate.name
+                          }))}
+                          value={field.value?.toString()}
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          placeholder="Selecteer kandidaat"
+                          searchPlaceholder="Zoek kandidaat..."
+                          emptyMessage="Geen kandidaten gevonden."
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -208,23 +205,19 @@ export default function TrajectoryForm({ trajectory, onClose, onSuccess }: Traje
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Opdrachtgever *</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))} 
-                        defaultValue={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecteer opdrachtgever" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {clients.map((client) => (
-                            <SelectItem key={client.id} value={client.id.toString()}>
-                              {client.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <SearchableSelect
+                          options={clients.map((client) => ({
+                            value: client.id.toString(),
+                            label: client.name
+                          }))}
+                          value={field.value?.toString()}
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          placeholder="Selecteer opdrachtgever"
+                          searchPlaceholder="Zoek opdrachtgever..."
+                          emptyMessage="Geen opdrachtgevers gevonden."
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
