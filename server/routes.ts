@@ -256,17 +256,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/candidates/:id", authenticateAny, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      const candidate = await storage.getCandidate(id);
+      const { id } = req.params;
+      const candidate = await storage.getCandidate(parseInt(id));
+      
       if (!candidate) {
         return res.status(404).json({ message: "Candidate not found" });
       }
+      
       res.json(candidate);
     } catch (error) {
       console.error("Error fetching candidate:", error);
       res.status(500).json({ message: "Failed to fetch candidate" });
     }
   });
+
+
 
   app.post("/api/candidates", authenticateAny, async (req: any, res) => {
     try {

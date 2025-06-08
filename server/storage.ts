@@ -219,26 +219,18 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as any;
     }
 
     const candidateResults = await query.orderBy(desc(candidates.createdAt));
     
-    // Get related data for each candidate
-    const candidatesWithRelations: CandidateWithRelations[] = [];
-    for (const candidate of candidateResults) {
-      const candidateTrajectories = await db
-        .select()
-        .from(trajectories)
-        .where(eq(trajectories.candidateId, candidate.id));
-      
-      candidatesWithRelations.push({
-        ...candidate,
-        trajectories: candidateTrajectories,
-      });
-    }
-
-    return candidatesWithRelations;
+    // Return candidates without relations for performance - relations can be loaded on detail page
+    return candidateResults.map(candidate => ({
+      ...candidate,
+      trajectories: [],
+      notes: [],
+      documents: []
+    }));
   }
 
   async getCandidate(id: number): Promise<CandidateWithRelations | undefined> {
