@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
@@ -27,6 +27,7 @@ interface ClientFormProps {
 
 export default function ClientForm({ client, onClose, onSuccess }: ClientFormProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!client;
 
   const form = useForm<ClientFormData>({
@@ -42,6 +43,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
   const createMutation = useMutation({
     mutationFn: clientApi.create,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
       toast({
         title: "Opdrachtgever toegevoegd",
         description: "De opdrachtgever is succesvol toegevoegd aan het systeem.",
@@ -134,7 +136,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
                     <FormItem>
                       <FormLabel>Contactpersoon</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Bijv. Jan Janssen" />
+                        <Input {...field} value={field.value || ""} placeholder="Bijv. Jan Janssen" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -147,7 +149,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
                     <FormItem>
                       <FormLabel>Locatie</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Bijv. Amsterdam" />
+                        <Input {...field} value={field.value || ""} placeholder="Bijv. Amsterdam" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
