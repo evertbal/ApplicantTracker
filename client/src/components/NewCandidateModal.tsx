@@ -36,7 +36,7 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
       description: "",
       status: "active",
       phase: "intake",
-      drivingLicense: [],
+      drivingLicenses: [],
     },
   });
 
