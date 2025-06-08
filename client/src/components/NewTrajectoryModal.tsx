@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { X } from "lucide-react";
 import { insertTrajectorySchema, type InsertTrajectory, type Candidate, type Client } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -83,36 +84,36 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="candidateId">Kandidaat *</Label>
-              <Select onValueChange={(value) => form.setValue("candidateId", parseInt(value))}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selecteer kandidaat" />
-                </SelectTrigger>
-                <SelectContent>
-                  {candidates.map((candidate: Candidate) => (
-                    <SelectItem key={candidate.id} value={candidate.id.toString()}>
-                      {candidate.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={(candidates as Candidate[]).map((candidate: Candidate) => ({
+                  value: candidate.id.toString(),
+                  label: candidate.name
+                }))}
+                value={form.watch("candidateId")?.toString()}
+                onValueChange={(value) => form.setValue("candidateId", parseInt(value))}
+                placeholder="Selecteer kandidaat"
+                searchPlaceholder="Zoek kandidaat..."
+                emptyMessage="Geen kandidaten gevonden."
+                className="mt-1"
+              />
               {form.formState.errors.candidateId && (
                 <p className="text-sm text-red-600 mt-1">{form.formState.errors.candidateId.message}</p>
               )}
             </div>
             <div>
               <Label htmlFor="clientId">Opdrachtgever *</Label>
-              <Select onValueChange={(value) => form.setValue("clientId", parseInt(value))}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selecteer opdrachtgever" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client: Client) => (
-                    <SelectItem key={client.id} value={client.id.toString()}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={(clients as Client[]).map((client: Client) => ({
+                  value: client.id.toString(),
+                  label: client.name
+                }))}
+                value={form.watch("clientId")?.toString()}
+                onValueChange={(value) => form.setValue("clientId", parseInt(value))}
+                placeholder="Selecteer opdrachtgever"
+                searchPlaceholder="Zoek opdrachtgever..."
+                emptyMessage="Geen opdrachtgevers gevonden."
+                className="mt-1"
+              />
               {form.formState.errors.clientId && (
                 <p className="text-sm text-red-600 mt-1">{form.formState.errors.clientId.message}</p>
               )}
