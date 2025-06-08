@@ -237,7 +237,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -344,6 +344,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                     <FormControl>
                       <Textarea
                         {...field}
+                        value={field.value || ""}
                         rows={3}
                         placeholder="Korte beschrijving van de kandidaat..."
                         className="resize-none"

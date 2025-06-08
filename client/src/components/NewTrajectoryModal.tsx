@@ -26,11 +26,10 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
   const form = useForm<InsertTrajectory>({
     resolver: zodResolver(insertTrajectorySchema),
     defaultValues: {
-      position: "",
-      rate: "",
-      notes: "",
       status: "interview",
       startDate: new Date().toISOString().split('T')[0],
+      jobTitle: "",
+      hourlyRate: "",
     },
   });
 
@@ -122,21 +121,21 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="position">Functie *</Label>
+              <Label htmlFor="jobTitle">Functie</Label>
               <Input
-                id="position"
-                {...form.register("position")}
+                id="jobTitle"
+                {...form.register("jobTitle")}
                 className="mt-1"
               />
-              {form.formState.errors.position && (
-                <p className="text-sm text-red-600 mt-1">{form.formState.errors.position.message}</p>
+              {form.formState.errors.jobTitle && (
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.jobTitle.message}</p>
               )}
             </div>
             <div>
-              <Label htmlFor="rate">Tarief</Label>
+              <Label htmlFor="hourlyRate">Tarief</Label>
               <Input
-                id="rate"
-                {...form.register("rate")}
+                id="hourlyRate"
+                {...form.register("hourlyRate")}
                 placeholder="€18,50 per uur"
                 className="mt-1"
               />
@@ -168,16 +167,7 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="notes">Notities</Label>
-            <Textarea
-              id="notes"
-              rows={3}
-              placeholder="Aanvullende informatie over het traject..."
-              {...form.register("notes")}
-              className="mt-1"
-            />
-          </div>
+
 
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline" onClick={onClose}>
