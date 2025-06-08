@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import type { CandidateWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import CandidateForm from "./candidate-form";
@@ -166,8 +167,16 @@ export default function CandidatesView() {
   }
 
   // Extract filter options from data
-  const statusOptions = [...new Set(candidatesArray.map((c: any) => c.status).filter(Boolean))];
-  const regionOptions = [...new Set(candidatesArray.map((c: any) => c.region).filter(Boolean))];
+  const statusSet = new Set<string>();
+  const regionSet = new Set<string>();
+  
+  candidatesArray.forEach((c: any) => {
+    if (c.status) statusSet.add(c.status);
+    if (c.region) regionSet.add(c.region);
+  });
+  
+  const statusOptions = Array.from(statusSet);
+  const regionOptions = Array.from(regionSet);
   const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
 
   const activeFiltersCount = 

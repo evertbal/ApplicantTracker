@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
@@ -35,6 +35,7 @@ interface CandidateFormProps {
 
 export default function CandidateForm({ candidate, onClose, onSuccess }: CandidateFormProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!candidate;
 
   const form = useForm<CandidateFormData>({
@@ -57,6 +58,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
   const createMutation = useMutation({
     mutationFn: candidateApi.create,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/candidates"] });
       toast({
         title: "Kandidaat toegevoegd",
         description: "De kandidaat is succesvol toegevoegd aan het systeem.",
@@ -75,6 +77,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
   const updateMutation = useMutation({
     mutationFn: (data: Partial<InsertCandidate>) => candidateApi.update(candidate!.id, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/candidates"] });
       toast({
         title: "Kandidaat bijgewerkt",
         description: "De kandidaat is succesvol bijgewerkt.",
