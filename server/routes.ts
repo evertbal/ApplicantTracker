@@ -671,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notes routes
-  app.get("/api/notes/:entityType/:entityId", authenticateAny, async (req, res) => {
+  app.get("/api/notes/:entityType/:entityId", isAuthenticated, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const notes = await storage.getNotes(entityType, parseInt(entityId));
@@ -682,7 +682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/notes", authenticateAny, async (req: any, res) => {
+  app.post("/api/notes", isAuthenticated, async (req: any, res) => {
     try {
       const authorId = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
       const noteData = insertNoteSchema.parse({

@@ -40,12 +40,14 @@ export default function CandidateDetail() {
   // Fetch notes
   const { data: notes = [] } = useQuery<Note[]>({
     queryKey: ["/api/notes/candidate", id],
+    queryFn: () => fetch(`/api/notes/candidate/${id}`, { credentials: 'include' }).then(res => res.json()),
     enabled: !!id,
   });
 
   // Fetch documents
   const { data: documents = [] } = useQuery<Document[]>({
     queryKey: ["/api/documents/candidate", id],
+    queryFn: () => fetch(`/api/documents/candidate/${id}`, { credentials: 'include' }).then(res => res.json()),
     enabled: !!id,
   });
 
