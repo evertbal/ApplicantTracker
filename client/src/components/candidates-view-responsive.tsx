@@ -17,10 +17,10 @@ export default function CandidatesView() {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedLicenses, setSelectedLicenses] = useState<string[]>([]);
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
   const [showExcelTemplateModal, setShowExcelTemplateModal] = useState(false);
+  const [, setLocation] = useLocation();
 
   const queryClient = useQueryClient();
 
@@ -76,8 +76,8 @@ export default function CandidatesView() {
   };
 
   const handleFormSuccess = () => {
-    refetch();
     closeForm();
+    refetch();
   };
 
   const normalizeLicensesMutation = useMutation({
@@ -239,22 +239,12 @@ export default function CandidatesView() {
           <CompactList
             items={filteredCandidates}
             type="candidates"
-            onView={setSelectedCandidate}
+            onView={(candidate: CandidateWithRelations) => setLocation(`/candidate/${candidate.id}`)}
             onEdit={openEditForm}
             isLoading={isLoading}
           />
         </div>
       </div>
-
-      {/* Detail Modal */}
-      {selectedCandidate && (
-        <DetailModal
-          entity={selectedCandidate}
-          entityType="candidate"
-          onClose={() => setSelectedCandidate(null)}
-          onEdit={() => openEditForm(selectedCandidate)}
-        />
-      )}
 
       {/* Form Modal */}
       {showForm && (
