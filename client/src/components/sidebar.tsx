@@ -67,8 +67,6 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
     },
   ];
 
-
-
   const getInitials = (firstName?: string | null, lastName?: string | null) => {
     if (!firstName && !lastName) return 'U';
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
@@ -162,8 +160,6 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
             ))}
           </ul>
         </div>
-
-
       </nav>
 
       {/* User Profile */}

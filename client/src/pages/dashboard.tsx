@@ -23,6 +23,7 @@ export default function Dashboard() {
         return <TrajectoriesView />;
       case 'clients':
         return <ClientsView />;
+
       default:
         return <CandidatesView />;
     }
