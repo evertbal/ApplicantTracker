@@ -13,7 +13,6 @@ import { X } from "lucide-react";
 import { insertCandidateSchema, type InsertCandidate } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 interface NewCandidateModalProps {
   isOpen: boolean;

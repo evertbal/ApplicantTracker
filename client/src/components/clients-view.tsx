@@ -13,7 +13,7 @@ import { nl } from "date-fns/locale";
 import type { ClientWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import ClientForm from "./client-form";
-import { SkeletonLoader } from "@/components/ui/skeleton-loader";
+import CompactList from "./compact-list";
 
 export default function ClientsView() {
   const [search, setSearch] = useState("");
@@ -21,7 +21,7 @@ export default function ClientsView() {
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientWithRelations | null>(null);
 
-  const { data: clients = [], isLoading, refetch } = useQuery<ClientWithRelations[]>({
+  const { data: clients = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/clients', search],
     enabled: true,
   });
@@ -155,131 +155,13 @@ export default function ClientsView() {
             </div>
 
             {/* Clients List */}
-            <div className="space-y-4">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 flex-1">
-                            <SkeletonLoader circle width={48} height={48} />
-                            <div className="space-y-2 flex-1">
-                              <div className="flex items-center space-x-4">
-                                <SkeletonLoader height="1.25rem" width="35%" />
-                                <SkeletonLoader height="1rem" width="4rem" />
-                              </div>
-                              <div className="flex items-center space-x-4">
-                                <SkeletonLoader circle width={16} height={16} />
-                                <SkeletonLoader height="0.875rem" width="25%" />
-                                <SkeletonLoader circle width={16} height={16} />
-                                <SkeletonLoader height="0.875rem" width="20%" />
-                              </div>
-                              <SkeletonLoader height="0.75rem" width="15%" />
-                            </div>
-                          </div>
-                          <SkeletonLoader circle width={32} height={32} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : clients.length === 0 ? (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      Geen opdrachtgevers gevonden
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Er zijn geen opdrachtgevers die voldoen aan de huidige filters.
-                    </p>
-                    <Button onClick={() => setShowForm(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Eerste opdrachtgever toevoegen
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                clients.map((client) => (
-                  <Card
-                    key={client.id}
-                    className="hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => setSelectedClient(client)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <Avatar className="w-12 h-12">
-                            <AvatarFallback className="bg-primary/10 text-primary">
-                              {getInitials(client.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {client.name}
-                            </h3>
-                            {client.contactPerson && (
-                              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                                <User className="w-4 h-4 mr-1" />
-                                {client.contactPerson}
-                              </p>
-                            )}
-                            {client.location && (
-                              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mt-1">
-                                <MapPin className="w-4 h-4 mr-1" />
-                                {client.location}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            {client.workType && (
-                              <Badge variant="secondary" className="mb-2">
-                                {client.workType}
-                              </Badge>
-                            )}
-                            <p className="text-xs text-gray-500">
-                              Toegevoegd: {client.createdAt 
-                                ? format(new Date(client.createdAt), 'dd MMM yyyy', { locale: nl })
-                                : 'Onbekend'}
-                            </p>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                openEditForm(client);
-                              }}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Bewerken
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
-                            <span className="flex items-center">
-                              <Building className="w-4 h-4 mr-1" />
-                              {client.trajectories?.length || 0} actieve trajecten
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            <CompactList
+              items={clients}
+              type="clients"
+              onView={setSelectedClient}
+              onEdit={openEditForm}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </div>

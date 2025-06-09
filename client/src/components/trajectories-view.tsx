@@ -14,7 +14,7 @@ import { nl } from "date-fns/locale";
 import type { TrajectoryWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import TrajectoryForm from "./trajectory-form";
-import { SkeletonLoader } from "@/components/ui/skeleton-loader";
+import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
   const [search, setSearch] = useState("");
@@ -23,7 +23,7 @@ export default function TrajectoriesView() {
   const [showForm, setShowForm] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
 
-  const { data: trajectories = [], isLoading, refetch } = useQuery<TrajectoryWithRelations[]>({
+  const { data: trajectories = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/trajectories', search, selectedStatuses],
     enabled: true,
   });
@@ -183,123 +183,13 @@ export default function TrajectoriesView() {
             </div>
 
             {/* Trajectories List */}
-            <div className="space-y-4">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 flex-1">
-                            <div className="space-y-2 flex-1">
-                              <div className="flex items-center space-x-4">
-                                <SkeletonLoader height="1.25rem" width="40%" />
-                                <SkeletonLoader height="1rem" width="4rem" />
-                              </div>
-                              <div className="flex items-center space-x-4">
-                                <SkeletonLoader circle width={24} height={24} />
-                                <SkeletonLoader height="0.875rem" width="30%" />
-                                <SkeletonLoader circle width={24} height={24} />
-                                <SkeletonLoader height="0.875rem" width="25%" />
-                              </div>
-                              <SkeletonLoader height="0.75rem" width="20%" />
-                            </div>
-                          </div>
-                          <SkeletonLoader circle width={32} height={32} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : trajectories.length === 0 ? (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      Geen trajecten gevonden
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Er zijn geen trajecten die voldoen aan de huidige filters.
-                    </p>
-                    <Button onClick={() => setShowForm(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Eerste traject toevoegen
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                trajectories.map((trajectory) => (
-                  <Card
-                    key={trajectory.id}
-                    className="hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => setSelectedTrajectory(trajectory)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {trajectory.jobTitle || 'Onbekende functie'} - {trajectory.client?.name || 'Onbekende opdrachtgever'}
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Gestart op {trajectory.startDate 
-                              ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })
-                              : 'Onbekende datum'}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          {getStatusBadge(trajectory.status || 'interview')}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                openEditForm(trajectory);
-                              }}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Bewerken
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">KANDIDAAT</label>
-                          <p className="text-sm text-gray-900 dark:text-white flex items-center">
-                            <Users className="w-4 h-4 mr-1" />
-                            {trajectory.candidate?.name || 'Onbekend'}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">TARIEF</label>
-                          <p className="text-sm text-gray-900 dark:text-white">
-                            {trajectory.hourlyRate || 'Niet opgegeven'}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">OPDRACHTGEVER</label>
-                          <p className="text-sm text-gray-900 dark:text-white flex items-center">
-                            <Building className="w-4 h-4 mr-1" />
-                            {trajectory.client?.name || 'Onbekend'}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {trajectory.notes && trajectory.notes.length > 0 && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                          {trajectory.notes.length} notitie(s) beschikbaar
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            <CompactList
+              items={trajectories}
+              type="trajectories"
+              onView={setSelectedTrajectory}
+              onEdit={openEditForm}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </div>
