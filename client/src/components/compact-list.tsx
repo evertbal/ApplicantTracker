@@ -7,6 +7,7 @@ import { MoreHorizontal, Edit, Eye, FileText, Route } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations } from "@shared/schema";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 interface CompactListProps {
   items: (CandidateWithRelations | ClientWithRelations | TrajectoryWithRelations)[];
@@ -21,14 +22,21 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
     return (
       <div className="space-y-2">
         {[...Array(5)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div className="flex-1 space-y-1">
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+          <Card key={i}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 flex-1">
+                  <SkeletonLoader circle width={40} height={40} />
+                  <div className="flex-1 space-y-2">
+                    <SkeletonLoader height="1.125rem" width="60%" />
+                    <SkeletonLoader height="0.875rem" width="40%" />
+                    <div className="flex space-x-2 mt-2">
+                      <SkeletonLoader height="1.25rem" width="4rem" />
+                      <SkeletonLoader height="1.25rem" width="3rem" />
+                    </div>
+                  </div>
                 </div>
+                <SkeletonLoader circle width={32} height={32} />
               </div>
             </CardContent>
           </Card>
