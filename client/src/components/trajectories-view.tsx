@@ -14,6 +14,7 @@ import { nl } from "date-fns/locale";
 import type { TrajectoryWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import TrajectoryForm from "./trajectory-form";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 export default function TrajectoriesView() {
   const [search, setSearch] = useState("");

@@ -11,6 +11,7 @@ import type { CandidateWithRelations } from "@shared/schema";
 import CandidateForm from "./candidate-form";
 import CollapsibleFilters from "./collapsible-filters";
 import CompactList from "./compact-list";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 export default function CandidatesView() {
   const [search, setSearch] = useState("");

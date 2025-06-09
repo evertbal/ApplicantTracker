@@ -13,6 +13,7 @@ import { nl } from "date-fns/locale";
 import type { ClientWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import ClientForm from "./client-form";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 export default function ClientsView() {
   const [search, setSearch] = useState("");
@@ -155,7 +156,32 @@ export default function ClientsView() {
 
             {/* Clients List */}
             <div className="space-y-4">
-              {clients.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <SkeletonLoader circle width={48} height={48} />
+                          <div>
+                            <SkeletonLoader height="1.125rem" width="12rem" className="mb-2" />
+                            <SkeletonLoader height="0.875rem" width="8rem" className="mb-1" />
+                            <SkeletonLoader height="0.875rem" width="10rem" />
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <SkeletonLoader height="1.25rem" width="4rem" />
+                          <SkeletonLoader circle width={32} height={32} />
+                        </div>
+                      </div>
+                      <div className="mt-4 flex items-center space-x-6">
+                        <SkeletonLoader height="0.875rem" width="6rem" />
+                        <SkeletonLoader height="0.875rem" width="8rem" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : clients.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center">
                     <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
