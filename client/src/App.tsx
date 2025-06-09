@@ -9,7 +9,6 @@ import Dashboard from "@/pages/dashboard";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import CandidateDetail from "@/pages/candidate-detail";
-import SkeletonDemo from "@/pages/skeleton-demo";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -31,7 +30,6 @@ function Router() {
           <Route path="/candidate/:id" component={CandidateDetail} />
           <Route path="/trajectories" component={Dashboard} />
           <Route path="/clients" component={Dashboard} />
-          <Route path="/skeleton-demo" component={SkeletonDemo} />
         </>
       )}
       <Route component={NotFound} />
