@@ -39,10 +39,10 @@ export default function CandidatesView() {
     const matchesSearch = search === "" || 
       candidate.name?.toLowerCase().includes(search.toLowerCase()) ||
       candidate.email?.toLowerCase().includes(search.toLowerCase()) ||
-      candidate.city?.toLowerCase().includes(search.toLowerCase());
+      (candidate.city && candidate.city.toLowerCase().includes(search.toLowerCase()));
 
     // Status filter
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(candidate.status);
+    const matchesStatus = selectedStatuses.length === 0 || (candidate.status && selectedStatuses.includes(candidate.status));
 
     // Region filter
     const matchesRegion = selectedRegion === "" || selectedRegion === "alle" || candidate.region === selectedRegion;
@@ -50,7 +50,7 @@ export default function CandidatesView() {
     // License filter
     const matchesLicense = selectedLicenses.length === 0 || 
       (candidate.drivingLicenses && selectedLicenses.some(license => 
-        candidate.drivingLicenses.includes(license)
+        candidate.drivingLicenses?.includes(license)
       ));
 
     return matchesSearch && matchesStatus && matchesRegion && matchesLicense;

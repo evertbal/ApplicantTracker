@@ -290,9 +290,9 @@ export default function TrajectoriesView() {
                         </div>
                       </div>
                       
-                      {trajectory.notes && (
+                      {trajectory.notes && trajectory.notes.length > 0 && (
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                          {trajectory.notes}
+                          {trajectory.notes.length} notitie(s) beschikbaar
                         </p>
                       )}
                     </CardContent>
