@@ -9,6 +9,7 @@ import { X } from "lucide-react";
 import { insertClientSchema, type InsertClient } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 interface NewClientModalProps {
   isOpen: boolean;

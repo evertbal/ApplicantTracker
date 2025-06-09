@@ -25,16 +25,16 @@ export default function CandidatesView() {
 
   const queryClient = useQueryClient();
 
-  const { data: candidates = [], isLoading, refetch } = useQuery({
+  const { data: candidates = [], isLoading, refetch } = useQuery<CandidateWithRelations[]>({
     queryKey: ['/api/candidates'],
     enabled: true,
   });
 
   // Type-safe access to candidates data
-  const candidatesArray = Array.isArray(candidates) ? candidates as any[] : [];
+  const candidatesArray = Array.isArray(candidates) ? candidates : [];
 
   // Filter candidates client-side
-  const filteredCandidates = candidatesArray.filter((candidate: any) => {
+  const filteredCandidates = candidatesArray.filter((candidate: CandidateWithRelations) => {
     // Search filter
     const matchesSearch = search === "" || 
       candidate.name?.toLowerCase().includes(search.toLowerCase()) ||

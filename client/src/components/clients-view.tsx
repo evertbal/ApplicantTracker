@@ -21,7 +21,7 @@ export default function ClientsView() {
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientWithRelations | null>(null);
 
-  const { data: clients = [], isLoading, refetch } = useQuery({
+  const { data: clients = [], isLoading, refetch } = useQuery<ClientWithRelations[]>({
     queryKey: ['/api/clients', search],
     enabled: true,
   });

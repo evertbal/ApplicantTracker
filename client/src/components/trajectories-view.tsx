@@ -23,7 +23,7 @@ export default function TrajectoriesView() {
   const [showForm, setShowForm] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
 
-  const { data: trajectories = [], isLoading, refetch } = useQuery({
+  const { data: trajectories = [], isLoading, refetch } = useQuery<TrajectoryWithRelations[]>({
     queryKey: ['/api/trajectories', search, selectedStatuses],
     enabled: true,
   });
