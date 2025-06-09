@@ -22,84 +22,57 @@ export default function CandidatesView() {
 
   const queryClient = useQueryClient();
 
-  const { data: candidates = [], isLoading, refetch } = useQuery({
+  const { data: candidates = [], isLoading, refetch } = useQuery<CandidateWithRelations[]>({
     queryKey: ['/api/candidates'],
     enabled: true,
   });
 
   // Type-safe access to candidates data
-  const candidatesArray = Array.isArray(candidates) ? candidates as any[] : [];
+  const candidatesArray = Array.isArray(candidates) ? candidates : [];
 
   // Filter candidates client-side
-  const filteredCandidates = candidatesArray.filter((candidate: any) => {
+  const filteredCandidates = candidatesArray.filter((candidate: CandidateWithRelations) => {
     // Search filter
     const matchesSearch = search === "" || 
       candidate.name?.toLowerCase().includes(search.toLowerCase()) ||
       candidate.email?.toLowerCase().includes(search.toLowerCase()) ||
-      candidate.city?.toLowerCase().includes(search.toLowerCase());
+      (candidate.city && candidate.city.toLowerCase().includes(search.toLowerCase()));
 
     // Status filter
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(candidate.status);
+    const matchesStatus = selectedStatuses.length === 0 || (candidate.status && selectedStatuses.includes(candidate.status));
 
     // Region filter
     const matchesRegion = selectedRegion === "" || selectedRegion === "alle" || candidate.region === selectedRegion;
 
     // License filter
     const matchesLicense = selectedLicenses.length === 0 || 
-      (candidate.drivingLicenses && selectedLicenses.some(license => candidate.drivingLicenses.includes(license)));
+      (candidate.drivingLicenses && selectedLicenses.some(license => 
+        candidate.drivingLicenses?.includes(license)
+      ));
 
     return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="status-active">Actief</Badge>;
-      case 'placed':
-        return <Badge className="status-placed">Geplaatst</Badge>;
-      case 'inactive':
-        return <Badge className="status-inactive">Inactief</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
+  const statusOptions = [
+    { value: "active", label: "Actief" },
+    { value: "inactive", label: "Inactief" },
+    { value: "interview", label: "Gesprek" },
+    { value: "placed", label: "Geplaatst" },
+  ];
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const regionOptions = [
+    { value: "alle", label: "Alle regio's" },
+    { value: "noord", label: "Noord" },
+    { value: "oost", label: "Oost" },
+    { value: "zuid", label: "Zuid" },
+    { value: "west", label: "West" },
+  ];
 
-  const formatPhoneNumber = (phone: string | null) => {
-    if (!phone) return '';
-    return phone.replace(/(\d{2})(\d{1})(\d{8})/, '+$1 $2 $3');
-  };
-
-  const clearFilters = () => {
-    setSearch("");
-    setSelectedStatuses([]);
-    setSelectedRegion("");
-    setSelectedLicenses([]);
-  };
-
-  const handleStatusChange = (status: string, checked: boolean) => {
-    if (checked) {
-      setSelectedStatuses([...selectedStatuses, status]);
-    } else {
-      setSelectedStatuses(selectedStatuses.filter(s => s !== status));
-    }
-  };
-
-  const handleLicenseChange = (license: string, checked: boolean) => {
-    if (checked) {
-      setSelectedLicenses([...selectedLicenses, license]);
-    } else {
-      setSelectedLicenses(selectedLicenses.filter(l => l !== license));
-    }
-  };
+  const licenseOptions = [
+    { value: "B", label: "B - Auto" },
+    { value: "C", label: "C - Vrachtwagen" },
+    { value: "CE", label: "CE - Vrachtwagen + aanhanger" },
+  ];
 
   const openEditForm = (candidate: CandidateWithRelations) => {
     setEditingCandidate(candidate);
@@ -116,72 +89,8 @@ export default function CandidatesView() {
     closeForm();
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch('/api/candidates/import', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        queryClient.invalidateQueries({ queryKey: ['/api/candidates'] });
-        
-        let message = `Import resultaat: ${result.imported} van ${result.total} kandidaten geïmporteerd.`;
-        if (result.errors && result.errors.length > 0) {
-          message += `\n\nFouten:\n${result.errors.slice(0, 5).join('\n')}`;
-          if (result.errors.length > 5) {
-            message += `\n... en ${result.errors.length - 5} meer`;
-          }
-        }
-        if (result.debug) {
-          console.log('Import debug info:', result.debug);
-        }
-        alert(message);
-      } else {
-        const error = await response.json();
-        alert(`Import fout: ${error.message}`);
-      }
-    } catch (error) {
-      alert('Er is een fout opgetreden bij het importeren van het bestand.');
-    }
-
-    // Reset file input
-    event.target.value = '';
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Kandidaten laden...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Extract filter options from data
-  const statusSet = new Set<string>();
-  const regionSet = new Set<string>();
-  
-  candidatesArray.forEach((c: any) => {
-    if (c.status) statusSet.add(c.status);
-    if (c.region) regionSet.add(c.region);
-  });
-  
-  const statusOptions = Array.from(statusSet);
-  const regionOptions = Array.from(regionSet);
-  const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
-
-  const activeFiltersCount = 
-    selectedStatuses.length + 
+  // Calculate active filters count
+  const activeFiltersCount = selectedStatuses.length + 
     (selectedRegion ? 1 : 0) + 
     selectedLicenses.length;
 
@@ -199,24 +108,25 @@ export default function CandidatesView() {
           <div className="flex items-center space-x-2 sm:space-x-3">
             <input
               type="file"
-              accept=".xlsx,.xls,.csv"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-              id="excel-upload"
+              accept=".csv,.xlsx,.xls"
+              className="hidden"
+              id="file-upload"
             />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById('excel-upload')?.click()}
-              className="hidden sm:flex"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Import Excel
+            <label htmlFor="file-upload">
+              <Button variant="outline" size="sm" asChild>
+                <span className="cursor-pointer">
+                  <Upload className="w-4 h-4 mr-1" />
+                  Import
+                </span>
+              </Button>
+            </label>
+            <Button variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-1" />
+              Export
             </Button>
-            <Button
+            <Button 
               size="sm"
               onClick={() => setShowForm(true)}
-              className="bg-primary hover:bg-primary-hover text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Nieuw
@@ -265,12 +175,14 @@ export default function CandidatesView() {
             isLoading={isLoading}
           />
         </div>
+      </div>
 
       {/* Detail Modal */}
       {selectedCandidate && (
         <DetailModal
           entity={selectedCandidate}
           entityType="candidate"
+          isOpen={!!selectedCandidate}
           onClose={() => setSelectedCandidate(null)}
           onEdit={() => openEditForm(selectedCandidate)}
         />
