@@ -14,6 +14,7 @@ import { nl } from "date-fns/locale";
 import type { TrajectoryWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import TrajectoryForm from "./trajectory-form";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 export default function TrajectoriesView() {
   const [search, setSearch] = useState("");
@@ -183,7 +184,34 @@ export default function TrajectoriesView() {
 
             {/* Trajectories List */}
             <div className="space-y-4">
-              {trajectories.length === 0 ? (
+              {isLoading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 flex-1">
+                            <div className="space-y-2 flex-1">
+                              <div className="flex items-center space-x-4">
+                                <SkeletonLoader height="1.25rem" width="40%" />
+                                <SkeletonLoader height="1rem" width="4rem" />
+                              </div>
+                              <div className="flex items-center space-x-4">
+                                <SkeletonLoader circle width={24} height={24} />
+                                <SkeletonLoader height="0.875rem" width="30%" />
+                                <SkeletonLoader circle width={24} height={24} />
+                                <SkeletonLoader height="0.875rem" width="25%" />
+                              </div>
+                              <SkeletonLoader height="0.75rem" width="20%" />
+                            </div>
+                          </div>
+                          <SkeletonLoader circle width={32} height={32} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : trajectories.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center">
                     <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />

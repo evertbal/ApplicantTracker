@@ -13,6 +13,7 @@ import { nl } from "date-fns/locale";
 import type { ClientWithRelations } from "@shared/schema";
 import DetailModal from "./detail-modal";
 import ClientForm from "./client-form";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 export default function ClientsView() {
   const [search, setSearch] = useState("");
@@ -155,7 +156,35 @@ export default function ClientsView() {
 
             {/* Clients List */}
             <div className="space-y-4">
-              {clients.length === 0 ? (
+              {isLoading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 flex-1">
+                            <SkeletonLoader circle width={48} height={48} />
+                            <div className="space-y-2 flex-1">
+                              <div className="flex items-center space-x-4">
+                                <SkeletonLoader height="1.25rem" width="35%" />
+                                <SkeletonLoader height="1rem" width="4rem" />
+                              </div>
+                              <div className="flex items-center space-x-4">
+                                <SkeletonLoader circle width={16} height={16} />
+                                <SkeletonLoader height="0.875rem" width="25%" />
+                                <SkeletonLoader circle width={16} height={16} />
+                                <SkeletonLoader height="0.875rem" width="20%" />
+                              </div>
+                              <SkeletonLoader height="0.75rem" width="15%" />
+                            </div>
+                          </div>
+                          <SkeletonLoader circle width={32} height={32} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : clients.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center">
                     <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
