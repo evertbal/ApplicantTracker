@@ -182,16 +182,7 @@ export default function CandidatesView() {
               <FileSpreadsheet className="w-4 h-4 mr-2" />
               Import Excel
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => normalizeLicensesMutation.mutate()}
-              disabled={normalizeLicensesMutation.isPending}
-              className="hidden md:flex"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${normalizeLicensesMutation.isPending ? 'animate-spin' : ''}`} />
-              Normaliseer Rijbewijzen
-            </Button>
+            
             <Button
               size="sm"
               onClick={() => setShowForm(true)}
