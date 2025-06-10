@@ -9,6 +9,18 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  
+  // Form states
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [registerData, setRegisterData] = useState({ 
+    email: '', 
+    password: '', 
+    firstName: '', 
+    lastName: '' 
+  });
 
   useEffect(() => {
     // Check for error parameters in URL
@@ -20,18 +32,6 @@ export default function Landing() {
         case 'domain_not_allowed':
           setError('Alleen @doenersingroen.nl email adressen zijn toegestaan.');
           break;
-        case 'microsoft_auth_failed':
-          setError('Microsoft authenticatie is mislukt. Probeer opnieuw.');
-          break;
-        case 'token_exchange_failed':
-          setError('Er is een probleem opgetreden bij het inloggen. Probeer opnieuw.');
-          break;
-        case 'session_failed':
-          setError('Sessie kon niet worden aangemaakt. Probeer opnieuw.');
-          break;
-        case 'authentication_failed':
-          setError('Authenticatie is mislukt. Probeer opnieuw.');
-          break;
         default:
           setError('Er is een onbekende fout opgetreden.');
       }
@@ -40,6 +40,63 @@ export default function Landing() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/auth/login-domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Inloggen mislukt');
+      }
+      
+      // Redirect to dashboard on success
+      window.location.href = '/';
+    } catch (err: any) {
+      setError(err.message || 'Inloggen mislukt');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registratie mislukt');
+      }
+      
+      toast({
+        title: "Account aangemaakt",
+        description: "Je kunt nu inloggen met je gegevens.",
+      });
+      
+      setActiveTab('login');
+      setLoginData({ email: registerData.email, password: '' });
+    } catch (err: any) {
+      setError(err.message || 'Registratie mislukt');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
@@ -61,39 +118,137 @@ export default function Landing() {
             </div>
           )}
           
-          <div className="space-y-4">
-            <Button 
-              size="lg" 
-              onClick={() => window.location.href = '/api/login'}
-              className="bg-primary hover:bg-primary-hover w-full max-w-sm"
-            >
-              Inloggen met Replit
-            </Button>
-            
-            <div className="flex items-center justify-center max-w-sm mx-auto">
-              <hr className="flex-1 border-gray-300" />
-              <span className="px-3 text-gray-500 text-sm">of</span>
-              <hr className="flex-1 border-gray-300" />
+          <div className="w-full max-w-md mx-auto">
+            {/* Tab Navigation */}
+            <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setActiveTab('login')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'login'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Inloggen
+              </button>
+              <button
+                onClick={() => setActiveTab('register')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'register'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Registreren
+              </button>
             </div>
-            
-            <Button 
-              size="lg" 
-              variant="outline"
-              onClick={() => window.location.href = '/api/auth/microsoft'}
-              className="border-blue-500 text-blue-600 hover:bg-blue-50 w-full max-w-sm"
-            >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 23 23">
-                <path fill="#f35325" d="M1 1h10v10H1z"/>
-                <path fill="#81bc06" d="M12 1h10v10H12z"/>
-                <path fill="#05a6f0" d="M1 12h10v10H1z"/>
-                <path fill="#ffba08" d="M12 12h10v10H12z"/>
-              </svg>
-              Inloggen met Microsoft
-            </Button>
-            
-            <p className="text-sm text-gray-500 max-w-sm mx-auto">
-              Microsoft login is alleen beschikbaar voor @doenersingroen.nl email adressen
-            </p>
+
+            {/* Login Form */}
+            {activeTab === 'login' && (
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <Label htmlFor="login-email">Email adres</Label>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    value={loginData.email}
+                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                    placeholder="naam@doenersingroen.nl"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="login-password">Wachtwoord</Label>
+                  <Input
+                    id="login-password"
+                    type="password"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                    required
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Bezig met inloggen...' : 'Inloggen'}
+                </Button>
+              </form>
+            )}
+
+            {/* Register Form */}
+            {activeTab === 'register' && (
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="register-firstName">Voornaam</Label>
+                    <Input
+                      id="register-firstName"
+                      value={registerData.firstName}
+                      onChange={(e) => setRegisterData({ ...registerData, firstName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="register-lastName">Achternaam</Label>
+                    <Input
+                      id="register-lastName"
+                      value={registerData.lastName}
+                      onChange={(e) => setRegisterData({ ...registerData, lastName: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="register-email">Email adres</Label>
+                  <Input
+                    id="register-email"
+                    type="email"
+                    value={registerData.email}
+                    onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                    placeholder="naam@doenersingroen.nl"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="register-password">Wachtwoord</Label>
+                  <Input
+                    id="register-password"
+                    type="password"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                    placeholder="Minimaal 8 karakters"
+                    required
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Account aanmaken...' : 'Account aanmaken'}
+                </Button>
+              </form>
+            )}
+
+            <div className="mt-6 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <hr className="flex-1 border-gray-300" />
+                <span className="px-3 text-gray-500 text-sm">of</span>
+                <hr className="flex-1 border-gray-300" />
+              </div>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/api/login'}
+                className="w-full"
+              >
+                Inloggen met Replit
+              </Button>
+              <p className="text-xs text-gray-500 mt-2">
+                @doenersingroen.nl accounts krijgen automatisch toegang
+              </p>
+            </div>
           </div>
         </div>
 
