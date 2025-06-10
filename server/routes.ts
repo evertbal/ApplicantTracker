@@ -88,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Hash password
-      const bcrypt = require('bcryptjs');
+      const bcrypt = await import('bcryptjs');
       const passwordHash = await bcrypt.hash(password, 10);
 
       // Create user (pending approval)
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Verify password
-      const bcrypt = require('bcryptjs');
+      const bcrypt = await import('bcryptjs');
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
         return res.status(401).json({ message: 'Ongeldige inloggegevens' });
