@@ -83,13 +83,17 @@ export default function Landing() {
         throw new Error(errorData.message || 'Registratie mislukt');
       }
       
+      const responseData = await response.json();
+      
       toast({
         title: "Account aangemaakt",
-        description: "Je kunt nu inloggen met je gegevens.",
+        description: responseData.requiresApproval 
+          ? "Wacht op goedkeuring van een admin." 
+          : "Je kunt nu inloggen met je gegevens.",
       });
       
       setActiveTab('login');
-      setLoginData({ email: registerData.email, password: '' });
+      setLoginData({ username: registerData.username, password: '' });
     } catch (err: any) {
       setError(err.message || 'Registratie mislukt');
     } finally {
@@ -146,13 +150,12 @@ export default function Landing() {
             {activeTab === 'login' && (
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="login-email">Email adres</Label>
+                  <Label htmlFor="login-username">Gebruikersnaam of email</Label>
                   <Input
-                    id="login-email"
-                    type="email"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                    placeholder="naam@doenersingroen.nl"
+                    id="login-username"
+                    value={loginData.username}
+                    onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+                    placeholder="gebruikersnaam of email@doenersingroen.nl"
                     required
                   />
                 </div>
@@ -179,25 +182,15 @@ export default function Landing() {
             {/* Register Form */}
             {activeTab === 'register' && (
               <form onSubmit={handleRegister} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="register-firstName">Voornaam</Label>
-                    <Input
-                      id="register-firstName"
-                      value={registerData.firstName}
-                      onChange={(e) => setRegisterData({ ...registerData, firstName: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="register-lastName">Achternaam</Label>
-                    <Input
-                      id="register-lastName"
-                      value={registerData.lastName}
-                      onChange={(e) => setRegisterData({ ...registerData, lastName: e.target.value })}
-                      required
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="register-username">Gebruikersnaam</Label>
+                  <Input
+                    id="register-username"
+                    value={registerData.username}
+                    onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
+                    placeholder="jouwgebruikersnaam"
+                    required
+                  />
                 </div>
                 <div>
                   <Label htmlFor="register-email">Email adres</Label>
@@ -228,6 +221,9 @@ export default function Landing() {
                 >
                   {isLoading ? 'Account aanmaken...' : 'Account aanmaken'}
                 </Button>
+                <p className="text-xs text-gray-500 text-center">
+                  Nieuwe accounts moeten worden goedgekeurd door een admin
+                </p>
               </form>
             )}
 

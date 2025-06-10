@@ -44,6 +44,19 @@ export default function AdminDashboard() {
     enabled: !loading && adminUser?.role === 'admin',
   });
 
+  // Fetch pending users
+  const { data: pendingUsers = [], isLoading: pendingUsersLoading } = useQuery({
+    queryKey: ['admin-pending-users'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/pending-users', {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch pending users');
+      return response.json();
+    },
+    enabled: !loading && adminUser?.role === 'admin',
+  });
+
   // Fetch admin users
   const { data: adminUsers = [], isLoading: adminUsersLoading } = useQuery({
     queryKey: ['admin-admin-users'],
@@ -99,6 +112,26 @@ export default function AdminDashboard() {
       toast({
         title: 'Gebruikersstatus bijgewerkt',
         description: 'De status van de gebruiker is succesvol gewijzigd.',
+      });
+    },
+  });
+
+  // Approve user mutation
+  const approveUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await fetch(`/api/admin/approve-user/${userId}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to approve user');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-pending-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({
+        title: 'Gebruiker goedgekeurd',
+        description: 'De gebruiker kan nu inloggen.',
       });
     },
   });
@@ -188,13 +221,91 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="users" className="space-y-6">
+        <Tabs defaultValue="pending" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="users">Replit Gebruikers</TabsTrigger>
+            <TabsTrigger value="pending">
+              Wachtende Goedkeuring
+              {pendingUsers.length > 0 && (
+                <Badge variant="destructive" className="ml-2">
+                  {pendingUsers.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="users">Actieve Gebruikers</TabsTrigger>
             <TabsTrigger value="admin-users">Admin Gebruikers</TabsTrigger>
           </TabsList>
 
-          {/* Replit Users Tab */}
+          {/* Pending Users Tab */}
+          <TabsContent value="pending" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Wachtende Goedkeuring
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Nieuwe accounts die wachten op goedkeuring
+                </p>
+              </div>
+            </div>
+
+            {pendingUsersLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">Laden...</p>
+              </div>
+            ) : pendingUsers.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-8">
+                  <UserCheck className="w-12 h-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    Geen wachtende gebruikers
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-center">
+                    Alle nieuwe registraties zijn verwerkt
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {pendingUsers.map((user: any) => (
+                  <Card key={user.id} className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {user.username || 'Geen gebruikersnaam'}
+                            </h3>
+                            <Badge variant="outline" className="border-orange-300 text-orange-700">
+                              Wacht op goedkeuring
+                            </Badge>
+                          </div>
+                          <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                            <p><strong>Email:</strong> {user.email}</p>
+                            <p><strong>Naam:</strong> {user.firstName} {user.lastName}</p>
+                            <p><strong>Aangemeld op:</strong> {new Date(user.createdAt).toLocaleDateString('nl-NL')}</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => approveUserMutation.mutate(user.id)}
+                            disabled={approveUserMutation.isPending}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <UserCheck className="w-4 h-4 mr-1" />
+                            Goedkeuren
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Active Users Tab */}
           <TabsContent value="users" className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
