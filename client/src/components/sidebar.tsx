@@ -111,8 +111,8 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
         </div>
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 p-4">
+      {/* Navigation Menu - Scrollable */}
+      <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">
           {navigationItems.map((item) => (
             <li key={item.id}>
@@ -162,8 +162,8 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
         </div>
       </nav>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      {/* User Profile - Fixed at bottom */}
+      <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.profileImageUrl || undefined} />
