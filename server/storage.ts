@@ -35,6 +35,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserRole(id: string, role: string): Promise<User>;
   updateUserActiveStatus(id: string, isActive: boolean): Promise<User>;
+  updateUserLastLogin(id: string): Promise<void>;
   getAllUsers(): Promise<User[]>;
 
   // Admin user operations
@@ -138,6 +139,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async updateUserLastLogin(id: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ lastLogin: new Date(), updatedAt: new Date() })
+      .where(eq(users.id, id));
   }
 
   async getAllUsers(): Promise<User[]> {

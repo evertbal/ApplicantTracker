@@ -65,9 +65,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     password: z.string().min(1, "Wachtwoord is verplicht")
   });
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Domain-based authentication routes
+  app.post('/api/auth/register', async (req, res) => {
     try {
+      const { email, password, firstName, lastName } = req.body;
+
+      // Validate domain
+      if (!email.endsWith('@doenersingroen.nl')) {
+        return res.status(400).json({ message: 'Alleen @doenersingroen.nl email adressen zijn toegestaan' });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: 'Account met dit email adres bestaat al' });
+      }
+
+      // Hash password
+      const bcrypt = require('bcryptjs');
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Create user
+      const userId = email.split('@')[0] + '-' + Date.now();
+      await storage.upsertUser({
+        id: userId,
+        email,
+        firstName,
+        lastName,
+        passwordHash,
+        role: 'viewer',
+        isActive: true
+      });
+
+      res.json({ message: 'Account succesvol aangemaakt' });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ message: 'Er is een fout opgetreden bij het aanmaken van je account' });
+    }
+  });
+
+  app.post('/api/auth/login-domain', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      // Verify password
+      const bcrypt = require('bcryptjs');
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      // Update last login
+      await storage.updateUserLastLogin(user.id);
+
+      // Set session
+      (req as any).session.userId = user.id;
+      (req as any).session.user = user;
+
+      res.json({ message: 'Succesvol ingelogd' });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Er is een fout opgetreden bij het inloggen' });
+    }
+  });
+
+  // Auth routes
+  app.get('/api/auth/user', async (req: any, res) => {
+    try {
+      // Check session-based auth first (domain users)
+      if (req.session?.userId) {
+        const user = await storage.getUser(req.session.userId);
+        if (user) {
+          return res.json(user);
+        }
+      }
+
+      // Fallback to Replit auth
+      if (!req.isAuthenticated() || !req.user?.claims?.sub) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
