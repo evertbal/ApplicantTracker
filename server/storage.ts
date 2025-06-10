@@ -32,11 +32,14 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserRole(id: string, role: string): Promise<User>;
   updateUserActiveStatus(id: string, isActive: boolean): Promise<User>;
   updateUserLastLogin(id: string): Promise<void>;
+  approveUser(id: string): Promise<User>;
   getAllUsers(): Promise<User[]>;
+  getPendingUsers(): Promise<User[]>;
 
   // Admin user operations
   getAdminUser(username: string): Promise<AdminUser | undefined>;
@@ -108,6 +111,11 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -150,6 +158,19 @@ export class DatabaseStorage implements IStorage {
 
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users).orderBy(asc(users.createdAt));
+  }
+
+  async approveUser(id: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ isPending: false, isActive: true, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async getPendingUsers(): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.isPending, true)).orderBy(asc(users.createdAt));
   }
 
   // Admin user operations

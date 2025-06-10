@@ -65,10 +65,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     password: z.string().min(1, "Wachtwoord is verplicht")
   });
 
-  // Domain-based authentication routes
+  // Simplified authentication routes
   app.post('/api/auth/register', async (req, res) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      const { username, email, password } = req.body;
 
       // Validate domain
       if (!email.endsWith('@doenersingroen.nl')) {
@@ -76,42 +76,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
+      const existingUserByEmail = await storage.getUserByEmail(email);
+      const existingUserByUsername = await storage.getUserByUsername(username);
+      
+      if (existingUserByEmail) {
         return res.status(400).json({ message: 'Account met dit email adres bestaat al' });
+      }
+      
+      if (existingUserByUsername) {
+        return res.status(400).json({ message: 'Gebruikersnaam is al in gebruik' });
       }
 
       // Hash password
       const bcrypt = require('bcryptjs');
       const passwordHash = await bcrypt.hash(password, 10);
 
-      // Create user
-      const userId = email.split('@')[0] + '-' + Date.now();
+      // Create user (pending approval)
+      const userId = username + '-' + Date.now();
       await storage.upsertUser({
         id: userId,
+        username,
         email,
-        firstName,
-        lastName,
         passwordHash,
         role: 'viewer',
-        isActive: true
+        isActive: false,
+        isPending: true
       });
 
-      res.json({ message: 'Account succesvol aangemaakt' });
+      res.json({ 
+        message: 'Account aangemaakt. Wacht op goedkeuring van een admin.',
+        requiresApproval: true 
+      });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(500).json({ message: 'Er is een fout opgetreden bij het aanmaken van je account' });
     }
   });
 
-  app.post('/api/auth/login-domain', async (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { username, password } = req.body;
 
-      // Find user
-      const user = await storage.getUserByEmail(email);
+      // Find user by username or email
+      let user = await storage.getUserByUsername(username);
+      if (!user) {
+        user = await storage.getUserByEmail(username);
+      }
+
       if (!user || !user.passwordHash) {
         return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      // Check if user is pending approval
+      if (user.isPending) {
+        return res.status(401).json({ message: 'Account wacht nog op goedkeuring van een admin' });
+      }
+
+      // Check if user is active
+      if (!user.isActive) {
+        return res.status(401).json({ message: 'Account is gedeactiveerd' });
       }
 
       // Verify password
@@ -128,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (req as any).session.userId = user.id;
       (req as any).session.user = user;
 
-      res.json({ message: 'Succesvol ingelogd' });
+      res.json({ message: 'Succesvol ingelogd', user: { id: user.id, username: user.username, email: user.email } });
     } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ message: 'Er is een fout opgetreden bij het inloggen' });
@@ -413,6 +436,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deactivating admin user:', error);
       res.status(500).json({ message: 'Fout bij deactiveren admin gebruiker' });
+    }
+  });
+
+  // Pending user approval routes
+  app.get('/api/admin/pending-users', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const pendingUsers = await storage.getPendingUsers();
+      res.json(pendingUsers);
+    } catch (error) {
+      console.error('Error fetching pending users:', error);
+      res.status(500).json({ message: 'Fout bij ophalen pending gebruikers' });
+    }
+  });
+
+  app.post('/api/admin/approve-user/:id', authenticateAdmin, requireRole('admin'), async (req: AdminAuthRequest, res) => {
+    try {
+      const userId = req.params.id;
+      const approvedUser = await storage.approveUser(userId);
+      res.json({ message: 'Gebruiker goedgekeurd', user: approvedUser });
+    } catch (error) {
+      console.error('Error approving user:', error);
+      res.status(500).json({ message: 'Fout bij goedkeuren gebruiker' });
     }
   });
 

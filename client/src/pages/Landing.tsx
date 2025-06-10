@@ -14,12 +14,11 @@ export default function Landing() {
   const { toast } = useToast();
   
   // Form states
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [registerData, setRegisterData] = useState({ 
+    username: '',
     email: '', 
-    password: '', 
-    firstName: '', 
-    lastName: '' 
+    password: ''
   });
 
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function Landing() {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/login-domain', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData),
