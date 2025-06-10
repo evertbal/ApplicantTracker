@@ -227,23 +227,7 @@ export default function Landing() {
               </form>
             )}
 
-            <div className="mt-6 text-center">
-              <div className="flex items-center justify-center mb-4">
-                <hr className="flex-1 border-gray-300" />
-                <span className="px-3 text-gray-500 text-sm">of</span>
-                <hr className="flex-1 border-gray-300" />
-              </div>
-              <Button 
-                variant="outline"
-                onClick={() => window.location.href = '/api/login'}
-                className="w-full"
-              >
-                Inloggen met Replit
-              </Button>
-              <p className="text-xs text-gray-500 mt-2">
-                @doenersingroen.nl accounts krijgen automatisch toegang
-              </p>
-            </div>
+
           </div>
         </div>
 
