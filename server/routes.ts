@@ -12,7 +12,8 @@ import {
   verifyToken,
   type AdminAuthRequest 
 } from "./adminAuth";
-import { insertAdminUserSchema } from "@shared/schema";
+import { insertAdminUserSchema, upsertUserSchema } from "@shared/schema";
+import { z } from "zod";
 import multer from "multer";
 import * as XLSX from "xlsx";
 import { 
@@ -22,7 +23,6 @@ import {
   insertNoteSchema,
   insertDocumentSchema
 } from "@shared/schema";
-import { z } from "zod";
 import { normalizeDrivingLicense, batchNormalizeDrivingLicenses } from "./driverLicenseNormalizer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -49,6 +49,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
+  // Registration schema
+  const registerSchema = z.object({
+    email: z.string().email("Ongeldig email adres").refine(
+      (email) => email.endsWith("@doenersingroen.nl"),
+      "Alleen @doenersingroen.nl email adressen zijn toegestaan"
+    ),
+    firstName: z.string().min(1, "Voornaam is verplicht"),
+    lastName: z.string().min(1, "Achternaam is verplicht"),
+    password: z.string().min(8, "Wachtwoord moet minimaal 8 karakters zijn")
+  });
+
+  const loginSchema = z.object({
+    email: z.string().email("Ongeldig email adres"),
+    password: z.string().min(1, "Wachtwoord is verplicht")
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
@@ -58,6 +74,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Registration route
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const validatedData = registerSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Gebruiker bestaat al" });
+      }
+
+      // Hash password
+      const passwordHash = await hashPassword(validatedData.password);
+
+      // Create user
+      const user = await storage.upsertUser({
+        id: `email_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email: validatedData.email,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        profileImageUrl: null,
+      });
+
+      // Create admin user entry for authentication
+      await storage.createAdminUser({
+        username: validatedData.email,
+        passwordHash,
+        role: 'user',
+        isActive: true,
+      });
+
+      res.status(201).json({ message: "Account succesvol aangemaakt" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validatiefout", 
+          errors: error.errors.map(e => e.message) 
+        });
+      }
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registratie mislukt" });
+    }
+  });
+
+  // Login route for domain users
+  app.post('/api/auth/login-domain', async (req, res) => {
+    try {
+      const validatedData = loginSchema.parse(req.body);
+      
+      // Check if email is from allowed domain
+      if (!validatedData.email.endsWith("@doenersingroen.nl")) {
+        return res.status(403).json({ message: "Alleen @doenersingroen.nl email adressen zijn toegestaan" });
+      }
+
+      // Get admin user for authentication
+      const adminUser = await storage.getAdminUser(validatedData.email);
+      if (!adminUser || !adminUser.isActive) {
+        return res.status(401).json({ message: "Ongeldige inloggegevens" });
+      }
+
+      // Verify password
+      const isValidPassword = await verifyPassword(validatedData.password, adminUser.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Ongeldige inloggegevens" });
+      }
+
+      // Get user profile
+      const user = await storage.getUserByEmail(validatedData.email);
+      if (!user) {
+        return res.status(401).json({ message: "Gebruikersprofiel niet gevonden" });
+      }
+
+      // Update last login
+      await storage.updateAdminUserLastLogin(adminUser.id);
+
+      // Create session (compatible with existing auth)
+      (req as any).user = { 
+        claims: { sub: user.id },
+        expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+      };
+      
+      req.login((req as any).user, (err) => {
+        if (err) {
+          console.error('Session creation error:', err);
+          return res.status(500).json({ message: "Sessie aanmaken mislukt" });
+        }
+        res.json({ message: "Succesvol ingelogd", user });
+      });
+
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validatiefout", 
+          errors: error.errors.map(e => e.message) 
+        });
+      }
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Inloggen mislukt" });
     }
   });
 
