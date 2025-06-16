@@ -1,10 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, Building, Route } from "lucide-react";
+import { Shield } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -14,7 +12,7 @@ export default function Landing() {
   const { toast } = useToast();
   
   // Form states
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ 
     username: '',
     email: '', 
@@ -49,7 +47,7 @@ export default function Landing() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify({ username: loginData.email, password: loginData.password }),
       });
       
       if (!response.ok) {
@@ -93,7 +91,7 @@ export default function Landing() {
       });
       
       setActiveTab('login');
-      setLoginData({ username: registerData.username, password: '' });
+      setLoginData({ email: registerData.email, password: '' });
     } catch (err: any) {
       setError(err.message || 'Registratie mislukt');
     } finally {
@@ -102,171 +100,154 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
-        <div className="text-center mb-12">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center">
-              <Users className="h-8 w-8 text-white" />
+            <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center">
+              <Shield className="h-6 w-6 text-black" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">ATS Portal</h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Professioneel Applicant Tracking System voor moderne recruitment
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">ATS PORTAL</h1>
+          <p className="text-gray-600 text-sm mb-6">
+            Professionele AI-gestuurde offerte generator
           </p>
-          
+          <p className="text-gray-500 text-xs">
+            Alleen geautoriseerde NoSuch medewerkers
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border p-6">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
               {error}
             </div>
           )}
           
-          <div className="w-full max-w-md mx-auto">
-            {/* Tab Navigation */}
-            <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setActiveTab('login')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'login'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Inloggen
-              </button>
-              <button
-                onClick={() => setActiveTab('register')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'register'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Registreren
-              </button>
-            </div>
-
-            {/* Login Form */}
-            {activeTab === 'login' && (
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <Label htmlFor="login-username">Gebruikersnaam of email</Label>
-                  <Input
-                    id="login-username"
-                    value={loginData.username}
-                    onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
-                    placeholder="gebruikersnaam of email@doenersingroen.nl"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="login-password">Wachtwoord</Label>
-                  <Input
-                    id="login-password"
-                    type="password"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                    required
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Bezig met inloggen...' : 'Inloggen'}
-                </Button>
-              </form>
-            )}
-
-            {/* Register Form */}
-            {activeTab === 'register' && (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                  <Label htmlFor="register-username">Gebruikersnaam</Label>
-                  <Input
-                    id="register-username"
-                    value={registerData.username}
-                    onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
-                    placeholder="jouwgebruikersnaam"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="register-email">Email adres</Label>
-                  <Input
-                    id="register-email"
-                    type="email"
-                    value={registerData.email}
-                    onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                    placeholder="naam@doenersingroen.nl"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="register-password">Wachtwoord</Label>
-                  <Input
-                    id="register-password"
-                    type="password"
-                    value={registerData.password}
-                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                    placeholder="Minimaal 8 karakters"
-                    required
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Account aanmaken...' : 'Account aanmaken'}
-                </Button>
-                <p className="text-xs text-gray-500 text-center">
-                  Nieuwe accounts moeten worden goedgekeurd door een admin
-                </p>
-              </form>
-            )}
-
-
+          {/* Tab Navigation */}
+          <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('login')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'login'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              INLOGGEN
+            </button>
+            <button
+              onClick={() => setActiveTab('register')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'register'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              REGISTREREN
+            </button>
           </div>
-        </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="text-center">
-              <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>Kandidatenbeheer</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-center">
-                Beheer alle kandidaten met uitgebreide profielen, notities en documenten
+          {/* Login Form */}
+          {activeTab === 'login' && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="email" className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                  EMAIL
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  placeholder="jouw.email@nosuch.nl"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="password" className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                  WACHTWOORD
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  placeholder="Jouw wachtwoord"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 mt-6" 
+                disabled={isLoading}
+              >
+                {isLoading ? 'BEZIG MET INLOGGEN...' : 'INLOGGEN →'}
+              </Button>
+              <p className="text-xs text-gray-500 text-center mt-4">
+                Door in te loggen ga je akkoord met de gebruikersvoorwaarden
               </p>
-            </CardContent>
-          </Card>
+            </form>
+          )}
 
-          <Card>
-            <CardHeader className="text-center">
-              <Route className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>Trajecten</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-center">
-                Volg alle plaatsingen van intake tot succesvolle plaatsing
+          {/* Register Form */}
+          {activeTab === 'register' && (
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div>
+                <Label htmlFor="register-username" className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                  GEBRUIKERSNAAM
+                </Label>
+                <Input
+                  id="register-username"
+                  value={registerData.username}
+                  onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
+                  placeholder="jouwgebruikersnaam"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="register-email" className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                  EMAIL
+                </Label>
+                <Input
+                  id="register-email"
+                  type="email"
+                  value={registerData.email}
+                  onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                  placeholder="naam@doenersingroen.nl"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="register-password" className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                  WACHTWOORD
+                </Label>
+                <Input
+                  id="register-password"
+                  type="password"
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                  placeholder="Minimaal 8 karakters"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 mt-6" 
+                disabled={isLoading}
+              >
+                {isLoading ? 'ACCOUNT AANMAKEN...' : 'REGISTREREN →'}
+              </Button>
+              <p className="text-xs text-gray-500 text-center mt-4">
+                Nieuwe accounts moeten worden goedgekeurd door een admin
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="text-center">
-              <Building className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>Opdrachtgevers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 text-center">
-                Onderhoud sterke relaties met alle partners en opdrachtgevers
-              </p>
-            </CardContent>
-          </Card>
+            </form>
+          )}
         </div>
       </div>
     </div>
