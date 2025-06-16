@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-// import { setupAuth, authenticateUser } from "./replitAuth";
+import session from "express-session";
 import { 
   authenticateAdmin, 
   requireRole, 
@@ -48,7 +48,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Session configuration for simple auth
-  const session = (await import('express-session')).default;
   const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-key-for-development';
   
   app.use(session({
@@ -282,6 +281,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User login endpoint
+  app.post('/api/auth/login', async (req: any, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: 'Gebruikersnaam en wachtwoord zijn vereist' });
+      }
+
+      // Try to find user by username or email
+      let user = await storage.getUserByUsername(username);
+      if (!user) {
+        user = await storage.getUserByEmail(username);
+      }
+
+      if (!user) {
+        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      if (user.isPending) {
+        return res.status(401).json({ message: 'Account wacht nog op goedkeuring van een admin' });
+      }
+
+      if (!user.isActive) {
+        return res.status(401).json({ message: 'Account is gedeactiveerd' });
+      }
+
+      // Verify password
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
+      }
+
+      // Update last login
+      await storage.updateUserLastLogin(user.id);
+
+      // Create session
+      req.session.userId = user.id;
+
+      res.json({ 
+        message: 'Succesvol ingelogd', 
+        user: { 
+          id: user.id, 
+          username: user.username, 
+          email: user.email 
+        } 
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Server fout' });
+    }
+  });
+
+  // User registration endpoint
+  app.post('/api/auth/register', async (req: any, res) => {
+    try {
+      const { username, email, password } = req.body;
+      
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Alle velden zijn verplicht' });
+      }
+
+      // Validate email domain
+      if (!email.endsWith('@doenersingroen.nl')) {
+        return res.status(400).json({ message: 'Alleen @doenersingroen.nl email adressen zijn toegestaan' });
+      }
+
+      // Check if user already exists
+      const existingUserByEmail = await storage.getUserByEmail(email);
+      if (existingUserByEmail) {
+        return res.status(400).json({ message: 'Email is al in gebruik' });
+      }
+
+      const existingUserByUsername = await storage.getUserByUsername(username);
+      if (existingUserByUsername) {
+        return res.status(400).json({ message: 'Gebruikersnaam is al in gebruik' });
+      }
+
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Create user (pending approval)
+      const userId = username + '-' + Date.now();
+      await storage.upsertUser({
+        id: userId,
+        username,
+        email,
+        passwordHash,
+        role: 'viewer',
+        isActive: false,
+        isPending: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+
+      res.json({ 
+        message: 'Account aangemaakt. Wacht op goedkeuring van een admin.',
+        requiresApproval: true
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ message: 'Server fout' });
+    }
+  });
+
   // Logout endpoint
   app.post('/api/auth/logout', (req: any, res) => {
     req.session.destroy((err: any) => {
@@ -311,20 +415,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Verify user exists and has valid email domain
-    const userId = req.user.claims.sub;
+    // Verify user exists and is active
+    const userId = req.session.userId;
     const user = await storage.getUser(userId);
     
-    if (!user || !user.email) {
-      return res.status(401).json({ message: "User not found" });
+    if (!user || !user.isActive) {
+      return res.status(401).json({ message: "User not found or inactive" });
     }
 
-    // Check if email domain is allowed (disabled for development)
-    // const domain = user.email.split('@')[1];
-    // if (!['doenersingroen.nl'].includes(domain)) {
-    //   return res.status(403).json({ message: "Alleen doenersingroen.nl email adressen zijn toegestaan" });
-    // }
-
+    req.user = user;
     next();
   };
 
