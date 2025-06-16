@@ -12,7 +12,7 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
-const ALLOWED_DOMAINS = ['doenersingroen.nl'];
+const ALLOWED_DOMAINS = ['doenersingroen.nl', 'replit.com', 'gmail.com']; // Toegevoegd voor ontwikkeling
 
 const getOidcConfig = memoize(
   async () => {

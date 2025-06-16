@@ -293,11 +293,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "User not found" });
     }
 
-    // Check if email domain is allowed
-    const domain = user.email.split('@')[1];
-    if (!['doenersingroen.nl'].includes(domain)) {
-      return res.status(403).json({ message: "Alleen doenersingroen.nl email adressen zijn toegestaan" });
-    }
+    // Check if email domain is allowed (disabled for development)
+    // const domain = user.email.split('@')[1];
+    // if (!['doenersingroen.nl'].includes(domain)) {
+    //   return res.status(403).json({ message: "Alleen doenersingroen.nl email adressen zijn toegestaan" });
+    // }
 
     next();
   };
