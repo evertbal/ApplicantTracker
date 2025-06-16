@@ -12,6 +12,8 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
+const ALLOWED_DOMAINS = ['doenersingroen.nl'];
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -54,12 +56,24 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
+function isEmailDomainAllowed(email: string): boolean {
+  if (!email) return false;
+  const domain = email.split('@')[1];
+  return ALLOWED_DOMAINS.includes(domain);
+}
+
 async function upsertUser(
   claims: any,
 ) {
+  const email = claims["email"];
+  
+  if (!isEmailDomainAllowed(email)) {
+    throw new Error(`Alleen ${ALLOWED_DOMAINS.join(', ')} email adressen zijn toegestaan`);
+  }
+
   await storage.upsertUser({
     id: claims["sub"],
-    email: claims["email"],
+    email: email,
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
@@ -78,10 +92,21 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
+    try {
+      const claims = tokens.claims();
+      const email = claims["email"];
+      
+      if (!isEmailDomainAllowed(email)) {
+        return verified(new Error(`Alleen ${ALLOWED_DOMAINS.join(', ')} email adressen zijn toegestaan`), false);
+      }
+
+      const user = {};
+      updateUserSession(user, tokens);
+      await upsertUser(claims);
+      verified(null, user);
+    } catch (error) {
+      verified(error, false);
+    }
   };
 
   for (const domain of process.env

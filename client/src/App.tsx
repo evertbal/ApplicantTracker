@@ -21,7 +21,9 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       
       {/* Regular app routes */}
-      {isLoading || !isAuthenticated ? (
+      {isLoading ? (
+        <Route path="/" component={Landing} />
+      ) : !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
         <>

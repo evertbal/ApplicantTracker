@@ -66,115 +66,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     password: z.string().min(1, "Wachtwoord is verplicht")
   });
 
-  // Simplified authentication routes
-  app.post('/api/auth/register', async (req, res) => {
-    try {
-      const { username, email, password } = req.body;
-
-      // Validate domain
-      if (!email.endsWith('@doenersingroen.nl')) {
-        return res.status(400).json({ message: 'Alleen @doenersingroen.nl email adressen zijn toegestaan' });
-      }
-
-      // Check if user already exists
-      const existingUserByEmail = await storage.getUserByEmail(email);
-      const existingUserByUsername = await storage.getUserByUsername(username);
-      
-      if (existingUserByEmail) {
-        return res.status(400).json({ message: 'Account met dit email adres bestaat al' });
-      }
-      
-      if (existingUserByUsername) {
-        return res.status(400).json({ message: 'Gebruikersnaam is al in gebruik' });
-      }
-
-      // Hash password
-      const passwordHash = await bcrypt.hash(password, 10);
-
-      // Create user (pending approval)
-      const userId = username + '-' + Date.now();
-      await storage.upsertUser({
-        id: userId,
-        username,
-        email,
-        passwordHash,
-        role: 'viewer',
-        isActive: false,
-        isPending: true
-      });
-
-      res.json({ 
-        message: 'Account aangemaakt. Wacht op goedkeuring van een admin.',
-        requiresApproval: true 
-      });
-    } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ message: 'Er is een fout opgetreden bij het aanmaken van je account' });
-    }
-  });
-
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      const { username, password } = req.body;
-
-      // Find user by username or email
-      let user = await storage.getUserByUsername(username);
-      if (!user) {
-        user = await storage.getUserByEmail(username);
-      }
-
-      if (!user || !user.passwordHash) {
-        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
-      }
-
-      // Check if user is pending approval
-      if (user.isPending) {
-        return res.status(401).json({ message: 'Account wacht nog op goedkeuring van een admin' });
-      }
-
-      // Check if user is active
-      if (!user.isActive) {
-        return res.status(401).json({ message: 'Account is gedeactiveerd' });
-      }
-
-      // Verify password
-      const isValid = await bcrypt.compare(password, user.passwordHash);
-      if (!isValid) {
-        return res.status(401).json({ message: 'Ongeldige inloggegevens' });
-      }
-
-      // Update last login
-      await storage.updateUserLastLogin(user.id);
-
-      // Set session
-      (req as any).session.userId = user.id;
-      (req as any).session.user = user;
-
-      res.json({ message: 'Succesvol ingelogd', user: { id: user.id, username: user.username, email: user.email } });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Er is een fout opgetreden bij het inloggen' });
-    }
-  });
-
-  // Auth routes
+  // Auth routes - simplified to use only Replit Auth
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // Check session-based auth first (domain users)
-      if (req.session?.userId) {
-        const user = await storage.getUser(req.session.userId);
-        if (user) {
-          return res.json(user);
-        }
-      }
-
-      // Fallback to Replit auth
       if (!req.isAuthenticated() || !req.user?.claims?.sub) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -182,106 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Registration route
-  app.post('/api/auth/register', async (req, res) => {
-    try {
-      const validatedData = registerSchema.parse(req.body);
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(validatedData.email);
-      if (existingUser) {
-        return res.status(400).json({ message: "Gebruiker bestaat al" });
-      }
-
-      // Hash password
-      const passwordHash = await hashPassword(validatedData.password);
-
-      // Create user
-      const user = await storage.upsertUser({
-        id: `email_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        email: validatedData.email,
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
-        profileImageUrl: null,
-      });
-
-      // Create admin user entry for authentication
-      await storage.createAdminUser({
-        username: validatedData.email,
-        passwordHash,
-        role: 'user',
-        isActive: true,
-      });
-
-      res.status(201).json({ message: "Account succesvol aangemaakt" });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Validatiefout", 
-          errors: error.errors.map(e => e.message) 
-        });
-      }
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Registratie mislukt" });
-    }
-  });
-
-  // Login route for domain users
-  app.post('/api/auth/login-domain', async (req, res) => {
-    try {
-      const validatedData = loginSchema.parse(req.body);
-      
-      // Check if email is from allowed domain
-      if (!validatedData.email.endsWith("@doenersingroen.nl")) {
-        return res.status(403).json({ message: "Alleen @doenersingroen.nl email adressen zijn toegestaan" });
-      }
-
-      // Get admin user for authentication
-      const adminUser = await storage.getAdminUser(validatedData.email);
-      if (!adminUser || !adminUser.isActive) {
-        return res.status(401).json({ message: "Ongeldige inloggegevens" });
-      }
-
-      // Verify password
-      const isValidPassword = await verifyPassword(validatedData.password, adminUser.passwordHash);
-      if (!isValidPassword) {
-        return res.status(401).json({ message: "Ongeldige inloggegevens" });
-      }
-
-      // Get user profile
-      const user = await storage.getUserByEmail(validatedData.email);
-      if (!user) {
-        return res.status(401).json({ message: "Gebruikersprofiel niet gevonden" });
-      }
-
-      // Update last login
-      await storage.updateAdminUserLastLogin(adminUser.id);
-
-      // Create session (compatible with existing auth)
-      (req as any).user = { 
-        claims: { sub: user.id },
-        expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
-      };
-      
-      req.login((req as any).user, (err) => {
-        if (err) {
-          console.error('Session creation error:', err);
-          return res.status(500).json({ message: "Sessie aanmaken mislukt" });
-        }
-        res.json({ message: "Succesvol ingelogd", user });
-      });
-
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Validatiefout", 
-          errors: error.errors.map(e => e.message) 
-        });
-      }
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Inloggen mislukt" });
-    }
-  });
+  
 
   // Admin authentication routes
   app.post('/api/admin/login', async (req, res) => {
@@ -460,9 +266,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Combined authentication middleware
+  // Authentication middleware using only Replit Auth with admin token fallback
   const authenticateAny: any = async (req: any, res: any, next: any) => {
-    // First try admin authentication
+    // First try admin authentication for admin API routes
     const adminToken = req.headers.authorization?.replace('Bearer ', '');
     if (adminToken) {
       try {
@@ -474,13 +280,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
-    // Check if user is authenticated via Replit session
-    if (req.isAuthenticated && req.isAuthenticated()) {
-      return next();
+    // Use Replit authentication
+    if (!req.isAuthenticated() || !req.user?.claims?.sub) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // If no valid authentication found
-    return res.status(401).json({ message: "Unauthorized" });
+    // Verify user exists and has valid email domain
+    const userId = req.user.claims.sub;
+    const user = await storage.getUser(userId);
+    
+    if (!user || !user.email) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // Check if email domain is allowed
+    const domain = user.email.split('@')[1];
+    if (!['doenersingroen.nl'].includes(domain)) {
+      return res.status(403).json({ message: "Alleen doenersingroen.nl email adressen zijn toegestaan" });
+    }
+
+    next();
   };
 
   // Candidate routes

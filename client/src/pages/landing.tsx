@@ -66,9 +66,19 @@ export default function Landing() {
 
 
 
+        {/* Login Button */}
+        <div className="text-center mt-16">
+          <a 
+            href="/api/login" 
+            className="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Inloggen met Replit
+          </a>
+        </div>
+
         {/* Footer */}
-        <div className="text-center mt-16 text-gray-500 dark:text-gray-400">
-          <p>Veilig inloggen met uw Replit account</p>
+        <div className="text-center mt-8 text-gray-500 dark:text-gray-400">
+          <p>Alleen doenersingroen.nl email adressen zijn toegestaan</p>
         </div>
       </div>
     </div>
