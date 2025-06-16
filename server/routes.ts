@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+// import { setupAuth, authenticateUser } from "./replitAuth";
 import { 
   authenticateAdmin, 
   requireRole, 
@@ -47,8 +47,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware
-  await setupAuth(app);
+  // Session configuration for simple auth
+  const session = (await import('express-session')).default;
+  const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-key-for-development';
+  
+  app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
 
   // Registration schema
   const registerSchema = z.object({
@@ -66,14 +78,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     password: z.string().min(1, "Wachtwoord is verplicht")
   });
 
-  // Auth routes - simplified to use only Replit Auth
-  app.get('/api/auth/user', async (req: any, res) => {
-    try {
-      if (!req.isAuthenticated() || !req.user?.claims?.sub) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+  // Simple session-based auth middleware
+  const authenticateUser = (req: any, res: any, next: any) => {
+    if (req.session?.userId) {
+      return next();
+    }
+    return res.status(401).json({ message: "Unauthorized" });
+  };
 
-      const userId = req.user.claims.sub;
+  // Auth routes - simplified login/register system
+  app.get('/api/auth/user', authenticateUser, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -266,7 +282,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Authentication middleware using only Replit Auth with admin token fallback
+  // Logout endpoint
+  app.post('/api/auth/logout', (req: any, res) => {
+    req.session.destroy((err: any) => {
+      if (err) {
+        return res.status(500).json({ message: 'Logout failed' });
+      }
+      res.json({ message: 'Logged out successfully' });
+    });
+  });
+
+  // Authentication middleware using simple session auth with admin token fallback
   const authenticateAny: any = async (req: any, res: any, next: any) => {
     // First try admin authentication for admin API routes
     const adminToken = req.headers.authorization?.replace('Bearer ', '');
@@ -276,12 +302,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.adminUser = decoded;
         return next();
       } catch (error) {
-        // Admin token invalid, continue to try Replit auth
+        // Admin token invalid, continue to try user auth
       }
     }
 
-    // Use Replit authentication
-    if (!req.isAuthenticated() || !req.user?.claims?.sub) {
+    // Use session-based user authentication
+    if (!req.session?.userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -366,7 +392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/candidates/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/candidates/:id", authenticateUser, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const candidateData = insertCandidateSchema.partial().parse(req.body);
@@ -393,7 +419,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/candidates/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/candidates/:id", authenticateUser, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteCandidate(id);
@@ -409,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Excel import route for candidates
-  app.post("/api/candidates/import", isAuthenticated, upload.single('file'), async (req: any, res) => {
+  app.post("/api/candidates/import", authenticateUser, upload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Geen bestand geüpload" });
@@ -523,7 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Normaliseer alle bestaande kandidaat rijbewijzen
-  app.post("/api/normalize-all-licenses", isAuthenticated, async (req, res) => {
+  app.post("/api/normalize-all-licenses", authenticateUser, async (req, res) => {
     try {
       const candidates = await storage.getCandidates();
       let updatedCount = 0;
@@ -568,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Client routes
-  app.get("/api/clients", isAuthenticated, async (req, res) => {
+  app.get("/api/clients", authenticateUser, async (req, res) => {
     try {
       const filters = {
         search: req.query.search as string,
@@ -583,7 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/clients/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/clients/:id", authenticateUser, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const client = await storage.getClient(id);
@@ -597,7 +623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/clients", isAuthenticated, async (req: any, res) => {
+  app.post("/api/clients", authenticateUser, async (req: any, res) => {
     try {
       const clientData = insertClientSchema.parse(req.body);
       const client = await storage.createClient(clientData);
@@ -615,7 +641,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/clients/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/clients/:id", authenticateUser, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const clientData = insertClientSchema.partial().parse(req.body);
@@ -634,7 +660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/clients/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/clients/:id", authenticateUser, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteClient(id);
@@ -650,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Trajectory routes
-  app.get("/api/trajectories", isAuthenticated, async (req, res) => {
+  app.get("/api/trajectories", authenticateUser, async (req, res) => {
     try {
       const filters = {
         search: req.query.search as string,
@@ -667,7 +693,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/trajectories/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/trajectories/:id", authenticateUser, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const trajectory = await storage.getTrajectory(id);
@@ -681,7 +707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/trajectories", isAuthenticated, async (req: any, res) => {
+  app.post("/api/trajectories", authenticateUser, async (req: any, res) => {
     try {
       const trajectoryData = insertTrajectorySchema.parse(req.body);
       const trajectory = await storage.createTrajectory(trajectoryData);
@@ -699,7 +725,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/trajectories/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/trajectories/:id", authenticateUser, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const trajectoryData = insertTrajectorySchema.partial().parse(req.body);
@@ -718,7 +744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/trajectories/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/trajectories/:id", authenticateUser, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteTrajectory(id);
@@ -734,7 +760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notes routes
-  app.get("/api/notes/:entityType/:entityId", isAuthenticated, async (req, res) => {
+  app.get("/api/notes/:entityType/:entityId", authenticateUser, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const notes = await storage.getNotes(entityType, parseInt(entityId));
@@ -745,7 +771,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/notes", isAuthenticated, async (req: any, res) => {
+  app.post("/api/notes", authenticateUser, async (req: any, res) => {
     try {
       const authorId = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
       const noteData = insertNoteSchema.parse({
