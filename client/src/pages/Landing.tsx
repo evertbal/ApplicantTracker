@@ -186,6 +186,25 @@ export default function Landing() {
               >
                 {isLoading ? 'BEZIG MET INLOGGEN...' : 'INLOGGEN →'}
               </Button>
+              
+              <div className="relative mt-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-gray-500">Of</span>
+                </div>
+              </div>
+              
+              <Button 
+                type="button"
+                onClick={() => window.location.href = '/api/replit-login'}
+                className="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-2.5 mt-6" 
+                disabled={isLoading}
+              >
+                INLOGGEN MET REPLIT →
+              </Button>
+              
               <p className="text-xs text-gray-500 text-center mt-4">
                 Door in te loggen ga je akkoord met de gebruikersvoorwaarden
               </p>

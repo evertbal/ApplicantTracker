@@ -8,9 +8,21 @@ export function useAuth() {
     retry: false,
   });
 
+  // Also check for Replit Auth user
+  const { data: replitUser, isLoading: replitLoading } = useQuery({
+    queryKey: ["/api/replit-user"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    retry: false,
+  });
+
+  const finalUser = user || replitUser;
+  const finalLoading = isLoading || replitLoading;
+
   return {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
+    user: finalUser,
+    isLoading: finalLoading,
+    isAuthenticated: !!finalUser,
+    isReplitUser: !!replitUser,
+    isDatabaseUser: !!user,
   };
 }
