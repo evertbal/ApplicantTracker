@@ -278,7 +278,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                         </div>
                       </div>
                     </div>
-                    <div className="col-span-2">
+                    <div className="lg:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Beschrijving</label>
                       <Textarea 
                         value={(entity as CandidateWithRelations).description || ""} 
@@ -315,14 +315,14 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                 </div>
 
                 <div className="space-y-4">
-                  {notes.length === 0 ? (
+                  {(notes as any[])?.length === 0 ? (
                     <Card>
                       <CardContent className="p-8 text-center">
                         <p className="text-gray-500">Nog geen notities toegevoegd</p>
                       </CardContent>
                     </Card>
                   ) : (
-                    notes.map((note: Note) => (
+                    (notes as any[])?.map((note: any) => (
                       <Card key={note.id}>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-2">
@@ -332,11 +332,11 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                               </span>
                               <span className="text-sm text-gray-500">•</span>
                               <span className="text-sm text-gray-500">
-                                {format(new Date(note.timestamp!), "d MMM yyyy, HH:mm", { locale: nl })}
+                                {format(new Date(note.createdAt!), "d MMM yyyy, HH:mm", { locale: nl })}
                               </span>
                             </div>
                           </div>
-                          <p className="text-gray-700">{note.text}</p>
+                          <p className="text-gray-700">{note.content}</p>
                         </CardContent>
                       </Card>
                     ))
@@ -360,14 +360,14 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                 </div>
 
                 <div className="space-y-3">
-                  {documents.length === 0 ? (
+                  {(documents as any[])?.length === 0 ? (
                     <Card>
                       <CardContent className="p-8 text-center">
                         <p className="text-gray-500">Nog geen documenten geüpload</p>
                       </CardContent>
                     </Card>
                   ) : (
-                    documents.map((document: Document) => (
+                    (documents as any[])?.map((document: any) => (
                       <Card key={document.id}>
                         <CardContent className="flex items-center justify-between p-4">
                           <div className="flex items-center space-x-3">
@@ -377,7 +377,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                             <div>
                               <p className="font-medium text-gray-900">{document.filename}</p>
                               <p className="text-sm text-gray-500">
-                                Geüpload op {format(new Date(document.uploadedAt!), "d MMM yyyy", { locale: nl })}
+                                Geüpload op {format(new Date(document.createdAt!), "d MMM yyyy", { locale: nl })}
                               </p>
                             </div>
                           </div>
@@ -419,7 +419,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                           <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-4">
                               <div>
-                                <h4 className="text-lg font-semibold text-gray-900">{trajectory.position}</h4>
+                                <h4 className="text-lg font-semibold text-gray-900">{trajectory.jobTitle}</h4>
                                 <p className="text-sm text-gray-600">
                                   Gestart op {trajectory.startDate ? format(new Date(trajectory.startDate), "d MMM yyyy", { locale: nl }) : "Onbekend"}
                                 </p>
@@ -431,7 +431,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                             <div className="grid grid-cols-3 gap-4">
                               <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1">TARIEF</label>
-                                <p className="text-sm text-gray-900">{trajectory.rate}</p>
+                                <p className="text-sm text-gray-900">{trajectory.hourlyRate}</p>
                               </div>
                             </div>
                             {trajectory.notes && (
