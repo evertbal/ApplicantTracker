@@ -133,6 +133,9 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 17, 2025. Implemented dual authentication system with email/password and Replit Auth
+- June 17, 2025. Added dedicated /auth page for email login to prevent 404 errors
+- June 17, 2025. Updated admin password to 'admin123' for admin user access
 - June 16, 2025. Initial setup
 ```
 
