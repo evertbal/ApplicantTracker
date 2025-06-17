@@ -390,6 +390,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Legacy /api/login redirect (for old bookmarks/links)
+  app.get('/api/login', (req: any, res) => {
+    res.redirect('/');
+  });
+
   // Logout endpoint
   app.post('/api/auth/logout', (req: any, res) => {
     req.session.destroy((err: any) => {

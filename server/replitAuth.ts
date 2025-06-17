@@ -146,7 +146,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
   const refreshToken = user.refresh_token;
   if (!refreshToken) {
-    return res.redirect("/api/login");
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
@@ -155,6 +155,6 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     updateUserSession(user, tokenResponse);
     return next();
   } catch (error) {
-    return res.redirect("/api/login");
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };

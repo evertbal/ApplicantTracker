@@ -38,13 +38,7 @@ export default function Landing() {
             Professioneel Applicant Tracking System voor moderne recruitmentbureaus. 
             Beheer kandidaten, trajecten en opdrachtgevers in één geïntegreerd platform.
           </p>
-          <Button 
-            size="lg" 
-            className="bg-primary hover:bg-primary-hover text-white font-semibold px-8 py-3"
-            onClick={() => window.location.href = '/api/login'}
-          >
-            Inloggen om te beginnen
-          </Button>
+          {/* Login button removed - login form is now on this page */}
         </div>
 
         {/* Features Grid */}
@@ -66,15 +60,7 @@ export default function Landing() {
 
 
 
-        {/* Login Button */}
-        <div className="text-center mt-16">
-          <a 
-            href="/api/login" 
-            className="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Inloggen met Replit
-          </a>
-        </div>
+        {/* Login section removed - login form is now the main interface */}
 
         {/* Footer */}
         <div className="text-center mt-8 text-gray-500 dark:text-gray-400">
