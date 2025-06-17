@@ -133,8 +133,8 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
   };
 
   const getUserInitials = () => {
-    if (!user?.firstName && !user?.lastName) return "U";
-    return `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase();
+    if (!user?.email) return "U";
+    return user.email.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -434,8 +434,8 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                                 <p className="text-sm text-gray-900">{trajectory.hourlyRate}</p>
                               </div>
                             </div>
-                            {trajectory.notes && (
-                              <p className="text-sm text-gray-600 mt-4">{trajectory.notes}</p>
+                            {trajectory.status && (
+                              <p className="text-sm text-gray-600 mt-4">Status: {trajectory.status}</p>
                             )}
                           </CardContent>
                         </Card>
