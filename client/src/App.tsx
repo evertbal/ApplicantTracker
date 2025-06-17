@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import CandidateDetail from "@/pages/candidate-detail";
+import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,9 @@ function Router() {
 
   return (
     <Switch>
+      {/* Auth page - always accessible */}
+      <Route path="/auth" component={AuthPage} />
+      
       {/* Admin routes - independent of Replit auth */}
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
