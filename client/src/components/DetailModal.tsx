@@ -91,7 +91,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
         return (entity as ClientWithRelations).name;
       case "trajectory":
         const trajectory = entity as TrajectoryWithRelations;
-        return `${trajectory.position} - ${trajectory.client?.name}`;
+        return `${trajectory.jobTitle} - ${trajectory.client?.name}`;
       default:
         return "Details";
     }
@@ -139,85 +139,92 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-5/6 flex flex-col">
-        <DialogHeader className="flex-shrink-0 p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-gray-600 text-xl font-medium">
+      <DialogContent className="w-full max-w-4xl sm:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-5/6 flex flex-col mx-4 sm:mx-auto">
+        <DialogHeader className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                <span className="text-gray-600 text-lg sm:text-xl font-medium">
                   {getInitials(getEntityTitle())}
                 </span>
               </div>
-              <div>
-                <DialogTitle className="text-2xl font-semibold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-lg sm:text-2xl font-semibold text-gray-900 truncate">
                   {getEntityTitle()}
                 </DialogTitle>
-                <p className="text-sm text-gray-600">{getEntitySubtitle()}</p>
+                <p className="text-sm text-gray-600 mt-1">{getEntitySubtitle()}</p>
                 {entityType === "candidate" && (
-                  <div className="flex items-center mt-2 space-x-2">
+                  <div className="flex flex-wrap items-center mt-2 gap-2">
                     <Badge className="bg-green-100 text-green-800">
                       {(entity as CandidateWithRelations).status}
                     </Badge>
-                    {(entity as CandidateWithRelations).drivingLicense?.map((license) => (
+                    {(entity as CandidateWithRelations).drivingLicenses?.map((license: any) => (
                       <Badge key={license} variant="secondary" className="bg-blue-100 text-blue-800">
                         {license}
                       </Badge>
                     ))}
                   </div>
                 )}
+                {entityType === "trajectory" && (
+                  <div className="flex flex-wrap items-center mt-2 gap-2">
+                    <Badge className="bg-blue-100 text-blue-800">
+                      {(entity as TrajectoryWithRelations).status}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button className="bg-primary hover:bg-primary-hover">
-                <Edit className="h-4 w-4 mr-2" />
-                Bewerken
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Button className="bg-primary hover:bg-primary-hover" size="sm">
+                <Edit className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Bewerken</span>
               </Button>
-              <Button variant="ghost" onClick={onClose}>
-                <X className="h-5 w-5" />
+              <Button variant="ghost" onClick={onClose} size="sm">
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="flex-1 flex overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex">
-            <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
-              <TabsList className="grid w-full grid-cols-1 gap-1 bg-transparent">
+        <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
+            <div className="w-full sm:w-64 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-3 sm:p-4">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-1 gap-1 bg-transparent">
                 <TabsTrigger 
                   value="information" 
-                  className="justify-start bg-white border border-gray-200 text-primary shadow-sm"
+                  className="justify-center sm:justify-start bg-white border border-gray-200 text-primary shadow-sm text-xs sm:text-sm"
                 >
-                  <User className="h-4 w-4 mr-2" />
-                  Informatie
+                  <User className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Informatie</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="notes" 
-                  className="justify-start text-gray-700 hover:bg-white hover:shadow-sm"
+                  className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
                 >
-                  <StickyNote className="h-4 w-4 mr-2" />
-                  Notities
-                  <Badge variant="secondary" className="ml-auto">
-                    {notes.length}
+                  <StickyNote className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Notities</span>
+                  <Badge variant="secondary" className="ml-auto hidden sm:block">
+                    {(notes as any[])?.length || 0}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="documents" 
-                  className="justify-start text-gray-700 hover:bg-white hover:shadow-sm"
+                  className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
                 >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Documenten
-                  <Badge variant="secondary" className="ml-auto">
-                    {documents.length}
+                  <FileText className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Documenten</span>
+                  <Badge variant="secondary" className="ml-auto hidden sm:block">
+                    {(documents as any[])?.length || 0}
                   </Badge>
                 </TabsTrigger>
                 {entityType === "candidate" && (
                   <TabsTrigger 
                     value="trajectories" 
-                    className="justify-start text-gray-700 hover:bg-white hover:shadow-sm"
+                    className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
                   >
-                    <Route className="h-4 w-4 mr-2" />
-                    Trajecten
-                    <Badge variant="secondary" className="ml-auto">
+                    <Route className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Trajecten</span>
+                    <Badge variant="secondary" className="ml-auto hidden sm:block">
                       {(entity as CandidateWithRelations).trajectories?.length || 0}
                     </Badge>
                   </TabsTrigger>
@@ -225,10 +232,10 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
               </TabsList>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6">
               <TabsContent value="information" className="m-0">
                 {entityType === "candidate" && (
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Persoonlijke Gegevens</h3>
                       <div className="space-y-4">
