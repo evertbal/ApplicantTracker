@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Eye, FileText, Route } from "lucide-react";
+import { MoreHorizontal, Edit, Eye, FileText, Route, Building, BriefcaseIcon } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations } from "@shared/schema";
@@ -43,8 +43,24 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
       inactive: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
       pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
       completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      interview: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      proposed: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      placed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
     };
     return colors[status as keyof typeof colors] || colors.active;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels = {
+      interview: "In Gesprek",
+      proposed: "Voorgesteld", 
+      placed: "Geplaatst",
+      active: "Actief",
+      inactive: "Inactief",
+      pending: "In Behandeling",
+      completed: "Voltooid"
+    };
+    return labels[status as keyof typeof labels] || status;
   };
 
   const renderCandidateItem = (candidate: any) => (
@@ -116,13 +132,13 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
               <AvatarFallback className="bg-blue-500 text-white">
-                {client.companyName?.substring(0, 2).toUpperCase() || 'B'}
+                <Building className="w-4 h-4" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
-                  {client.companyName}
+                  {client.name}
                 </h3>
                 <Badge variant="outline" className="text-xs">
                   {client.workType}
@@ -130,8 +146,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
               </div>
               <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 <span className="truncate">{client.contactPerson}</span>
-                <span className="hidden sm:inline">{client.email}</span>
-                <span className="hidden md:inline">{client.city}</span>
+                <span className="hidden sm:inline">{client.location}</span>
               </div>
             </div>
           </div>
@@ -182,17 +197,17 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
-                  {trajectory.candidate?.name} → {trajectory.client?.companyName}
+                  {trajectory.position} - {trajectory.client?.name}
                 </h3>
                 <Badge className={`text-xs ${getStatusColor(trajectory.status)}`}>
-                  {trajectory.status}
+                  {getStatusLabel(trajectory.status)}
                 </Badge>
               </div>
               <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <span className="truncate">{trajectory.function}</span>
+                <span className="truncate">{trajectory.candidate?.name}</span>
                 {trajectory.startDate && (
                   <span className="hidden sm:inline">
-                    Start: {format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })}
+                    {format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })}
                   </span>
                 )}
               </div>
