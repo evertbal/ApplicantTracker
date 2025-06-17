@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import session from "express-session";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   authenticateAdmin, 
   requireRole, 
@@ -46,6 +47,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       fileSize: 10 * 1024 * 1024 // 10MB limit
     }
   });
+
+  // Enable Replit Auth alongside simple auth
+  await setupAuth(app);
 
   // Session configuration for simple auth
   const sessionSecret = process.env.SESSION_SECRET || 'fallback-secret-key-for-development';
@@ -390,10 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Legacy /api/login redirect (for old bookmarks/links)
-  app.get('/api/login', (req: any, res) => {
-    res.redirect('/');
-  });
+  // /api/login is now handled by Replit Auth in setupAuth()
 
   // Logout endpoint
   app.post('/api/auth/logout', (req: any, res) => {
