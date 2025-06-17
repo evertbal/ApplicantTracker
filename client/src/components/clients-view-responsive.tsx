@@ -26,7 +26,8 @@ export default function ClientsView() {
   });
 
   // Work type options - extracted from existing data
-  const workTypeOptions = Array.isArray(clients) ? [...new Set(clients.map((client: any) => client.workType).filter(Boolean))] : [];
+  const workTypeSet = Array.isArray(clients) ? clients.map((client: any) => client.workType).filter(Boolean) : [];
+  const workTypeOptions = workTypeSet.filter((value, index, self) => self.indexOf(value) === index);
 
   // Filter clients
   const filteredClients = Array.isArray(clients) ? clients.filter((client: any) => {

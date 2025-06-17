@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import ResponsiveLayout from "@/components/responsive-layout";
 import CandidatesView from "@/components/candidates-view-responsive";
-import TrajectoriesView from "@/components/trajectories-view";
-import ClientsView from "@/components/clients-view";
+import TrajectoriesView from "@/components/trajectories-view-responsive";
+import ClientsView from "@/components/clients-view-responsive";
 
 
 export default function Dashboard() {
