@@ -489,7 +489,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const candidate = await storage.createCandidate(candidateData);
       
       // Log audit
-      await storage.logAudit("candidate", candidate.id, "create", candidateData, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("candidate", candidate.id, "create", candidateData, userId);
       
       res.status(201).json(candidate);
     } catch (error) {
@@ -516,7 +517,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const candidate = await storage.updateCandidate(id, candidateData);
       
       // Log audit
-      await storage.logAudit("candidate", id, "update", candidateData, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("candidate", id, "update", candidateData, userId);
       
       res.json(candidate);
     } catch (error) {
@@ -534,7 +536,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.deleteCandidate(id);
       
       // Log audit
-      await storage.logAudit("candidate", id, "delete", {}, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("candidate", id, "delete", {}, userId);
       
       res.status(204).send();
     } catch (error) {
@@ -632,7 +635,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.createCandidate(validatedData);
           
           // Log audit
-          await storage.logAudit("candidate", 0, "import", candidateData, req.user.claims.sub);
+          const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+          await storage.logAudit("candidate", 0, "import", candidateData, userId);
           
           importedCount++;
         } catch (error) {
@@ -738,7 +742,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const client = await storage.createClient(clientData);
       
       // Log audit
-      await storage.logAudit("client", client.id, "create", clientData, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", client.id, "create", clientData, userId);
       
       res.status(201).json(client);
     } catch (error) {
@@ -757,7 +762,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const client = await storage.updateClient(id, clientData);
       
       // Log audit
-      await storage.logAudit("client", id, "update", clientData, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", id, "update", clientData, userId);
       
       res.json(client);
     } catch (error) {
