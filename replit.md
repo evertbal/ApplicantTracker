@@ -133,6 +133,8 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 18, 2025. Fixed 500 errors when adding candidates by correcting audit log user ID references
+- June 17, 2025. Made DetailModal fully responsive for mobile devices with touch-friendly interfaces
 - June 17, 2025. Made trajectories and clients views responsive like candidates view
 - June 17, 2025. Extended CompactList component to support all three entity types
 - June 17, 2025. Implemented dual authentication system with email/password and Replit Auth

@@ -781,7 +781,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.deleteClient(id);
       
       // Log audit
-      await storage.logAudit("client", id, "delete", {}, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", id, "delete", {}, userId);
       
       res.status(204).send();
     } catch (error) {
@@ -828,7 +829,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trajectory = await storage.createTrajectory(trajectoryData);
       
       // Log audit
-      await storage.logAudit("trajectory", trajectory.id, "create", trajectoryData, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("trajectory", trajectory.id, "create", trajectoryData, userId);
       
       res.status(201).json(trajectory);
     } catch (error) {
@@ -847,7 +849,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trajectory = await storage.updateTrajectory(id, trajectoryData);
       
       // Log audit
-      await storage.logAudit("trajectory", id, "update", trajectoryData, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("trajectory", id, "update", trajectoryData, userId);
       
       res.json(trajectory);
     } catch (error) {
@@ -865,7 +868,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.deleteTrajectory(id);
       
       // Log audit
-      await storage.logAudit("trajectory", id, "delete", {}, req.user.claims.sub);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("trajectory", id, "delete", {}, userId);
       
       res.status(204).send();
     } catch (error) {
