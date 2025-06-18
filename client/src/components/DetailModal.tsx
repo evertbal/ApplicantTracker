@@ -53,11 +53,11 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
   });
 
   const createNoteMutation = useMutation({
-    mutationFn: async (text: string) => {
+    mutationFn: async (content: string) => {
       return apiRequest("POST", "/api/notes", {
         entityType,
         entityId: entity.id,
-        text,
+        content,
       });
     },
     onSuccess: () => {

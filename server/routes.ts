@@ -899,7 +899,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/notes", authenticateAny, async (req: any, res) => {
     try {
-      const authorId = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
+      const authorId = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'system';
       const noteData = insertNoteSchema.parse({
         ...req.body,
         authorId,
@@ -929,7 +929,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/documents", authenticateAny, async (req: any, res) => {
     try {
-      const uploadedBy = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
+      const uploadedBy = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'system';
       const documentData = insertDocumentSchema.parse({
         ...req.body,
         uploadedBy,

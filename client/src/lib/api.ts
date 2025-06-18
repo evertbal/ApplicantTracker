@@ -144,7 +144,10 @@ export const trajectoryApi = {
 // Notes API
 export const notesApi = {
   getByEntity: async (entityType: string, entityId: number) => {
-    const response = await fetch(`/api/notes/${entityType}/${entityId}`, { credentials: 'include' });
+    const response = await fetch(`/api/notes?entityType=${entityType}&entityId=${entityId}`, { 
+      credentials: 'include',
+      headers: getRequestHeaders()
+    });
     if (!response.ok) {
       throw new Error(`${response.status}: Failed to fetch notes`);
     }
@@ -160,7 +163,10 @@ export const notesApi = {
 // Documents API
 export const documentsApi = {
   getByEntity: async (entityType: string, entityId: number) => {
-    const response = await fetch(`/api/documents/${entityType}/${entityId}`, { credentials: 'include' });
+    const response = await fetch(`/api/documents?entityType=${entityType}&entityId=${entityId}`, { 
+      credentials: 'include',
+      headers: getRequestHeaders()
+    });
     if (!response.ok) {
       throw new Error(`${response.status}: Failed to fetch documents`);
     }
