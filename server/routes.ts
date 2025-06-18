@@ -502,7 +502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/candidates/:id", authenticateUser, async (req: any, res) => {
+  app.put("/api/candidates/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const candidateData = insertCandidateSchema.partial().parse(req.body);
@@ -530,7 +530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/candidates/:id", authenticateUser, async (req: any, res) => {
+  app.delete("/api/candidates/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteCandidate(id);
@@ -547,7 +547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Excel import route for candidates
-  app.post("/api/candidates/import", authenticateUser, upload.single('file'), async (req: any, res) => {
+  app.post("/api/candidates/import", authenticateAny, upload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Geen bestand geüpload" });
@@ -755,7 +755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/clients/:id", authenticateUser, async (req: any, res) => {
+  app.put("/api/clients/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const clientData = insertClientSchema.partial().parse(req.body);
@@ -775,7 +775,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/clients/:id", authenticateUser, async (req: any, res) => {
+  app.delete("/api/clients/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteClient(id);
@@ -792,7 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Trajectory routes
-  app.get("/api/trajectories", authenticateUser, async (req, res) => {
+  app.get("/api/trajectories", authenticateAny, async (req, res) => {
     try {
       const filters = {
         search: req.query.search as string,
@@ -809,7 +809,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/trajectories/:id", authenticateUser, async (req, res) => {
+  app.get("/api/trajectories/:id", authenticateAny, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const trajectory = await storage.getTrajectory(id);
