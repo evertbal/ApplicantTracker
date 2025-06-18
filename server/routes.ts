@@ -406,35 +406,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Authentication middleware using simple session auth with admin token fallback
+  // Enhanced authentication middleware that supports multiple auth methods
   const authenticateAny: any = async (req: any, res: any, next: any) => {
-    // First try admin authentication for admin API routes
+    // Method 1: Try admin token authentication
     const adminToken = req.headers.authorization?.replace('Bearer ', '');
     if (adminToken) {
       try {
         const decoded = verifyToken(adminToken);
         req.adminUser = decoded;
+        req.user = { id: decoded.id, email: decoded.username };
         return next();
       } catch (error) {
-        // Admin token invalid, continue to try user auth
+        // Admin token invalid, continue to try other methods
       }
     }
 
-    // Use session-based user authentication
-    if (!req.session?.userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    // Method 2: Try session-based user authentication
+    if (req.session?.userId) {
+      try {
+        const user = await storage.getUser(req.session.userId);
+        if (user && user.isActive) {
+          req.user = user;
+          return next();
+        }
+      } catch (error) {
+        // Session auth failed, continue to try other methods
+      }
     }
 
-    // Verify user exists and is active
-    const userId = req.session.userId;
-    const user = await storage.getUser(userId);
-    
-    if (!user || !user.isActive) {
-      return res.status(401).json({ message: "User not found or inactive" });
+    // Method 3: Try Replit authentication (check if user is authenticated via Replit)
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      req.user = req.user || { id: 'replit-user', email: 'unknown' };
+      return next();
     }
 
-    req.user = user;
-    next();
+    // No valid authentication found
+    return res.status(401).json({ message: "Unauthorized" });
   };
 
   // Candidate routes
