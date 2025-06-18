@@ -823,7 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/trajectories", authenticateUser, async (req: any, res) => {
+  app.post("/api/trajectories", authenticateAny, async (req: any, res) => {
     try {
       const trajectoryData = insertTrajectorySchema.parse(req.body);
       const trajectory = await storage.createTrajectory(trajectoryData);
@@ -842,7 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/trajectories/:id", authenticateUser, async (req: any, res) => {
+  app.put("/api/trajectories/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       const trajectoryData = insertTrajectorySchema.partial().parse(req.body);
@@ -862,7 +862,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/trajectories/:id", authenticateUser, async (req: any, res) => {
+  app.delete("/api/trajectories/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteTrajectory(id);
