@@ -36,7 +36,7 @@ interface DetailModalProps {
 }
 
 export default function DetailModal({ entity, entityType, isOpen, onClose }: DetailModalProps) {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: any };
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("information");
@@ -133,8 +133,9 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
   };
 
   const getUserInitials = () => {
-    if (!user?.email) return "U";
-    return user.email.substring(0, 2).toUpperCase();
+    if (!user?.email && !user?.username) return "U";
+    const displayName = user?.email || user?.username || "Unknown";
+    return displayName.substring(0, 2).toUpperCase();
   };
 
   return (
