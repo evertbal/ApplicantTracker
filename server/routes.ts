@@ -662,7 +662,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Normaliseer alle bestaande kandidaat rijbewijzen
-  app.post("/api/normalize-all-licenses", authenticateUser, async (req, res) => {
+  app.post("/api/normalize-all-licenses", authenticateAny, async (req, res) => {
     try {
       const candidates = await storage.getCandidates();
       let updatedCount = 0;
@@ -707,7 +707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Client routes
-  app.get("/api/clients", authenticateUser, async (req, res) => {
+  app.get("/api/clients", authenticateAny, async (req, res) => {
     try {
       const filters = {
         search: req.query.search as string,
@@ -722,7 +722,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/clients/:id", authenticateUser, async (req, res) => {
+  app.get("/api/clients/:id", authenticateAny, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const client = await storage.getClient(id);
@@ -736,7 +736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/clients", authenticateUser, async (req: any, res) => {
+  app.post("/api/clients", authenticateAny, async (req: any, res) => {
     try {
       const clientData = insertClientSchema.parse(req.body);
       const client = await storage.createClient(clientData);
@@ -879,7 +879,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notes routes
-  app.get("/api/notes/:entityType/:entityId", authenticateUser, async (req, res) => {
+  app.get("/api/notes/:entityType/:entityId", authenticateAny, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const notes = await storage.getNotes(entityType, parseInt(entityId));
@@ -890,7 +890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/notes", authenticateUser, async (req: any, res) => {
+  app.post("/api/notes", authenticateAny, async (req: any, res) => {
     try {
       const authorId = req.user?.claims?.sub || req.adminUser?.id?.toString() || 'system';
       const noteData = insertNoteSchema.parse({
