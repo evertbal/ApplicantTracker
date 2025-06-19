@@ -333,7 +333,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                               </span>
                               <span className="text-sm text-gray-500">•</span>
                               <span className="text-sm text-gray-500">
-                                {format(new Date(note.createdAt!), "d MMM yyyy, HH:mm", { locale: nl })}
+                                {format(new Date(note.createdAt!), "d MMM yyyy 'om' HH:mm", { locale: nl })}
                               </span>
                             </div>
                           </div>

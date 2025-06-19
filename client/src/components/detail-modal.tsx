@@ -445,7 +445,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                               </span>
                               <span className="text-sm text-gray-500">•</span>
                               <span className="text-sm text-gray-500">
-                                {note.createdAt ? format(new Date(note.createdAt), 'dd MMM yyyy, HH:mm', { locale: nl }) : 'Onbekend'}
+                                {note.createdAt ? format(new Date(note.createdAt), 'dd MMM yyyy \'om\' HH:mm', { locale: nl }) : 'Onbekend'}
                               </span>
                             </div>
                           </div>

@@ -123,7 +123,14 @@ export default function CandidateDetail() {
 
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("nl-NL");
+    const date = new Date(dateString);
+    return date.toLocaleDateString("nl-NL", {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const getStatusColor = (status: string) => {

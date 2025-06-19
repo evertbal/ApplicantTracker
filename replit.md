@@ -133,6 +133,8 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 19, 2025. Enhanced timestamp display in notes to show both date and time consistently across all modals
+- June 19, 2025. Fixed mobile modal scrolling issues with CSS body scroll lock and overflow handling
 - June 18, 2025. Fixed 500 errors when adding candidates by correcting audit log user ID references
 - June 17, 2025. Made DetailModal fully responsive for mobile devices with touch-friendly interfaces
 - June 17, 2025. Made trajectories and clients views responsive like candidates view
