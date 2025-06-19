@@ -72,7 +72,11 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
   };
 
   const onSubmit = (data: InsertCandidate) => {
-    createCandidateMutation.mutate(data);
+    const candidateData = {
+      ...data,
+      drivingLicenses: drivingLicenses
+    };
+    createCandidateMutation.mutate(candidateData);
   };
 
   return (

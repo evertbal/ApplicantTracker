@@ -112,14 +112,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
     }
   };
 
-  const handleLicenseChange = (license: string, checked: boolean) => {
-    const currentLicenses = form.getValues("drivingLicenses") || [];
-    if (checked) {
-      form.setValue("drivingLicenses", [...currentLicenses, license]);
-    } else {
-      form.setValue("drivingLicenses", currentLicenses.filter(l => l !== license));
-    }
-  };
+
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
@@ -309,34 +302,58 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 />
               </div>
 
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</Label>
-                <div className="grid grid-cols-3 gap-4">
-                  {[
-                    'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
-                  ].map((license) => (
-                    <div key={license} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`license-${license}`}
-                        checked={(form.getValues("drivingLicenses") || []).includes(license)}
-                        onCheckedChange={(checked) => handleLicenseChange(license, checked as boolean)}
-                      />
-                      <Label htmlFor={`license-${license}`} className="text-sm font-mono">
-                        {license}
-                      </Label>
+              <FormField
+                control={form.control}
+                name="drivingLicenses"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Rijbewijs</FormLabel>
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
+                      ].map((license) => (
+                        <div key={license} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`license-${license}`}
+                            checked={(field.value || []).includes(license)}
+                            onCheckedChange={(checked) => {
+                              const currentLicenses = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentLicenses, license]);
+                              } else {
+                                field.onChange(currentLicenses.filter(l => l !== license));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`license-${license}`} className="text-sm font-mono">
+                            {license}
+                          </Label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Aanvullende informatie rijbewijs</Label>
-                  <Input
-                    placeholder="Bijzonderheden, beperkingen of andere categorieën..."
-                    value={form.getValues("drivingLicenseNotes") || ""}
-                    onChange={(e) => form.setValue("drivingLicenseNotes", e.target.value)}
-                    className="mt-1 text-sm"
-                  />
-                </div>
-              </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="drivingLicenseNotes"
+                render={({ field }) => (
+                  <FormItem className="mt-3">
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">Aanvullende informatie rijbewijs</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder="Bijzonderheden, beperkingen of andere categorieën..."
+                        className="mt-1 text-sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
