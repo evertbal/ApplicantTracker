@@ -81,16 +81,17 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader className="flex flex-row items-center justify-between">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex flex-row items-center justify-between flex-shrink-0">
           <DialogTitle>Nieuwe Kandidaat Toevoegen</DialogTitle>
           <Button variant="ghost" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="overflow-y-auto flex-1 p-6">
+          <form id="new-candidate-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">Volledige Naam *</Label>
               <Input
@@ -196,19 +197,25 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+        </form>
+        </div>
+        
+        {/* Fixed Footer */}
+        <div className="p-6 border-t border-gray-200 flex-shrink-0">
+          <div className="flex justify-end space-x-3">
             <Button type="button" variant="outline" onClick={onClose}>
               Annuleren
             </Button>
             <Button 
               type="submit" 
+              form="new-candidate-form"
               disabled={createCandidateMutation.isPending}
               className="bg-primary hover:bg-primary-hover"
             >
               {createCandidateMutation.isPending ? "Toevoegen..." : "Kandidaat Toevoegen"}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
