@@ -119,10 +119,10 @@ export default function TrajectoryForm({ trajectory, onClose, onSuccess }: Traje
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col my-8">
         {/* Modal Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {isEditing ? 'Traject Bewerken' : 'Nieuw Traject Toevoegen'}
@@ -133,10 +133,10 @@ export default function TrajectoryForm({ trajectory, onClose, onSuccess }: Traje
           </div>
         </div>
 
-        {/* Modal Content */}
-        <div className="p-6">
+        {/* Modal Content - Scrollable */}
+        <div className="p-6 overflow-y-auto flex-1">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form id="trajectory-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -303,21 +303,25 @@ export default function TrajectoryForm({ trajectory, onClose, onSuccess }: Traje
                 )}
               />
 
-              {/* Modal Footer */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button variant="outline" onClick={onClose} disabled={isLoading}>
-                  Annuleren
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-primary hover:bg-primary-hover text-white"
-                >
-                  {isLoading ? (isEditing ? 'Bijwerken...' : 'Toevoegen...') : (isEditing ? 'Bijwerken' : 'Traject Toevoegen')}
-                </Button>
-              </div>
             </form>
           </Form>
+        </div>
+        
+        {/* Modal Footer - Fixed at bottom */}
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+              Annuleren
+            </Button>
+            <Button
+              type="submit"
+              form="trajectory-form"
+              disabled={isLoading}
+              className="bg-primary hover:bg-primary-hover text-white"
+            >
+              {isLoading ? (isEditing ? 'Bijwerken...' : 'Toevoegen...') : (isEditing ? 'Bijwerken' : 'Traject Toevoegen')}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

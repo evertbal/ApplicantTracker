@@ -107,3 +107,30 @@
 .hover\:bg-primary-hover:hover {
   background-color: #8f6a42;
 }
+
+/* Mobile Modal Scroll Fix */
+@media (max-width: 768px) {
+  /* Prevent body scroll when modal is open */
+  body:has([data-state="open"]) {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+  
+  /* Ensure modal content is scrollable on mobile */
+  [data-radix-dialog-content] {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix for modal overlay scroll */
+  [data-radix-dialog-overlay] {
+    position: fixed !important;
+    inset: 0 !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}

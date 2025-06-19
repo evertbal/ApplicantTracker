@@ -140,7 +140,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-4xl sm:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-5/6 flex flex-col mx-4 sm:mx-auto">
+      <DialogContent className="w-full max-w-4xl sm:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-5/6 flex flex-col mx-4 sm:mx-auto overflow-hidden">
         <DialogHeader className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-3 sm:space-x-4">
