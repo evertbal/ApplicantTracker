@@ -21,7 +21,11 @@ interface CollapsibleFiltersProps {
   activeFiltersCount: number;
 }
 
-export default function CollapsibleFilters({
+export interface CollapsibleFiltersRef {
+  collapse: () => void;
+}
+
+const CollapsibleFilters = forwardRef<CollapsibleFiltersRef, CollapsibleFiltersProps>(({
   statusOptions,
   regionOptions,
   licenseOptions,
@@ -32,8 +36,12 @@ export default function CollapsibleFilters({
   onRegionChange,
   onLicenseChange,
   activeFiltersCount,
-}: CollapsibleFiltersProps) {
+}, ref) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    collapse: () => setIsOpen(false),
+  }));
 
   return (
     <div className="space-y-3">
@@ -146,4 +154,8 @@ export default function CollapsibleFilters({
       </div>
     </div>
   );
-}
+});
+
+CollapsibleFilters.displayName = "CollapsibleFilters";
+
+export default CollapsibleFilters;
