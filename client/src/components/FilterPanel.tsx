@@ -28,6 +28,11 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
     dateTo: "",
   });
 
+  // Fetch all candidates for counting
+  const { data: allCandidates = [] } = useQuery({
+    queryKey: ["/api/candidates"],
+  });
+
   const handleStatusChange = (status: string, checked: boolean) => {
     const newStatus = checked
       ? [...filters.status, status]
@@ -49,9 +54,24 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
   };
 
   const handleRegionChange = (region: string) => {
-    const newFilters = { ...filters, region };
+    const newFilters = { ...filters, region: region === "alle" ? "" : region };
     setFilters(newFilters);
     onFiltersChange(newFilters);
+  };
+
+  // Count functions for filter badges
+  const getStatusCount = (status: string) => {
+    return (allCandidates as any[]).filter((candidate: any) => candidate.status === status).length;
+  };
+
+  const getDrivingLicenseCount = (license: string) => {
+    return (allCandidates as any[]).filter((candidate: any) => 
+      candidate.drivingLicenses && candidate.drivingLicenses.includes(license)
+    ).length;
+  };
+
+  const getRegionCount = (region: string) => {
+    return (allCandidates as any[]).filter((candidate: any) => candidate.region === region).length;
   };
 
   const handleDateChange = (field: "dateFrom" | "dateTo", value: string) => {
@@ -85,15 +105,20 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
             { value: "placed", label: "Geplaatst" },
             { value: "inactive", label: "Inactief" },
           ].map((status) => (
-            <div key={status.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={status.value}
-                checked={filters.status.includes(status.value)}
-                onCheckedChange={(checked) => handleStatusChange(status.value, checked as boolean)}
-              />
-              <Label htmlFor={status.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                {status.label}
-              </Label>
+            <div key={status.value} className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={status.value}
+                  checked={filters.status.includes(status.value)}
+                  onCheckedChange={(checked) => handleStatusChange(status.value, checked as boolean)}
+                />
+                <Label htmlFor={status.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  {status.label}
+                </Label>
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                {getStatusCount(status.value)}
+              </Badge>
             </div>
           ))}
         </div>
@@ -133,15 +158,20 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
           {[
             'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
           ].map((license) => (
-            <div key={license} className="flex items-center space-x-2">
-              <Checkbox
-                id={license}
-                checked={filters.drivingLicense.includes(license)}
-                onCheckedChange={(checked) => handleDrivingLicenseChange(license, checked as boolean)}
-              />
-              <Label htmlFor={license} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-mono">
-                {license}
-              </Label>
+            <div key={license} className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={license}
+                  checked={filters.drivingLicense.includes(license)}
+                  onCheckedChange={(checked) => handleDrivingLicenseChange(license, checked as boolean)}
+                />
+                <Label htmlFor={license} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-mono">
+                  {license}
+                </Label>
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                {getDrivingLicenseCount(license)}
+              </Badge>
             </div>
           ))}
         </div>

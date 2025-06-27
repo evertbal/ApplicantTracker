@@ -190,14 +190,14 @@ export default function CandidatesList() {
                         </div>
                         <div className="flex items-center space-x-4">
                           <div className="text-right">
-                            <Badge className={getStatusColor(candidate.status)}>
-                              {getStatusLabel(candidate.status)}
+                            <Badge className={getStatusColor(candidate.status || "")}>
+                              {getStatusLabel(candidate.status || "")}
                             </Badge>
                             <p className="text-xs text-gray-500 mt-1">
                               Laatst bijgewerkt: {format(new Date(candidate.updatedAt!), "d MMM yyyy", { locale: nl })}
                             </p>
                           </div>
-                          {candidate.drivingLicense?.map((license) => (
+                          {candidate.drivingLicenses?.map((license: string) => (
                             <Badge 
                               key={license} 
                               variant="secondary"
