@@ -350,26 +350,6 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   </FormItem>
                 )}
               />
-              
-
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Beroep</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
             </form>
           </Form>
