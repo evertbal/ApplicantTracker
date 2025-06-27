@@ -236,10 +236,19 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
             <div className="flex-1 overflow-y-auto p-3 sm:p-6">
               <TabsContent value="information" className="m-0">
                 {entityType === "candidate" && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Persoonlijke Gegevens</h3>
-                      <div className="space-y-4">
+                  <div className="space-y-6">
+                    {/* Beroep eerst - prominent weergegeven */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Beroep</label>
+                      <div className="text-base font-medium text-blue-900 dark:text-blue-100">
+                        {(entity as CandidateWithRelations).description || "Geen beroep opgegeven"}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Persoonlijke Gegevens</h3>
+                        <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Volledige Naam</label>
                           <Input value={(entity as CandidateWithRelations).name} readOnly />
@@ -279,13 +288,6 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                         </div>
                       </div>
                     </div>
-                    <div className="lg:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Beroep</label>
-                      <Textarea 
-                        value={(entity as CandidateWithRelations).description || ""} 
-                        rows={4} 
-                        readOnly 
-                      />
                     </div>
                   </div>
                 )}
