@@ -72,16 +72,14 @@ export const validateTrajectoryData = (trajectory: TrajectoryWithRelations | nul
     errors.push("Traject ID ontbreekt");
   }
   
-  if (!trajectory.jobTitle) {
-    errors.push("Functietitel ontbreekt");
+  // For editing, we don't require jobTitle to be present - it can be empty and filled in the form
+  // Only check for critical missing data that would prevent loading
+  if (!trajectory.candidateId) {
+    errors.push("Kandidaat ID ontbreekt");
   }
   
-  if (!trajectory.candidate) {
-    errors.push("Kandidaat informatie ontbreekt");
-  }
-  
-  if (!trajectory.client) {
-    errors.push("Opdrachtgever informatie ontbreekt");
+  if (!trajectory.clientId) {
+    errors.push("Opdrachtgever ID ontbreekt");
   }
   
   return { isValid: errors.length === 0, errors };
