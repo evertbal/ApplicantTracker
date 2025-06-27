@@ -44,7 +44,8 @@ import {
   validateTrajectoryData,
   getTrajectorySubtitle
 } from "@/lib/trajectory-formatters";
-import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations, Note, Document } from "@shared/schema";
+import ContactForm from "./contact-form";
+import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations, Note, Document, ClientContact } from "@shared/schema";
 
 interface DetailModalProps {
   entity: CandidateWithRelations | ClientWithRelations | TrajectoryWithRelations;

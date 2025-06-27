@@ -17,6 +17,10 @@ import { z } from "zod";
 const contactFormSchema = insertClientContactSchema.extend({
   naam: z.string().min(1, "Naam is verplicht"),
   emailadres: z.string().email("Ongeldig e-mailadres").min(1, "E-mailadres is verplicht"),
+  rol: z.string().optional(),
+  telefoonnummer: z.string().optional(),
+  geboortedatum: z.string().optional(),
+  opmerkingen: z.string().optional(),
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -140,7 +144,7 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
                   <FormItem>
                     <FormLabel>Rol</FormLabel>
                     <FormControl>
-                      <Input placeholder="Functietitel" {...field} />
+                      <Input placeholder="Functietitel" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,7 +158,7 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
                   <FormItem>
                     <FormLabel>Telefoonnummer</FormLabel>
                     <FormControl>
-                      <Input placeholder="06-12345678" {...field} />
+                      <Input placeholder="06-12345678" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,7 +186,7 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
                   <FormItem>
                     <FormLabel>Geboortedatum</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -201,6 +205,7 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
                       placeholder="Aanvullende opmerkingen over deze contactpersoon..."
                       rows={3}
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
