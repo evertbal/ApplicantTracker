@@ -72,11 +72,8 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle>Nieuw Traject Toevoegen</DialogTitle>
-          <Button variant="ghost" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
