@@ -137,6 +137,7 @@ Changelog:
 - June 27, 2025. Repositioned profession field to display prominently at the top of all candidate views
 - June 27, 2025. Updated profession field styling to match consistent design pattern across all views
 - June 27, 2025. Removed duplicate profession field from candidate edit form, keeping only the top field
+- June 27, 2025. Added user initials display to candidate notes showing who created each note
 - June 27, 2025. Added filter result counts showing candidate quantities for each status and driving license
 - June 27, 2025. Made region dropdown clearable with X button to remove selections
 - June 27, 2025. Completely removed driving license notes field from all forms and detail views

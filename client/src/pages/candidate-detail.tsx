@@ -142,6 +142,19 @@ export default function CandidateDetail() {
     }
   };
 
+  const getUserInitials = (authorId: string | null) => {
+    if (!authorId) return "?";
+    
+    // Handle format like "evert-doeners"
+    if (authorId.includes("-")) {
+      const parts = authorId.split("-");
+      return parts.map(part => part.charAt(0).toUpperCase()).join("");
+    } else {
+      // Handle simple name format
+      return authorId.split(" ").map(name => name.charAt(0).toUpperCase()).join("");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -408,11 +421,20 @@ export default function CandidateDetail() {
                           key={note.id}
                           className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
                         >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                                  {getUserInitials(note.authorId)}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {formatDate(note.createdAt)}
+                              </span>
+                            </div>
+                          </div>
                           <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
                             {note.content}
-                          </p>
-                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                            {formatDate(note.createdAt)}
                           </p>
                         </div>
                       ))
