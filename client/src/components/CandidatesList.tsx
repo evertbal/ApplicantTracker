@@ -167,14 +167,14 @@ export default function CandidatesList() {
                             </span>
                           </div>
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {candidate.name}
-                            </h3>
                             {candidate.description && (
-                              <p className="text-sm font-medium text-primary mb-1">
+                              <p className="text-sm font-medium text-blue-600 mb-1 bg-blue-50 px-2 py-1 rounded">
                                 {candidate.description}
                               </p>
                             )}
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {candidate.name}
+                            </h3>
                             <p className="text-sm text-gray-600">
                               {candidate.city}, {candidate.region}
                             </p>

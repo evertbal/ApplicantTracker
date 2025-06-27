@@ -128,9 +128,18 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     if (entityType === 'candidate') {
       const candidate = entity as CandidateWithRelations;
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Persoonlijke Gegevens</h3>
+        <div className="space-y-6">
+          {/* Beroep eerst - prominent weergegeven */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+            <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Beroep</Label>
+            <p className="text-base font-medium text-blue-900 dark:text-blue-100">
+              {candidate.description || "Geen beroep opgegeven"}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Persoonlijke Gegevens</h3>
             <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Volledige Naam</Label>
@@ -187,16 +196,6 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                 <Input value={candidate.marketing || ''} readOnly className="mt-1" />
               </div>
             </div>
-          </div>
-
-          <div className="col-span-full mt-4 sm:mt-8">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beroep</Label>
-            <Textarea
-              value={candidate.description || ''}
-              readOnly
-              rows={3}
-              className="resize-none text-sm"
-            />
           </div>
         </div>
       );
