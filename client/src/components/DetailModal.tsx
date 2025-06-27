@@ -314,51 +314,59 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Persoonlijke Gegevens</h3>
                         <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Volledige Naam</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).name}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Telefoon</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).phone || "Niet opgegeven"}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).email || "Niet opgegeven"}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Woonplaats</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).city || "Niet opgegeven"}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Regio</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).region || "Niet opgegeven"}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Professionele Informatie</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).status || "Niet opgegeven"}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Fase</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).phase || "Niet opgegeven"}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Marketing Bron</label>
-                          <p className="text-gray-900">{(entity as CandidateWithRelations).marketing || "Niet opgegeven"}</p>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Volledige Naam</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).name}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Telefoon</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).phone || "Niet opgegeven"}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).email || "Niet opgegeven"}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Woonplaats</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).city || "Niet opgegeven"}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Regio</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).region || "Niet opgegeven"}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Professionele Informatie</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).status || "Niet opgegeven"}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Fase</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).phase || "Niet opgegeven"}</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Marketing Bron</label>
+                            <p className="text-gray-900">{(entity as CandidateWithRelations).marketing || "Niet opgegeven"}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {entityType === "client" && (
                   <div className="space-y-6">
+                    {/* Werktype eerst - prominent weergegeven */}
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                      <label className="block text-sm font-medium text-green-700 dark:text-green-300 mb-2">Werktype</label>
+                      <div className="text-base font-medium text-green-900 dark:text-green-100">
+                        {(entity as ClientWithRelations).workType || "Geen werktype opgegeven"}
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Bedrijfsgegevens</h3>
@@ -382,11 +390,16 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         </div>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Werk Details</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Aanvullende Informatie</h3>
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Werktype</label>
-                            <p className="text-gray-900">{(entity as ClientWithRelations).workType || "Niet opgegeven"}</p>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Datum Toegevoegd</label>
+                            <p className="text-gray-900">
+                              {(entity as ClientWithRelations).createdAt 
+                                ? format(new Date((entity as ClientWithRelations).createdAt!), "d MMMM yyyy", { locale: nl })
+                                : "Niet opgegeven"
+                              }
+                            </p>
                           </div>
                         </div>
                       </div>
