@@ -208,18 +208,17 @@ export default function CandidateDetail() {
                 <CardTitle>Kandidaat Informatie</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {candidate.description && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                      Beroep
-                    </Label>
-                    <p className="mt-1 text-base font-medium text-blue-900 dark:text-blue-100 whitespace-pre-wrap">
-                      {candidate.description}
-                    </p>
-                  </div>
-                )}
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {candidate.description && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Beroep
+                      </Label>
+                      <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                        {candidate.description}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       Naam
