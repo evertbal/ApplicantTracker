@@ -33,9 +33,10 @@ interface DetailModalProps {
   entityType: "candidate" | "client" | "trajectory";
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: (entity: any) => void;
 }
 
-export default function DetailModal({ entity, entityType, isOpen, onClose }: DetailModalProps) {
+export default function DetailModal({ entity, entityType, isOpen, onClose, onEdit }: DetailModalProps) {
   const { user } = useAuth() as { user: any };
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -288,6 +289,103 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                         </div>
                       </div>
                     </div>
+                    </div>
+                  </div>
+                )}
+
+                {entityType === "client" && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Bedrijfsgegevens</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Bedrijfsnaam</label>
+                            <Input value={(entity as ClientWithRelations).name} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Contactpersoon</label>
+                            <Input value={(entity as ClientWithRelations).contactPerson || ""} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
+                            <Input value={(entity as ClientWithRelations).location || ""} readOnly />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Werk Details</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Werktype</label>
+                            <Input value={(entity as ClientWithRelations).workType || ""} readOnly />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {entityType === "trajectory" && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Traject Informatie</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Functietitel</label>
+                            <Input value={(entity as TrajectoryWithRelations).position || ""} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <Input value={(entity as TrajectoryWithRelations).status || ""} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Startdatum</label>
+                            <Input 
+                              value={(entity as TrajectoryWithRelations).startDate 
+                                ? format(new Date((entity as TrajectoryWithRelations).startDate!), 'dd-MM-yyyy') 
+                                : ''} 
+                              readOnly 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Salaris</label>
+                            <Input 
+                              value={(entity as TrajectoryWithRelations).salary 
+                                ? `€${(entity as TrajectoryWithRelations).salary?.toLocaleString()}` 
+                                : ""} 
+                              readOnly 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Betrokkenen</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Kandidaatnaam</label>
+                            <Input value={(entity as TrajectoryWithRelations).candidate?.name || "Onbekend"} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Opdrachtgever</label>
+                            <Input value={(entity as TrajectoryWithRelations).client?.name || "Onbekend"} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
+                            <Input value={(entity as TrajectoryWithRelations).location || ""} readOnly />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Opmerkingen</label>
+                            <Textarea 
+                              value={(entity as TrajectoryWithRelations).notes || ""} 
+                              readOnly 
+                              rows={3}
+                              className="resize-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
