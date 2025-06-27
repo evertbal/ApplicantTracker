@@ -164,24 +164,22 @@ export default function TrajectoriesView() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Results Counter */}
-        <div className="mt-6 mb-4">
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="text-lg font-semibold text-green-900 dark:text-green-100">
-                  {filteredTrajectories.length} {filteredTrajectories.length === 1 ? 'traject' : 'trajecten'} gevonden
-                </div>
-                {activeFiltersCount > 0 && (
+        {/* Results Counter - only show when filters are active */}
+        {activeFiltersCount > 0 && (
+          <div className="mt-6 mb-4 transition-all duration-300 ease-in-out">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="text-lg font-semibold text-green-900 dark:text-green-100">
+                    {filteredTrajectories.length} {filteredTrajectories.length === 1 ? 'traject' : 'trajecten'} gevonden
+                  </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-green-700 dark:text-green-300">met</span>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
                       {activeFiltersCount} {activeFiltersCount === 1 ? 'filter' : 'filters'}
                     </Badge>
                   </div>
-                )}
-              </div>
-              {activeFiltersCount > 0 && (
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
@@ -192,10 +190,10 @@ export default function TrajectoriesView() {
                 >
                   Alle filters wissen
                 </Button>
-              )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Compact List */}
         <div className="mt-4">
