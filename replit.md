@@ -140,6 +140,9 @@ Changelog:
 - June 27, 2025. Created trajectory-formatters.ts library with consistent data mapping for all trajectory components
 - June 27, 2025. Synchronized trajectory display across cards, detail modal, and edit forms using shared formatters
 - June 27, 2025. Added comprehensive data validation and error handling for trajectory operations
+- June 27, 2025. Enhanced filter panel height when active filters are present to prevent content cutoff
+- June 27, 2025. Added prominent results counter with filter information across all entity views
+- June 27, 2025. Implemented clear all filters button in results counter for better UX
 - June 27, 2025. Fixed client edit functionality to open proper edit modal instead of new client modal
 - June 27, 2025. Added edit button to client DetailModal and integrated ClientForm for editing
 - June 27, 2025. Fixed spacing between Edit button and close icon in DetailModal to prevent overlap

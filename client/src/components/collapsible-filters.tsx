@@ -62,7 +62,7 @@ export default function CollapsibleFilters({
       {/* Collapsible Filter Panel */}
       <div className={cn(
         "transition-all duration-300 ease-in-out overflow-hidden",
-        isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        isOpen ? (activeFiltersCount > 0 ? "max-h-[600px] opacity-100" : "max-h-96 opacity-100") : "max-h-0 opacity-0"
       )}>
         <Card>
           <CardContent className="p-4 space-y-4">

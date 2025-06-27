@@ -225,8 +225,43 @@ export default function CandidatesView() {
           activeFiltersCount={activeFiltersCount}
         />
 
+        {/* Results Counter */}
+        <div className="mt-6 mb-4">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                  {filteredCandidates.length} {filteredCandidates.length === 1 ? 'kandidaat' : 'kandidaten'} gevonden
+                </div>
+                {activeFiltersCount > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-blue-700 dark:text-blue-300">met</span>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+                      {activeFiltersCount} {activeFiltersCount === 1 ? 'filter' : 'filters'}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              {activeFiltersCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedStatuses([]);
+                    setSelectedRegion("");
+                    setSelectedLicenses([]);
+                  }}
+                  className="text-blue-700 border-blue-300 hover:bg-blue-50 dark:text-blue-300 dark:border-blue-600 dark:hover:bg-blue-900/20"
+                >
+                  Alle filters wissen
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Compact List */}
-        <div className="mt-4">
+        <div>
           <CompactList
             items={filteredCandidates}
             type="candidates"
