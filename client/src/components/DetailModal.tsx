@@ -315,6 +315,10 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                             <label className="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
                             <p className="text-gray-900">{(entity as ClientWithRelations).location || "Niet opgegeven"}</p>
                           </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Adres Hoofdlocatie</label>
+                            <p className="text-gray-900">{(entity as ClientWithRelations).adresHoofdlocatie || "Niet opgegeven"}</p>
+                          </div>
                         </div>
                       </div>
                       <div>
@@ -327,6 +331,92 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Belangrijke Informatie */}
+                    {(entity as ClientWithRelations).notities && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Belangrijke Informatie</h3>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <p className="text-gray-900 whitespace-pre-wrap">{(entity as ClientWithRelations).notities}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Locaties */}
+                    {(entity as ClientWithRelations).locations && (entity as ClientWithRelations).locations!.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Locaties</h3>
+                        <div className="grid gap-4">
+                          {(entity as ClientWithRelations).locations!.map((location: any) => (
+                            <div key={location.id} className="border border-gray-200 rounded-lg p-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Locatienaam</label>
+                                  <p className="text-gray-900 font-medium">{location.naamLocatie}</p>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Functie</label>
+                                  <p className="text-gray-900">{location.functie || "Niet opgegeven"}</p>
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Adres</label>
+                                  <p className="text-gray-900">{location.adres || "Niet opgegeven"}</p>
+                                </div>
+                                {location.opmerkingen && (
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Opmerkingen</label>
+                                    <p className="text-gray-900">{location.opmerkingen}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contactpersonen */}
+                    {(entity as ClientWithRelations).contacts && (entity as ClientWithRelations).contacts!.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Contactpersonen</h3>
+                        <div className="grid gap-4">
+                          {(entity as ClientWithRelations).contacts!.map((contact: any) => (
+                            <div key={contact.id} className="border border-gray-200 rounded-lg p-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Naam</label>
+                                  <p className="text-gray-900 font-medium">{contact.naam}</p>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                                  <p className="text-gray-900">{contact.rol || "Niet opgegeven"}</p>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefoonnummer</label>
+                                  <p className="text-gray-900">{contact.telefoonnummer || "Niet opgegeven"}</p>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">E-mailadres</label>
+                                  <p className="text-gray-900">{contact.emailadres || "Niet opgegeven"}</p>
+                                </div>
+                                {contact.geboortedatum && (
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Geboortedatum</label>
+                                    <p className="text-gray-900">{format(new Date(contact.geboortedatum), "d MMMM yyyy", { locale: nl })}</p>
+                                  </div>
+                                )}
+                                {contact.opmerkingen && (
+                                  <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Opmerkingen</label>
+                                    <p className="text-gray-900">{contact.opmerkingen}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
