@@ -182,6 +182,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
   };
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl h-[90vh] p-0 flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200">
@@ -780,5 +781,16 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Contact Form Modal */}
+    {showContactForm && entityType === "client" && (
+      <ContactForm
+        isOpen={showContactForm}
+        onClose={handleCloseContactForm}
+        clientId={(entity as ClientWithRelations).id}
+        contact={editingContact}
+      />
+    )}
+    </>
   );
 }
