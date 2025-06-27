@@ -429,7 +429,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                       </CardContent>
                     </Card>
                   ) : (
-                    notes.map((note) => (
+                    notes.map((note: any) => (
                       <Card key={note.id}>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-2">
@@ -478,7 +478,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                       </CardContent>
                     </Card>
                   ) : (
-                    documents.map((document) => (
+                    documents.map((document: any) => (
                       <Card key={document.id}>
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
