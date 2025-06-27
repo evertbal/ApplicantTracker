@@ -80,6 +80,34 @@ export const clients = pgTable("clients", {
   contactPerson: text("contact_person"),
   location: text("location"),
   workType: text("work_type"),
+  adresHoofdlocatie: text("adres_hoofdlocatie"),
+  notities: text("notities"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Client locations table
+export const clientLocations = pgTable("client_locations", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }),
+  naamLocatie: text("naam_locatie").notNull(),
+  functie: text("functie"),
+  adres: text("adres"),
+  opmerkingen: text("opmerkingen"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Client contacts table
+export const clientContacts = pgTable("client_contacts", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }),
+  naam: text("naam").notNull(),
+  rol: text("rol"),
+  telefoonnummer: text("telefoonnummer"),
+  emailadres: text("emailadres"),
+  geboortedatum: date("geboortedatum"),
+  opmerkingen: text("opmerkingen"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -139,6 +167,22 @@ export const clientsRelations = relations(clients, ({ many }) => ({
   trajectories: many(trajectories),
   notes: many(notes),
   documents: many(documents),
+  locations: many(clientLocations),
+  contacts: many(clientContacts),
+}));
+
+export const clientLocationsRelations = relations(clientLocations, ({ one }) => ({
+  client: one(clients, {
+    fields: [clientLocations.clientId],
+    references: [clients.id],
+  }),
+}));
+
+export const clientContactsRelations = relations(clientContacts, ({ one }) => ({
+  client: one(clients, {
+    fields: [clientContacts.clientId],
+    references: [clients.id],
+  }),
 }));
 
 export const trajectoriesRelations = relations(trajectories, ({ one, many }) => ({
@@ -196,11 +240,36 @@ export const insertClientSchema = createInsertSchema(clients).omit({
 }).extend({
   name: z.string().min(1, "Bedrijfsnaam is verplicht"),
   contactPerson: z.string().optional().nullable(),
-  email: z.string().email("Ongeldig e-mailadres").optional().nullable(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
+  location: z.string().optional().nullable(),
   workType: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
+  adresHoofdlocatie: z.string().optional().nullable(),
+  notities: z.string().optional().nullable(),
+});
+
+export const insertClientLocationSchema = createInsertSchema(clientLocations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  clientId: z.number().min(1, "Client ID is verplicht"),
+  naamLocatie: z.string().min(1, "Locatienaam is verplicht"),
+  functie: z.string().optional().nullable(),
+  adres: z.string().optional().nullable(),
+  opmerkingen: z.string().optional().nullable(),
+});
+
+export const insertClientContactSchema = createInsertSchema(clientContacts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  clientId: z.number().min(1, "Client ID is verplicht"),
+  naam: z.string().min(1, "Naam is verplicht"),
+  rol: z.string().optional().nullable(),
+  telefoonnummer: z.string().optional().nullable(),
+  emailadres: z.string().email("Ongeldig e-mailadres").optional().nullable(),
+  geboortedatum: z.string().optional().nullable(),
+  opmerkingen: z.string().optional().nullable(),
 });
 
 export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
@@ -238,6 +307,8 @@ export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
 // Types
 export type Candidate = typeof candidates.$inferSelect;
 export type Client = typeof clients.$inferSelect;
+export type ClientLocation = typeof clientLocations.$inferSelect;
+export type ClientContact = typeof clientContacts.$inferSelect;
 export type Trajectory = typeof trajectories.$inferSelect;
 export type Note = typeof notes.$inferSelect;
 export type Document = typeof documents.$inferSelect;
@@ -247,6 +318,8 @@ export type AuditLogEntry = typeof auditLog.$inferSelect;
 
 export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
 export type InsertClient = z.infer<typeof insertClientSchema>;
+export type InsertClientLocation = z.infer<typeof insertClientLocationSchema>;
+export type InsertClientContact = z.infer<typeof insertClientContactSchema>;
 export type InsertTrajectory = z.infer<typeof insertTrajectorySchema>;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
@@ -271,4 +344,6 @@ export type ClientWithRelations = Client & {
   trajectories?: Trajectory[];
   notes?: Note[];
   documents?: Document[];
+  locations?: ClientLocation[];
+  contacts?: ClientContact[];
 };
