@@ -6,15 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import type { TrajectoryWithRelations } from "@shared/schema";
 import DetailModal from "./DetailModal";
 import NewTrajectoryModal from "./NewTrajectoryModal";
+import TrajectoryForm from "./trajectory-form";
 import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
   const [search, setSearch] = useState("");
   const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [isNewTrajectoryModalOpen, setIsNewTrajectoryModalOpen] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
@@ -48,10 +52,21 @@ export default function TrajectoriesView() {
   const activeFiltersCount = selectedStatuses.length;
 
   const openEditForm = (trajectory: TrajectoryWithRelations) => {
-    setIsNewTrajectoryModalOpen(true);
+    setEditingTrajectory(trajectory);
+    setIsEditFormOpen(true);
   };
 
-  const handleFormSuccess = () => {
+  const closeEditForm = () => {
+    setIsEditFormOpen(false);
+    setEditingTrajectory(null);
+  };
+
+  const handleEditFormSuccess = () => {
+    refetch();
+    closeEditForm();
+  };
+
+  const handleNewFormSuccess = () => {
     refetch();
     setIsNewTrajectoryModalOpen(false);
   };
@@ -167,6 +182,15 @@ export default function TrajectoriesView() {
         isOpen={isNewTrajectoryModalOpen}
         onClose={() => setIsNewTrajectoryModalOpen(false)}
       />
+
+      {/* Edit Trajectory Form */}
+      {isEditFormOpen && editingTrajectory && (
+        <TrajectoryForm
+          trajectory={editingTrajectory}
+          onClose={closeEditForm}
+          onSuccess={handleEditFormSuccess}
+        />
+      )}
     </>
   );
 }
