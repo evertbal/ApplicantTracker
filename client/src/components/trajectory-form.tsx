@@ -1,329 +1,374 @@
-import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Calendar } from "lucide-react";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { trajectoryApi, candidateApi, clientApi } from "@/lib/api";
-import { insertTrajectorySchema } from "@shared/schema";
-import type { TrajectoryWithRelations, InsertTrajectory } from "@shared/schema";
-import { format } from "date-fns";
-import { nl } from "date-fns/locale";
-import { z } from "zod";
-import { cn } from "@/lib/utils";
+import { 
+  formatTrajectoryDate,
+  validateTrajectoryData 
+} from "@/lib/trajectory-formatters";
+import type { TrajectoryWithRelations, Candidate, Client } from "@shared/schema";
 
-// Extend the schema with client-side validation
-const trajectoryFormSchema = insertTrajectorySchema.extend({
-  jobTitle: z.string().min(1, "Functie is verplicht"),
-  candidateId: z.number().min(1, "Kandidaat is verplicht"),
-  clientId: z.number().min(1, "Opdrachtgever is verplicht"),
+const trajectoryFormSchema = z.object({
+  candidateId: z.number().min(1, "Selecteer een kandidaat"),
+  clientId: z.number().min(1, "Selecteer een opdrachtgever"),
+  jobTitle: z.string().min(1, "Functietitel is verplicht"),
+  status: z.string().optional(),
+  startDate: z.string().optional(),
+  hourlyRate: z.string().optional(),
 });
 
 type TrajectoryFormData = z.infer<typeof trajectoryFormSchema>;
 
 interface TrajectoryFormProps {
-  trajectory?: TrajectoryWithRelations | null;
+  isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  trajectory?: TrajectoryWithRelations | null;
+  mode: "create" | "edit";
 }
 
-export default function TrajectoryForm({ trajectory, onClose, onSuccess }: TrajectoryFormProps) {
+export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: TrajectoryFormProps) {
   const { toast } = useToast();
-  const isEditing = !!trajectory;
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Validate trajectory data when editing
+  const validation = validateTrajectoryData(trajectory || null);
+
+  // Default values for form
+  const defaultValues: TrajectoryFormData = {
+    candidateId: trajectory?.candidateId || 0,
+    clientId: trajectory?.clientId || 0,
+    jobTitle: trajectory?.jobTitle || "",
+    status: trajectory?.status || "interview",
+    startDate: trajectory?.startDate || "",
+    hourlyRate: trajectory?.hourlyRate || "",
+  };
 
   const form = useForm<TrajectoryFormData>({
     resolver: zodResolver(trajectoryFormSchema),
-    defaultValues: {
-      jobTitle: trajectory?.jobTitle || "",
-      candidateId: trajectory?.candidateId || undefined,
-      clientId: trajectory?.clientId || undefined,
-      startDate: trajectory?.startDate ? new Date(trajectory.startDate) : undefined,
-      status: trajectory?.status || "interview",
-      hourlyRate: trajectory?.hourlyRate || "",
-      notes: trajectory?.notes || "",
-    },
+    defaultValues,
   });
 
-  // Fetch candidates and clients for dropdowns
+  // Reset form when trajectory changes
+  React.useEffect(() => {
+    if (trajectory && mode === "edit") {
+      const validation = validateTrajectoryData(trajectory);
+      if (!validation.isValid) {
+        console.error("Trajectory validation errors:", validation.errors);
+        toast({
+          title: "Data validatie fout",
+          description: validation.errors.join(", "),
+          variant: "destructive",
+        });
+      }
+      
+      form.reset({
+        candidateId: trajectory.candidateId || 0,
+        clientId: trajectory.clientId || 0,
+        jobTitle: trajectory.jobTitle || "",
+        status: trajectory.status || "interview",
+        startDate: trajectory.startDate || "",
+        hourlyRate: trajectory.hourlyRate || "",
+      });
+    } else if (mode === "create") {
+      form.reset({
+        candidateId: 0,
+        clientId: 0,
+        jobTitle: "",
+        status: "interview",
+        startDate: "",
+        hourlyRate: "",
+      });
+    }
+  }, [trajectory, mode, form, toast]);
+
+  // Fetch candidates and clients
   const { data: candidates = [] } = useQuery({
-    queryKey: ['/api/candidates'],
-    queryFn: () => candidateApi.getAll(),
+    queryKey: ["/api/candidates"],
+    enabled: isOpen,
   });
 
   const { data: clients = [] } = useQuery({
-    queryKey: ['/api/clients'],
-    queryFn: () => clientApi.getAll(),
+    queryKey: ["/api/clients"],
+    enabled: isOpen,
   });
 
-  const createMutation = useMutation({
-    mutationFn: trajectoryApi.create,
+  // Create/update trajectory mutation
+  const saveTrajectoryMutation = useMutation({
+    mutationFn: async (data: TrajectoryFormData) => {
+      const url = mode === "edit" ? `/api/trajectories/${trajectory?.id}` : "/api/trajectories";
+      const method = mode === "edit" ? "PATCH" : "POST";
+      
+      const response = await apiRequest(method, url, {
+        candidateId: data.candidateId,
+        clientId: data.clientId,
+        jobTitle: data.jobTitle,
+        status: data.status || "interview",
+        startDate: data.startDate || null,
+        hourlyRate: data.hourlyRate || null,
+      });
+      return response.json();
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trajectories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/candidates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      
       toast({
-        title: "Traject toegevoegd",
-        description: "Het traject is succesvol toegevoegd aan het systeem.",
+        title: mode === "edit" ? "Traject bijgewerkt" : "Traject aangemaakt",
+        description: mode === "edit" 
+          ? "Het traject is succesvol bijgewerkt." 
+          : "Het nieuwe traject is succesvol aangemaakt.",
       });
-      onSuccess();
+      
+      form.reset();
+      onClose();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
-        title: "Fout",
-        description: error.message || "Er is een fout opgetreden bij het toevoegen van het traject.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (data: Partial<InsertTrajectory>) => trajectoryApi.update(trajectory!.id, data),
-    onSuccess: () => {
-      toast({
-        title: "Traject bijgewerkt",
-        description: "Het traject is succesvol bijgewerkt.",
-      });
-      onSuccess();
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Fout",
-        description: error.message || "Er is een fout opgetreden bij het bijwerken van het traject.",
+        title: mode === "edit" ? "Fout bij bijwerken" : "Fout bij aanmaken",
+        description: error.message || "Er is een onbekende fout opgetreden.",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: TrajectoryFormData) => {
-    // Convert data to the correct format
-    const cleanedData = {
-      ...data,
-      startDate: data.startDate ? format(data.startDate, 'yyyy-MM-dd') : null,
-      hourlyRate: data.hourlyRate || null,
-      notes: data.notes || null,
-    };
-
-    if (isEditing) {
-      updateMutation.mutate(cleanedData);
-    } else {
-      createMutation.mutate(cleanedData);
+    if (!data.candidateId || !data.clientId) {
+      toast({
+        title: "Ontbrekende gegevens",
+        description: "Selecteer zowel een kandidaat als een opdrachtgever.",
+        variant: "destructive",
+      });
+      return;
     }
+    
+    saveTrajectoryMutation.mutate(data);
   };
 
-  const isLoading = createMutation.isPending || updateMutation.isPending;
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
+
+  if (!validation.isValid && mode === "edit") {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-red-600">Fout bij laden traject</DialogTitle>
+              <Button variant="ghost" size="sm" onClick={handleClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Het traject kan niet worden geladen vanwege de volgende problemen:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-red-600">
+              {validation.errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+            <Button onClick={handleClose} className="w-full">
+              Sluiten
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col my-8">
-        {/* Modal Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {isEditing ? 'Traject Bewerken' : 'Nieuw Traject Toevoegen'}
-            </h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-5 h-5" />
+            <DialogTitle>
+              {mode === "edit" ? "Traject bewerken" : "Nieuw traject"}
+            </DialogTitle>
+            <Button variant="ghost" size="sm" onClick={handleClose}>
+              <X className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </DialogHeader>
 
-        {/* Modal Content - Scrollable */}
-        <div className="p-6 overflow-y-auto flex-1">
-          <Form {...form}>
-            <form id="trajectory-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="jobTitle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Functie *</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Bijv. Vrachtwagenchauffeur" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="interview">In Gesprek</SelectItem>
-                          <SelectItem value="proposed">Voorgesteld</SelectItem>
-                          <SelectItem value="placed">Geplaatst</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Job Title */}
+            <FormField
+              control={form.control}
+              name="jobTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Functietitel *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Bijv. Senior Developer, Project Manager..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="candidateId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kandidaat *</FormLabel>
-                      <FormControl>
-                        <SearchableSelect
-                          options={candidates.map((candidate) => ({
-                            value: candidate.id.toString(),
-                            label: candidate.name
-                          }))}
-                          value={field.value?.toString()}
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          placeholder="Selecteer kandidaat"
-                          searchPlaceholder="Zoek kandidaat..."
-                          emptyMessage="Geen kandidaten gevonden."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="clientId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Opdrachtgever *</FormLabel>
-                      <FormControl>
-                        <SearchableSelect
-                          options={clients.map((client) => ({
-                            value: client.id.toString(),
-                            label: client.name
-                          }))}
-                          value={field.value?.toString()}
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          placeholder="Selecteer opdrachtgever"
-                          searchPlaceholder="Zoek opdrachtgever..."
-                          emptyMessage="Geen opdrachtgevers gevonden."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Startdatum</FormLabel>
-                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "dd MMMM yyyy", { locale: nl })
-                              ) : (
-                                <span>Selecteer datum</span>
-                              )}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                              field.onChange(date);
-                              setIsCalendarOpen(false);
-                            }}
-                            disabled={(date) =>
-                              date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="hourlyRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tarief</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Bijv. €18,50 per uur" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Opmerkingen</FormLabel>
+            {/* Status */}
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select value={field.value || ""} onValueChange={field.onChange}>
                     <FormControl>
-                      <Textarea
-                        {...field}
-                        rows={4}
-                        placeholder="Aanvullende informatie over het traject..."
-                        className="resize-none"
-                      />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecteer status" />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <SelectContent>
+                      <SelectItem value="">Geen selectie</SelectItem>
+                      <SelectItem value="interview">Interview</SelectItem>
+                      <SelectItem value="proposed">Voorgesteld</SelectItem>
+                      <SelectItem value="placed">Geplaatst</SelectItem>
+                      <SelectItem value="active">Actief</SelectItem>
+                      <SelectItem value="completed">Afgerond</SelectItem>
+                      <SelectItem value="cancelled">Geannuleerd</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            </form>
-          </Form>
-        </div>
-        
-        {/* Modal Footer - Fixed at bottom */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex justify-end space-x-3">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
-              Annuleren
-            </Button>
-            <Button
-              type="submit"
-              form="trajectory-form"
-              disabled={isLoading}
-              className="bg-primary hover:bg-primary-hover text-white"
-            >
-              {isLoading ? (isEditing ? 'Bijwerken...' : 'Toevoegen...') : (isEditing ? 'Bijwerken' : 'Traject Toevoegen')}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+            {/* Candidate Selection */}
+            <FormField
+              control={form.control}
+              name="candidateId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kandidaat *</FormLabel>
+                  <Select 
+                    value={field.value ? field.value.toString() : ""} 
+                    onValueChange={(value) => field.onChange(value ? parseInt(value, 10) : 0)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecteer kandidaat" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Geen selectie</SelectItem>
+                      {(candidates as Candidate[]).map((candidate: Candidate) => (
+                        <SelectItem key={candidate.id} value={candidate.id.toString()}>
+                          {candidate.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Client Selection */}
+            <FormField
+              control={form.control}
+              name="clientId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Opdrachtgever *</FormLabel>
+                  <Select 
+                    value={field.value ? field.value.toString() : ""} 
+                    onValueChange={(value) => field.onChange(value ? parseInt(value, 10) : 0)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecteer opdrachtgever" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Geen selectie</SelectItem>
+                      {(clients as Client[]).map((client: Client) => (
+                        <SelectItem key={client.id} value={client.id.toString()}>
+                          {client.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Start Date */}
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Startdatum</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="date"
+                      placeholder="Selecteer startdatum"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Hourly Rate */}
+            <FormField
+              control={form.control}
+              name="hourlyRate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Uurtarief</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Bijv. €75 per uur"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Form Actions */}
+            <div className="flex justify-end space-x-3 pt-6">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Annuleren
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={saveTrajectoryMutation.isPending}
+                className="bg-primary hover:bg-primary-hover"
+              >
+                {saveTrajectoryMutation.isPending 
+                  ? (mode === "edit" ? "Bijwerken..." : "Aanmaken...") 
+                  : (mode === "edit" ? "Bijwerken" : "Aanmaken")
+                }
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

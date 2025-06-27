@@ -133,6 +133,11 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Fixed trajectory display inconsistencies by implementing centralized data formatters
+- June 27, 2025. Created trajectory-formatters.ts library with consistent data mapping for all trajectory components
+- June 27, 2025. Synchronized trajectory display across cards, detail modal, and edit forms using shared formatters
+- June 27, 2025. Added comprehensive data validation and error handling for trajectory operations
+- June 27, 2025. Enhanced trajectory edit functionality with proper form pre-filling and consistent status colors
 - June 27, 2025. Simplified trajectory cards with compact neutral styling showing [Functietitel] – [Kandidaatnaam] bij [Opdrachtgever]
 - June 27, 2025. Fixed trajectory DetailModal to show all information correctly and added Edit button functionality
 - June 27, 2025. Removed colored blocks from trajectory cards for cleaner minimalist design

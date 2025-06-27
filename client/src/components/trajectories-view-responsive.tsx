@@ -11,6 +11,12 @@ import type { TrajectoryWithRelations } from "@shared/schema";
 import DetailModal from "./DetailModal";
 import NewTrajectoryModal from "./NewTrajectoryModal";
 import TrajectoryForm from "./trajectory-form";
+import { 
+  formatTrajectoryTitle, 
+  formatTrajectoryDate, 
+  formatTrajectoryStatus, 
+  getTrajectoryStatusColor 
+} from "@/lib/trajectory-formatters";
 import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
@@ -201,9 +207,13 @@ export default function TrajectoriesView() {
       {/* Edit Trajectory Form */}
       {isEditFormOpen && editingTrajectory && (
         <TrajectoryForm
+          isOpen={isEditFormOpen}
           trajectory={editingTrajectory}
-          onClose={closeEditForm}
-          onSuccess={handleEditFormSuccess}
+          mode="edit"
+          onClose={() => {
+            setIsEditFormOpen(false);
+            setEditingTrajectory(null);
+          }}
         />
       )}
     </>

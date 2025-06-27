@@ -170,8 +170,8 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                 )}
                 {entityType === "trajectory" && (
                   <div className="flex flex-wrap items-center mt-2 gap-2">
-                    <Badge className="bg-blue-100 text-blue-800">
-                      {(entity as TrajectoryWithRelations).status}
+                    <Badge className={getTrajectoryStatusColor((entity as TrajectoryWithRelations).status)}>
+                      {formatTrajectoryStatus((entity as TrajectoryWithRelations).status)}
                     </Badge>
                   </div>
                 )}
