@@ -940,6 +940,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Additional client contact routes for ContactForm compatibility
+  app.post("/api/client-contacts", authenticateAny, async (req: any, res) => {
+    try {
+      const contactData = insertClientContactSchema.parse(req.body);
+      const contact = await storage.createClientContact(contactData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", contactData.clientId, "add_contact", contactData, userId);
+      
+      res.status(201).json(contact);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating client contact:", error);
+      res.status(500).json({ message: "Failed to create client contact" });
+    }
+  });
+
+  app.patch("/api/client-contacts/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const contactData = insertClientContactSchema.partial().parse(req.body);
+      const contact = await storage.updateClientContact(id, contactData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", contact.clientId, "update_contact", contactData, userId);
+      
+      res.json(contact);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating client contact:", error);
+      res.status(500).json({ message: "Failed to update client contact" });
+    }
+  });
+
+  app.delete("/api/client-contacts/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const contact = await storage.getClientContacts(0); // We need the clientId for audit
+      await storage.deleteClientContact(id);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", 0, "delete_contact", {}, userId);
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting client contact:", error);
+      res.status(500).json({ message: "Failed to delete client contact" });
+    }
+  });
+
   // Trajectory routes
   app.get("/api/trajectories", authenticateAny, async (req, res) => {
     try {
