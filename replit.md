@@ -133,9 +133,10 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
-- June 27, 2025. Enhanced trajectory display with prominent candidate and client information in colored cards
-- June 27, 2025. Added dedicated colored sections for candidate (blue) and client (green) details in trajectory list
-- June 27, 2025. Improved trajectory card layout to clearly show who is involved in each trajectory
+- June 27, 2025. Simplified trajectory cards with compact neutral styling showing [Functietitel] – [Kandidaatnaam] bij [Opdrachtgever]
+- June 27, 2025. Fixed trajectory DetailModal to show all information correctly and added Edit button functionality
+- June 27, 2025. Removed colored blocks from trajectory cards for cleaner minimalist design
+- June 27, 2025. Enhanced trajectory display with proper candidate and client information visibility
 - June 27, 2025. Enhanced candidate overview with dynamic filtered results counter showing detailed filter information
 - June 27, 2025. Improved FilterPanel responsiveness with proper flexbox layout preventing button cutoff
 - June 27, 2025. Made filter UI fully responsive with auto-scaling containers and clear button positioning

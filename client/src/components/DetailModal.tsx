@@ -55,25 +55,21 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
 
   const createNoteMutation = useMutation({
     mutationFn: async (content: string) => {
-      return apiRequest("POST", "/api/notes", {
+      const response = await apiRequest("POST", "/api/notes", {
         entityType,
         entityId: entity.id,
         content,
       });
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notes/${entityType}/${entity.id}`] });
+      queryClient.invalidateQueries({ 
+        queryKey: [`/api/notes/${entityType}/${entity.id}`]
+      });
       setNewNote("");
       toast({
         title: "Notitie toegevoegd",
-        description: "De notitie is succesvol toegevoegd.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Fout",
-        description: "Er is een fout opgetreden bij het toevoegen van de notitie.",
-        variant: "destructive",
+        description: "De notitie is succesvol opgeslagen.",
       });
     },
   });
@@ -91,63 +87,57 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
       case "client":
         return (entity as ClientWithRelations).name;
       case "trajectory":
-        const trajectory = entity as TrajectoryWithRelations;
-        return `${trajectory.jobTitle} - ${trajectory.client?.name}`;
+        return (entity as TrajectoryWithRelations).jobTitle || "Onbekend traject";
       default:
-        return "Details";
+        return "Onbekend";
     }
   };
 
   const getEntitySubtitle = () => {
     switch (entityType) {
       case "candidate":
-        const candidate = entity as CandidateWithRelations;
-        return `${candidate.city}, ${candidate.region} • ${candidate.phone}`;
+        return (entity as CandidateWithRelations).email || "";
       case "client":
-        const client = entity as ClientWithRelations;
-        return `${client.contactPerson} • ${client.location}`;
+        return (entity as ClientWithRelations).contactPerson || "";
       case "trajectory":
         const trajectory = entity as TrajectoryWithRelations;
-        return `Kandidaat: ${trajectory.candidate?.name}`;
+        return `${trajectory.candidate?.name || 'Onbekende kandidaat'} bij ${trajectory.client?.name || 'Onbekende opdrachtgever'}`;
       default:
         return "";
     }
   };
 
+  const getUserInitials = () => {
+    const name = user?.firstName || user?.email || "Gebruiker";
+    return name.substring(0, 2).toUpperCase();
+  };
+
   const getFileIcon = (filename: string) => {
-    const ext = filename.split('.').pop()?.toLowerCase();
-    switch (ext) {
+    const extension = filename.split('.').pop()?.toLowerCase();
+    switch (extension) {
       case 'pdf':
         return <FilePen className="h-5 w-5 text-red-600" />;
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
-        return <FileImage className="h-5 w-5 text-green-600" />;
+        return <FileImage className="h-5 w-5 text-blue-600" />;
       default:
-        return <File className="h-5 w-5 text-blue-600" />;
+        return <File className="h-5 w-5 text-gray-600" />;
     }
-  };
-
-  const getInitials = (name: string) => {
-    return name.split(" ").map(n => n[0]).join("").toUpperCase();
-  };
-
-  const getUserInitials = () => {
-    if (!user?.email && !user?.username) return "U";
-    const displayName = user?.email || user?.username || "Unknown";
-    return displayName.substring(0, 2).toUpperCase();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-4xl sm:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-5/6 flex flex-col mx-4 sm:mx-auto overflow-hidden">
+      <DialogContent className="max-w-6xl h-[90vh] p-0 flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0 p-4 sm:p-6 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-gray-600 text-lg sm:text-xl font-medium">
-                  {getInitials(getEntityTitle())}
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-3 sm:space-x-4 flex-1 min-w-0">
+              <div className="flex-shrink-0">
+                <span className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-primary-foreground text-sm sm:text-base font-medium">
+                  {entityType === "candidate" && <User className="h-5 w-5 sm:h-6 sm:w-6" />}
+                  {entityType === "client" && <FileText className="h-5 w-5 sm:h-6 sm:w-6" />}
+                  {entityType === "trajectory" && <Route className="h-5 w-5 sm:h-6 sm:w-6" />}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
@@ -177,10 +167,16 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <Button className="bg-primary hover:bg-primary-hover" size="sm">
-                <Edit className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Bewerken</span>
-              </Button>
+              {onEdit && (
+                <Button 
+                  className="bg-primary hover:bg-primary-hover" 
+                  size="sm"
+                  onClick={() => onEdit(entity)}
+                >
+                  <Edit className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Bewerken</span>
+                </Button>
+              )}
               <Button variant="ghost" onClick={onClose} size="sm">
                 <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
@@ -334,7 +330,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Functietitel</label>
-                            <Input value={(entity as TrajectoryWithRelations).position || ""} readOnly />
+                            <Input value={(entity as TrajectoryWithRelations).jobTitle || ""} readOnly />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -350,11 +346,9 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Salaris</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Uurtarief</label>
                             <Input 
-                              value={(entity as TrajectoryWithRelations).salary 
-                                ? `€${(entity as TrajectoryWithRelations).salary?.toLocaleString()}` 
-                                : ""} 
+                              value={(entity as TrajectoryWithRelations).hourlyRate || ""} 
                               readOnly 
                             />
                           </div>
@@ -370,19 +364,6 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Opdrachtgever</label>
                             <Input value={(entity as TrajectoryWithRelations).client?.name || "Onbekend"} readOnly />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
-                            <Input value={(entity as TrajectoryWithRelations).location || ""} readOnly />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Opmerkingen</label>
-                            <Textarea 
-                              value={(entity as TrajectoryWithRelations).notes || ""} 
-                              readOnly 
-                              rows={3}
-                              className="resize-none"
-                            />
                           </div>
                         </div>
                       </div>

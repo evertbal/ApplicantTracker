@@ -184,6 +184,11 @@ export default function TrajectoriesView() {
           entityType="trajectory"
           isOpen={!!selectedTrajectory}
           onClose={() => setSelectedTrajectory(null)}
+          onEdit={(trajectory) => {
+            setEditingTrajectory(trajectory);
+            setIsEditFormOpen(true);
+            setSelectedTrajectory(null);
+          }}
         />
       )}
 
