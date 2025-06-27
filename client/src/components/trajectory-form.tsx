@@ -177,6 +177,9 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-red-600">Fout bij laden traject</DialogTitle>
+            <DialogDescription>
+              Het traject kan niet worden bewerkt vanwege ontbrekende gegevens.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -203,6 +206,12 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
           <DialogTitle>
             {mode === "edit" ? "Traject bewerken" : "Nieuw traject"}
           </DialogTitle>
+          <DialogDescription>
+            {mode === "edit" 
+              ? "Bewerk de gegevens van dit traject." 
+              : "Maak een nieuw traject aan door de onderstaande velden in te vullen."
+            }
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
