@@ -135,7 +135,20 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
         <div className="p-6 overflow-y-auto flex-1">
           <Form {...form}>
             <form id="candidate-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              
+              {/* Beroep eerst */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Beroep</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ""} placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <div className="grid grid-cols-2 gap-4">
                 <FormField
@@ -340,7 +353,23 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
               
 
 
-              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Beroep</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
             </form>
           </Form>
