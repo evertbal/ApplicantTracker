@@ -21,10 +21,14 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 
 // Extend the schema with client-side validation
-const trajectoryFormSchema = insertTrajectorySchema.extend({
-  jobTitle: z.string().min(1, "Functie is verplicht"),
+const trajectoryFormSchema = z.object({
+  jobTitle: z.string().optional(),
   candidateId: z.number().min(1, "Kandidaat is verplicht"),
   clientId: z.number().min(1, "Opdrachtgever is verplicht"),
+  startDate: z.string().optional(),
+  status: z.string().optional(),
+  hourlyRate: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 type TrajectoryFormData = z.infer<typeof trajectoryFormSchema>;
@@ -46,7 +50,7 @@ export default function TrajectoryForm({ trajectory, onClose, onSuccess }: Traje
       jobTitle: trajectory?.jobTitle || "",
       candidateId: trajectory?.candidateId || undefined,
       clientId: trajectory?.clientId || undefined,
-      startDate: trajectory?.startDate ? new Date(trajectory.startDate) : undefined,
+      startDate: trajectory?.startDate || "",
       status: trajectory?.status || "interview",
       hourlyRate: trajectory?.hourlyRate || "",
       notes: trajectory?.notes || "",
