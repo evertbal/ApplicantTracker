@@ -187,27 +187,77 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   const renderTrajectoryItem = (trajectory: any) => (
     <Card key={trajectory.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(trajectory)}>
       <CardContent className="p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3 flex-1 min-w-0">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10 mt-1">
               <AvatarFallback className="bg-purple-500 text-white">
                 <Route className="w-4 h-4" />
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
+            <div className="flex-1 min-w-0 space-y-2">
+              {/* Position and Status */}
+              <div className="flex items-center space-x-2">
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
-                  {trajectory.position} - {trajectory.client?.name}
+                  {trajectory.position}
                 </h3>
                 <Badge className={`text-xs ${getStatusColor(trajectory.status)}`}>
                   {getStatusLabel(trajectory.status)}
                 </Badge>
               </div>
-              <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <span className="truncate">{trajectory.candidate?.name}</span>
+              
+              {/* Candidate Information - Prominently Displayed */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-2 border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center space-x-2">
+                  <Avatar className="w-6 h-6">
+                    <AvatarFallback className="bg-blue-500 text-white text-xs">
+                      {trajectory.candidate?.name?.substring(0, 2).toUpperCase() || 'K'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                      <span className="text-xs text-blue-600 dark:text-blue-300">Kandidaat:</span> {trajectory.candidate?.name || 'Onbekend'}
+                    </p>
+                    {trajectory.candidate?.email && (
+                      <p className="text-xs text-blue-700 dark:text-blue-300 truncate">
+                        {trajectory.candidate.email}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Client Information - Prominently Displayed */}
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-md p-2 border border-green-200 dark:border-green-800">
+                <div className="flex items-center space-x-2">
+                  <Avatar className="w-6 h-6">
+                    <AvatarFallback className="bg-green-500 text-white text-xs">
+                      <Building className="w-3 h-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-green-900 dark:text-green-100 truncate">
+                      <span className="text-xs text-green-600 dark:text-green-300">Opdrachtgever:</span> {trajectory.client?.name || 'Onbekend'}
+                    </p>
+                    {trajectory.client?.contactPerson && (
+                      <p className="text-xs text-green-700 dark:text-green-300 truncate">
+                        Contact: {trajectory.client.contactPerson}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Additional Info */}
+              <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                 {trajectory.startDate && (
+                  <span className="flex items-center space-x-1">
+                    <span>Start:</span>
+                    <span>{format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })}</span>
+                  </span>
+                )}
+                {trajectory.salary && (
                   <span className="hidden sm:inline">
-                    {format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })}
+                    €{trajectory.salary.toLocaleString()}
                   </span>
                 )}
               </div>
