@@ -105,7 +105,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
   const saveTrajectoryMutation = useMutation({
     mutationFn: async (data: TrajectoryFormData) => {
       const url = mode === "edit" ? `/api/trajectories/${trajectory?.id}` : "/api/trajectories";
-      const method = mode === "edit" ? "PATCH" : "POST";
+      const method = mode === "edit" ? "PUT" : "POST";
       
       const response = await apiRequest(method, url, {
         candidateId: data.candidateId,
@@ -115,6 +115,18 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         startDate: data.startDate || null,
         hourlyRate: data.hourlyRate || null,
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Non-JSON response:", text);
+        throw new Error("Server returned non-JSON response");
+      }
+      
       return response.json();
     },
     onSuccess: () => {

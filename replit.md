@@ -133,6 +133,9 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Fixed trajectory edit JSON parsing error by correcting HTTP method mismatch (PATCH → PUT)
+- June 27, 2025. Added proper error handling for non-JSON responses in trajectory form mutations
+- June 27, 2025. Fixed Select component runtime errors by removing empty string values from trajectory form dropdowns
 - June 27, 2025. Fixed trajectory display inconsistencies by implementing centralized data formatters
 - June 27, 2025. Created trajectory-formatters.ts library with consistent data mapping for all trajectory components
 - June 27, 2025. Synchronized trajectory display across cards, detail modal, and edit forms using shared formatters
