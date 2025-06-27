@@ -177,7 +177,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                 )}
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 pr-8">
               {onEdit && (
                 <Button 
                   className="bg-primary hover:bg-primary-hover" 
