@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Search, Plus, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,14 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ClientWithRelations } from "@shared/schema";
-import DetailModal from "./DetailModal";
 import NewClientModal from "./NewClientModal";
 import ClientForm from "./client-form";
 import CompactList from "./compact-list";
 
 export default function ClientsView() {
   const [search, setSearch] = useState("");
-  const [selectedClient, setSelectedClient] = useState<ClientWithRelations | null>(null);
+  const [, setLocation] = useLocation();
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
   const [selectedWorkTypes, setSelectedWorkTypes] = useState<string[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -177,7 +177,7 @@ export default function ClientsView() {
           <CompactList
             items={filteredClients}
             type="clients"
-            onView={setSelectedClient}
+            onView={(client) => setLocation(`/client/${client.id}`)}
             onEdit={openEditForm}
             isLoading={isLoading}
           />

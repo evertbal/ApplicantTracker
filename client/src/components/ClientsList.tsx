@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Plus, Building } from "lucide-react";
 import type { ClientWithRelations } from "@shared/schema";
-import DetailModal from "./DetailModal";
 import NewClientModal from "./NewClientModal";
 import ClientForm from "./client-form";
 
 export default function ClientsList() {
   const [search, setSearch] = useState("");
-  const [selectedClient, setSelectedClient] = useState<ClientWithRelations | null>(null);
+  const [, setLocation] = useLocation();
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientWithRelations | null>(null);
@@ -119,7 +119,7 @@ export default function ClientsList() {
               <Card 
                 key={client.id} 
                 className="hover:shadow-md transition-shadow duration-200 cursor-pointer"
-                onClick={() => setSelectedClient(client)}
+                onClick={() => setLocation(`/client/${client.id}`)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-4">
@@ -150,19 +150,7 @@ export default function ClientsList() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedClient && (
-        <DetailModal
-          entity={selectedClient}
-          entityType="client"
-          isOpen={!!selectedClient}
-          onClose={() => setSelectedClient(null)}
-          onEdit={() => {
-            openEditForm(selectedClient);
-            setSelectedClient(null);
-          }}
-        />
-      )}
+
 
       {/* New Client Modal */}
       <NewClientModal
