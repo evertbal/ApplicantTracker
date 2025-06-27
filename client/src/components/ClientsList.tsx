@@ -17,7 +17,7 @@ export default function ClientsList() {
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientWithRelations | null>(null);
 
-  const { data: clients = [], isLoading } = useQuery({
+  const { data: clients = [], isLoading, refetch } = useQuery({
     queryKey: ["/api/clients", { search }],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -28,6 +28,21 @@ export default function ClientsList() {
       return response.json() as Promise<ClientWithRelations[]>;
     },
   });
+
+  const openEditForm = (client: ClientWithRelations) => {
+    setEditingClient(client);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingClient(null);
+  };
+
+  const handleFormSuccess = () => {
+    refetch();
+    closeForm();
+  };
 
   if (isLoading) {
     return (
@@ -142,6 +157,10 @@ export default function ClientsList() {
           entityType="client"
           isOpen={!!selectedClient}
           onClose={() => setSelectedClient(null)}
+          onEdit={() => {
+            openEditForm(selectedClient);
+            setSelectedClient(null);
+          }}
         />
       )}
 
@@ -150,6 +169,15 @@ export default function ClientsList() {
         isOpen={isNewClientModalOpen}
         onClose={() => setIsNewClientModalOpen(false)}
       />
+
+      {/* Edit Client Form */}
+      {showForm && (
+        <ClientForm
+          client={editingClient}
+          onClose={closeForm}
+          onSuccess={handleFormSuccess}
+        />
+      )}
     </>
   );
 }

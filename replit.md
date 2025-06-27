@@ -140,6 +140,8 @@ Changelog:
 - June 27, 2025. Created trajectory-formatters.ts library with consistent data mapping for all trajectory components
 - June 27, 2025. Synchronized trajectory display across cards, detail modal, and edit forms using shared formatters
 - June 27, 2025. Added comprehensive data validation and error handling for trajectory operations
+- June 27, 2025. Fixed client edit functionality to open proper edit modal instead of new client modal
+- June 27, 2025. Added edit button to client DetailModal and integrated ClientForm for editing
 - June 27, 2025. Fixed spacing between Edit button and close icon in DetailModal to prevent overlap
 - June 27, 2025. Removed duplicate close icons from all modal headers leaving only the automatic Dialog close button
 - June 27, 2025. Fixed trajectory detail view to show plain text instead of disabled input fields like candidate/client views
