@@ -133,6 +133,9 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Added prominent results counter to candidate overview showing total filtered results
+- June 27, 2025. Enhanced results display with active filter details and clear all filters button
+- June 27, 2025. Made results counter visually prominent with blue highlighting box
 - June 27, 2025. Added comprehensive clear options to all dropdown components throughout the application
 - June 27, 2025. Enhanced SearchableSelect component with clear functionality and "Geen selectie" option
 - June 27, 2025. Updated all Select components in forms to include clear options for resetting selections

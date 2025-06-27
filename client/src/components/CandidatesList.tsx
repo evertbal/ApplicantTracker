@@ -136,11 +136,53 @@ export default function CandidatesList() {
         
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6">
-            {/* List Header */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">
-                {candidates.length} kandidaten gevonden
-              </span>
+            {/* Results Counter */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">
+                    {candidates.length} kandidaten gevonden
+                  </h3>
+                  {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search) && (
+                    <div className="mt-2 text-sm text-blue-700">
+                      Actieve filters: 
+                      {search && <span className="ml-1 font-medium">Zoekterm: "{search}"</span>}
+                      {filters.status.length > 0 && (
+                        <span className="ml-1 font-medium">
+                          Status: {filters.status.join(", ")}
+                        </span>
+                      )}
+                      {filters.region && (
+                        <span className="ml-1 font-medium">Regio: {filters.region}</span>
+                      )}
+                      {filters.drivingLicense.length > 0 && (
+                        <span className="ml-1 font-medium">
+                          Rijbewijs: {filters.drivingLicense.join(", ")}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearch("");
+                      setFilters({
+                        status: [],
+                        region: "",
+                        drivingLicense: [],
+                        dateFrom: "",
+                        dateTo: "",
+                      });
+                    }}
+                    className="text-blue-700 border-blue-300 hover:bg-blue-100"
+                  >
+                    Alle filters wissen
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Candidates List */}
