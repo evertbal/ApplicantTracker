@@ -177,6 +177,9 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                   <span className="hidden sm:inline">Bewerken</span>
                 </Button>
               )}
+              <Button variant="ghost" onClick={onClose} size="sm">
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Button>
             </div>
           </div>
         </DialogHeader>
@@ -327,29 +330,27 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Functietitel</label>
-                            <p className="text-gray-900">{(entity as TrajectoryWithRelations).jobTitle || "Niet opgegeven"}</p>
+                            <Input value={(entity as TrajectoryWithRelations).jobTitle || ""} readOnly />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <p className="text-gray-900">{(entity as TrajectoryWithRelations).status || "Niet opgegeven"}</p>
+                            <Input value={(entity as TrajectoryWithRelations).status || ""} readOnly />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Startdatum</label>
-                            <p className="text-gray-900">
-                              {(entity as TrajectoryWithRelations).startDate 
+                            <Input 
+                              value={(entity as TrajectoryWithRelations).startDate 
                                 ? format(new Date((entity as TrajectoryWithRelations).startDate!), 'dd-MM-yyyy') 
-                                : 'Niet opgegeven'
-                              }
-                            </p>
+                                : ''} 
+                              readOnly 
+                            />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Uurtarief</label>
-                            <p className="text-gray-900">
-                              {(entity as TrajectoryWithRelations).hourlyRate 
-                                ? `€${(entity as TrajectoryWithRelations).hourlyRate}` 
-                                : 'Niet opgegeven'
-                              }
-                            </p>
+                            <Input 
+                              value={(entity as TrajectoryWithRelations).hourlyRate || ""} 
+                              readOnly 
+                            />
                           </div>
                         </div>
                       </div>

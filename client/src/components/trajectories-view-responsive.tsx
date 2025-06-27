@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { TrajectoryWithRelations } from "@shared/schema";
 import DetailModal from "./DetailModal";
 import NewTrajectoryModal from "./NewTrajectoryModal";
-import TrajectoryFormNew from "./trajectory-form-new";
+import TrajectoryForm from "./trajectory-form";
 import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
@@ -40,7 +40,7 @@ export default function TrajectoriesView() {
   // Filter trajectories
   const filteredTrajectories = Array.isArray(trajectories) ? trajectories.filter((trajectory: any) => {
     const matchesSearch = !search || 
-      trajectory.jobTitle?.toLowerCase().includes(search.toLowerCase()) ||
+      trajectory.position?.toLowerCase().includes(search.toLowerCase()) ||
       trajectory.candidate?.name?.toLowerCase().includes(search.toLowerCase()) ||
       trajectory.client?.name?.toLowerCase().includes(search.toLowerCase());
     
@@ -200,9 +200,8 @@ export default function TrajectoriesView() {
 
       {/* Edit Trajectory Form */}
       {isEditFormOpen && editingTrajectory && (
-        <TrajectoryFormNew
+        <TrajectoryForm
           trajectory={editingTrajectory}
-          isOpen={isEditFormOpen}
           onClose={closeEditForm}
           onSuccess={handleEditFormSuccess}
         />

@@ -198,7 +198,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
               {/* Main trajectory info in one line */}
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
-                  {trajectory.jobTitle || 'Onbekende functie'} – {trajectory.candidate?.name || 'Onbekende kandidaat'} bij {trajectory.client?.name || 'Onbekende opdrachtgever'}
+                  {trajectory.position} – {trajectory.candidate?.name || 'Onbekende kandidaat'} bij {trajectory.client?.name || 'Onbekende opdrachtgever'}
                 </h3>
               </div>
               
