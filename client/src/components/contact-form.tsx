@@ -56,6 +56,8 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/contacts`] });
       toast({
         title: "Contactpersoon toegevoegd",
         description: "De contactpersoon is succesvol toegevoegd.",
@@ -78,6 +80,8 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/clients", clientId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/contacts`] });
       toast({
         title: "Contactpersoon bijgewerkt",
         description: "De contactpersoon is succesvol bijgewerkt.",

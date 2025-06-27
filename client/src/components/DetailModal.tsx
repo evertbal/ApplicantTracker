@@ -121,6 +121,8 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
       try {
         await apiRequest("DELETE", `/api/client-contacts/${contactId}`);
         queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/clients", entity.id] });
+        queryClient.invalidateQueries({ queryKey: [`/api/clients/${entity.id}/contacts`] });
         toast({
           title: "Contactpersoon verwijderd",
           description: "De contactpersoon is succesvol verwijderd.",

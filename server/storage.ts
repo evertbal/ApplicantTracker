@@ -360,13 +360,25 @@ export class DatabaseStorage implements IStorage {
 
     const clientResults = await query.orderBy(desc(clients.createdAt));
     
-    // Return clients without relations for performance - relations can be loaded on detail page
-    return clientResults.map(client => ({
-      ...client,
-      trajectories: [],
-      notes: [],
-      documents: []
-    }));
+    // Load contacts for each client to ensure they're visible in the UI
+    const clientsWithContacts = await Promise.all(
+      clientResults.map(async (client) => {
+        const contacts = await db.select().from(clientContacts)
+          .where(eq(clientContacts.clientId, client.id))
+          .orderBy(desc(clientContacts.createdAt));
+        
+        return {
+          ...client,
+          trajectories: [],
+          notes: [],
+          documents: [],
+          locations: [],
+          contacts: contacts,
+        };
+      })
+    );
+    
+    return clientsWithContacts;
   }
 
   async getClient(id: number): Promise<ClientWithRelations | undefined> {
