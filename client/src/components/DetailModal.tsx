@@ -26,6 +26,18 @@ import { nl } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  formatTrajectoryTitle, 
+  formatTrajectoryDate, 
+  formatTrajectoryStatus, 
+  getTrajectoryStatusColor,
+  formatCandidateName,
+  formatClientName,
+  formatJobTitle,
+  formatHourlyRate,
+  validateTrajectoryData,
+  getTrajectorySubtitle
+} from "@/lib/trajectory-formatters";
 import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations, Note, Document } from "@shared/schema";
 
 interface DetailModalProps {
@@ -100,8 +112,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
       case "client":
         return (entity as ClientWithRelations).contactPerson || "";
       case "trajectory":
-        const trajectory = entity as TrajectoryWithRelations;
-        return `${trajectory.candidate?.name || 'Onbekende kandidaat'} bij ${trajectory.client?.name || 'Onbekende opdrachtgever'}`;
+        return getTrajectorySubtitle(entity as TrajectoryWithRelations);
       default:
         return "";
     }
@@ -330,25 +341,23 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Functietitel</label>
-                            <Input value={(entity as TrajectoryWithRelations).jobTitle || ""} readOnly />
+                            <Input value={formatJobTitle(entity as TrajectoryWithRelations)} readOnly />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <Input value={(entity as TrajectoryWithRelations).status || ""} readOnly />
+                            <Input value={formatTrajectoryStatus((entity as TrajectoryWithRelations).status)} readOnly />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Startdatum</label>
                             <Input 
-                              value={(entity as TrajectoryWithRelations).startDate 
-                                ? format(new Date((entity as TrajectoryWithRelations).startDate!), 'dd-MM-yyyy') 
-                                : ''} 
+                              value={formatTrajectoryDate((entity as TrajectoryWithRelations).startDate)} 
                               readOnly 
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Uurtarief</label>
                             <Input 
-                              value={(entity as TrajectoryWithRelations).hourlyRate || ""} 
+                              value={formatHourlyRate((entity as TrajectoryWithRelations).hourlyRate)} 
                               readOnly 
                             />
                           </div>
@@ -359,11 +368,11 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Kandidaatnaam</label>
-                            <Input value={(entity as TrajectoryWithRelations).candidate?.name || "Onbekend"} readOnly />
+                            <Input value={formatCandidateName(entity as TrajectoryWithRelations)} readOnly />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Opdrachtgever</label>
-                            <Input value={(entity as TrajectoryWithRelations).client?.name || "Onbekend"} readOnly />
+                            <Input value={formatClientName(entity as TrajectoryWithRelations)} readOnly />
                           </div>
                         </div>
                       </div>

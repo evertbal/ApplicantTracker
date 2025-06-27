@@ -6,6 +6,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Edit, Eye, FileText, Route, Building, BriefcaseIcon } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
+import { 
+  formatTrajectoryTitle, 
+  formatTrajectoryDate, 
+  formatTrajectoryStatus, 
+  getTrajectoryStatusColor,
+  formatHourlyRate,
+  validateTrajectoryData 
+} from "@/lib/trajectory-formatters";
 import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations } from "@shared/schema";
 
 interface CompactListProps {
@@ -198,23 +206,21 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
               {/* Main trajectory info in one line */}
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
-                  {trajectory.position} – {trajectory.candidate?.name || 'Onbekende kandidaat'} bij {trajectory.client?.name || 'Onbekende opdrachtgever'}
+                  {formatTrajectoryTitle(trajectory)}
                 </h3>
               </div>
               
               {/* Status and date in subtle style */}
               <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <Badge variant="outline" className={`text-xs ${getStatusColor(trajectory.status)}`}>
-                  {getStatusLabel(trajectory.status)}
+                <Badge variant="outline" className={`text-xs ${getTrajectoryStatusColor(trajectory.status)}`}>
+                  {formatTrajectoryStatus(trajectory.status)}
                 </Badge>
-                {trajectory.startDate && (
-                  <span>
-                    Start: {format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })}
-                  </span>
-                )}
-                {trajectory.salary && (
+                <span>
+                  Start: {formatTrajectoryDate(trajectory.startDate)}
+                </span>
+                {trajectory.hourlyRate && (
                   <span className="hidden sm:inline">
-                    €{trajectory.salary.toLocaleString()}
+                    {formatHourlyRate(trajectory.hourlyRate)}
                   </span>
                 )}
               </div>
