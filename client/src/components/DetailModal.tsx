@@ -19,7 +19,13 @@ import {
   Trash2,
   FilePen,
   FileImage,
-  File
+  File,
+  Users,
+  Plus,
+  Phone,
+  Mail,
+  Calendar,
+  Briefcase
 } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -195,7 +201,9 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
         <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
             <div className="w-full sm:w-64 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-3 sm:p-4">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-1 gap-1 bg-transparent">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-1 gap-1 bg-transparent"
+                style={{ gridTemplateColumns: entityType === "client" ? "repeat(4, 1fr)" : "repeat(3, 1fr)" }}
+              >
                 <TabsTrigger 
                   value="information" 
                   className="justify-center sm:justify-start bg-white border border-gray-200 text-primary shadow-sm text-xs sm:text-sm"
@@ -223,6 +231,18 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                     {(documents as any[])?.length || 0}
                   </Badge>
                 </TabsTrigger>
+                {entityType === "client" && (
+                  <TabsTrigger 
+                    value="contacts" 
+                    className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
+                  >
+                    <Users className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Contactpersonen</span>
+                    <Badge variant="secondary" className="ml-auto hidden sm:block">
+                      {((entity as any)?.contacts as any[])?.length || 0}
+                    </Badge>
+                  </TabsTrigger>
+                )}
                 {entityType === "candidate" && (
                   <TabsTrigger 
                     value="trajectories" 
@@ -567,6 +587,95 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                   )}
                 </div>
               </TabsContent>
+
+              {entityType === "client" && (
+                <TabsContent value="contacts" className="m-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Contactpersonen</h3>
+                    <Button className="bg-primary hover:bg-primary-hover">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Contactpersoon toevoegen
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {((entity as any)?.contacts as any[])?.length === 0 ? (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <p className="text-gray-500">Nog geen contactpersonen toegevoegd</p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      ((entity as any)?.contacts as any[])?.map((contact: any) => (
+                        <Card key={contact.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="bg-primary/10 p-2 rounded-full">
+                                    <User className="h-5 w-5 text-primary" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-lg font-semibold text-gray-900">{contact.naam}</h4>
+                                    {contact.rol && (
+                                      <div className="flex items-center text-sm text-gray-600 mt-1">
+                                        <Briefcase className="h-4 w-4 mr-1" />
+                                        {contact.rol}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {contact.telefoonnummer && (
+                                    <div className="flex items-center text-sm text-gray-600">
+                                      <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                                      <a href={`tel:${contact.telefoonnummer}`} className="hover:text-primary">
+                                        {contact.telefoonnummer}
+                                      </a>
+                                    </div>
+                                  )}
+                                  
+                                  {contact.emailadres && (
+                                    <div className="flex items-center text-sm text-gray-600">
+                                      <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                                      <a href={`mailto:${contact.emailadres}`} className="hover:text-primary">
+                                        {contact.emailadres}
+                                      </a>
+                                    </div>
+                                  )}
+                                  
+                                  {contact.geboortedatum && (
+                                    <div className="flex items-center text-sm text-gray-600">
+                                      <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                                      {format(new Date(contact.geboortedatum), "d MMMM yyyy", { locale: nl })}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {contact.opmerkingen && (
+                                  <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                                    <p className="text-sm text-gray-700">{contact.opmerkingen}</p>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex space-x-2 ml-4">
+                                <Button variant="ghost" size="sm" className="text-primary hover:text-primary-hover">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+              )}
 
               {entityType === "candidate" && (
                 <TabsContent value="trajectories" className="m-0">
