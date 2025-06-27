@@ -233,7 +233,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Opdrachtgever</Label>
-                <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-2 rounded border mt-1">{trajectory.client?.name || 'Niet gekoppeld'}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.client?.name || 'Niet gekoppeld'}</p>
               </div>
             </div>
           </div>
