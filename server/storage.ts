@@ -373,7 +373,7 @@ export class DatabaseStorage implements IStorage {
     const [client] = await db.select().from(clients).where(eq(clients.id, id));
     if (!client) return undefined;
 
-    const [clientTrajectories, clientNotes, clientDocuments, clientLocations, clientContacts] = await Promise.all([
+    const [clientTrajectories, clientNotes, clientDocuments, locations, contacts] = await Promise.all([
       db.select().from(trajectories).where(eq(trajectories.clientId, id)),
       db.select().from(notes).where(and(eq(notes.entityType, "client"), eq(notes.entityId, id))).orderBy(desc(notes.createdAt)),
       db.select().from(documents).where(and(eq(documents.entityType, "client"), eq(documents.entityId, id))),
@@ -386,8 +386,8 @@ export class DatabaseStorage implements IStorage {
       trajectories: clientTrajectories,
       notes: clientNotes,
       documents: clientDocuments,
-      locations: clientLocations,
-      contacts: clientContacts,
+      locations: locations,
+      contacts: contacts,
     };
   }
 

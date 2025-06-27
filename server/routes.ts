@@ -19,7 +19,9 @@ import multer from "multer";
 import * as XLSX from "xlsx";
 import { 
   insertCandidateSchema, 
-  insertClientSchema, 
+  insertClientSchema,
+  insertClientLocationSchema,
+  insertClientContactSchema,
   insertTrajectorySchema,
   insertNoteSchema,
   insertDocumentSchema
@@ -795,6 +797,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting client:", error);
       res.status(500).json({ message: "Failed to delete client" });
+    }
+  });
+
+  // Client locations routes
+  app.get("/api/clients/:clientId/locations", authenticateAny, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const locations = await storage.getClientLocations(clientId);
+      res.json(locations);
+    } catch (error) {
+      console.error("Error fetching client locations:", error);
+      res.status(500).json({ message: "Failed to fetch client locations" });
+    }
+  });
+
+  app.post("/api/clients/:clientId/locations", authenticateAny, async (req: any, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const locationData = insertClientLocationSchema.parse({ ...req.body, clientId });
+      const location = await storage.createClientLocation(locationData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "add_location", locationData, userId);
+      
+      res.status(201).json(location);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating client location:", error);
+      res.status(500).json({ message: "Failed to create client location" });
+    }
+  });
+
+  app.put("/api/clients/:clientId/locations/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientId = parseInt(req.params.clientId);
+      const locationData = insertClientLocationSchema.partial().parse(req.body);
+      const location = await storage.updateClientLocation(id, locationData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "update_location", locationData, userId);
+      
+      res.json(location);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating client location:", error);
+      res.status(500).json({ message: "Failed to update client location" });
+    }
+  });
+
+  app.delete("/api/clients/:clientId/locations/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientId = parseInt(req.params.clientId);
+      await storage.deleteClientLocation(id);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "delete_location", {}, userId);
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting client location:", error);
+      res.status(500).json({ message: "Failed to delete client location" });
+    }
+  });
+
+  // Client contacts routes
+  app.get("/api/clients/:clientId/contacts", authenticateAny, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const contacts = await storage.getClientContacts(clientId);
+      res.json(contacts);
+    } catch (error) {
+      console.error("Error fetching client contacts:", error);
+      res.status(500).json({ message: "Failed to fetch client contacts" });
+    }
+  });
+
+  app.post("/api/clients/:clientId/contacts", authenticateAny, async (req: any, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const contactData = insertClientContactSchema.parse({ ...req.body, clientId });
+      const contact = await storage.createClientContact(contactData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "add_contact", contactData, userId);
+      
+      res.status(201).json(contact);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating client contact:", error);
+      res.status(500).json({ message: "Failed to create client contact" });
+    }
+  });
+
+  app.put("/api/clients/:clientId/contacts/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientId = parseInt(req.params.clientId);
+      const contactData = insertClientContactSchema.partial().parse(req.body);
+      const contact = await storage.updateClientContact(id, contactData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "update_contact", contactData, userId);
+      
+      res.json(contact);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating client contact:", error);
+      res.status(500).json({ message: "Failed to update client contact" });
+    }
+  });
+
+  app.delete("/api/clients/:clientId/contacts/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientId = parseInt(req.params.clientId);
+      await storage.deleteClientContact(id);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "delete_contact", {}, userId);
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting client contact:", error);
+      res.status(500).json({ message: "Failed to delete client contact" });
     }
   });
 
