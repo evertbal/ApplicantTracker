@@ -25,6 +25,8 @@ interface SearchableSelectProps {
   emptyMessage?: string;
   disabled?: boolean;
   className?: string;
+  allowClear?: boolean;
+  clearLabel?: string;
 }
 
 export function SearchableSelect({
@@ -36,6 +38,8 @@ export function SearchableSelect({
   emptyMessage = "Geen resultaten gevonden.",
   disabled = false,
   className,
+  allowClear = true,
+  clearLabel = "Geen selectie",
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -74,6 +78,25 @@ export function SearchableSelect({
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
+              {allowClear && (
+                <CommandItem
+                  key="clear"
+                  value={clearLabel}
+                  onSelect={() => {
+                    onValueChange("");
+                    setOpen(false);
+                    setSearchValue("");
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      !value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <span className="text-muted-foreground italic">{clearLabel}</span>
+                </CommandItem>
+              )}
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}

@@ -255,6 +255,9 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="clear">
+                            <span className="text-muted-foreground italic">Geen selectie</span>
+                          </SelectItem>
                           <SelectItem value="active">Actief</SelectItem>
                           <SelectItem value="placed">Geplaatst</SelectItem>
                           <SelectItem value="inactive">Inactief</SelectItem>
@@ -280,6 +283,9 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="clear">
+                            <span className="text-muted-foreground italic">Geen selectie</span>
+                          </SelectItem>
                           <SelectItem value="intake">Intake</SelectItem>
                           <SelectItem value="matching">Matching</SelectItem>
                           <SelectItem value="placed">Geplaatst</SelectItem>
@@ -302,10 +308,12 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="clear">
+                            <span className="text-muted-foreground italic">Geen selectie</span>
+                          </SelectItem>
                           <SelectItem value="website">Website</SelectItem>
                           <SelectItem value="LinkedIn">LinkedIn</SelectItem>
                           <SelectItem value="Indeed">Indeed</SelectItem>
-                          <SelectItem value="Website">Website</SelectItem>
                           <SelectItem value="Doorverwijzing">Doorverwijzing</SelectItem>
                           <SelectItem value="Advertentie">Advertentie</SelectItem>
                           <SelectItem value="Anders">Anders</SelectItem>
