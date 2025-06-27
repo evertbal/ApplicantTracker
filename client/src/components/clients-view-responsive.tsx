@@ -120,14 +120,14 @@ export default function ClientsView() {
                   Type Werk
                 </label>
                 <Select
-                  value={selectedWorkTypes.length === 1 ? selectedWorkTypes[0] : ""}
-                  onValueChange={(value) => setSelectedWorkTypes(value ? [value] : [])}
+                  value={selectedWorkTypes.length === 1 ? selectedWorkTypes[0] : "all"}
+                  onValueChange={(value) => setSelectedWorkTypes(value === "all" ? [] : [value])}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Alle types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Alle types</SelectItem>
+                    <SelectItem value="all">Alle types</SelectItem>
                     {workTypeOptions.map((workType) => (
                       <SelectItem key={workType} value={workType}>
                         {workType}

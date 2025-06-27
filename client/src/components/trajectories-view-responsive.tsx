@@ -144,14 +144,14 @@ export default function TrajectoriesView() {
                   Status
                 </label>
                 <Select
-                  value={selectedStatuses.length === 1 ? selectedStatuses[0] : ""}
-                  onValueChange={(value) => setSelectedStatuses(value ? [value] : [])}
+                  value={selectedStatuses.length === 1 ? selectedStatuses[0] : "all"}
+                  onValueChange={(value) => setSelectedStatuses(value === "all" ? [] : [value])}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Alle statussen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Alle statussen</SelectItem>
+                    <SelectItem value="all">Alle statussen</SelectItem>
                     {statusOptions.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}

@@ -171,14 +171,16 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Soort Werkzaamheden</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecteer werkzaamheden" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Geen selectie</SelectItem>
+                          <SelectItem value="clear">
+                            <span className="text-muted-foreground italic">Geen selectie</span>
+                          </SelectItem>
                           <SelectItem value="transport">Transport</SelectItem>
                           <SelectItem value="logistics">Logistiek</SelectItem>
                           <SelectItem value="warehouse">Magazijn</SelectItem>
