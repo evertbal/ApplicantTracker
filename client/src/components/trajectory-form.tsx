@@ -237,7 +237,6 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Geen selectie</SelectItem>
                       <SelectItem value="interview">Interview</SelectItem>
                       <SelectItem value="proposed">Voorgesteld</SelectItem>
                       <SelectItem value="placed">Geplaatst</SelectItem>
@@ -268,7 +267,6 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Geen selectie</SelectItem>
                       {(candidates as Candidate[]).map((candidate: Candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id.toString()}>
                           {candidate.name}
@@ -298,7 +296,6 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Geen selectie</SelectItem>
                       {(clients as Client[]).map((client: Client) => (
                         <SelectItem key={client.id} value={client.id.toString()}>
                           {client.name}
