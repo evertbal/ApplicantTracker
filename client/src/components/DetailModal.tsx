@@ -61,6 +61,8 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("information");
   const [newNote, setNewNote] = useState("");
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
 
   const { data: notes = [] } = useQuery({
     queryKey: [`/api/notes/${entityType}/${entity.id}`],
@@ -96,6 +98,40 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
   const handleAddNote = () => {
     if (newNote.trim()) {
       createNoteMutation.mutate(newNote.trim());
+    }
+  };
+
+  const handleAddContact = () => {
+    setEditingContact(null);
+    setShowContactForm(true);
+  };
+
+  const handleEditContact = (contact: ClientContact) => {
+    setEditingContact(contact);
+    setShowContactForm(true);
+  };
+
+  const handleCloseContactForm = () => {
+    setShowContactForm(false);
+    setEditingContact(null);
+  };
+
+  const handleDeleteContact = async (contactId: number) => {
+    if (confirm("Weet je zeker dat je deze contactpersoon wilt verwijderen?")) {
+      try {
+        await apiRequest("DELETE", `/api/client-contacts/${contactId}`);
+        queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+        toast({
+          title: "Contactpersoon verwijderd",
+          description: "De contactpersoon is succesvol verwijderd.",
+        });
+      } catch (error) {
+        toast({
+          title: "Fout",
+          description: "Er is een fout opgetreden bij het verwijderen van de contactpersoon.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -593,7 +629,10 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                 <TabsContent value="contacts" className="m-0">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-gray-900">Contactpersonen</h3>
-                    <Button className="bg-primary hover:bg-primary-hover">
+                    <Button 
+                      className="bg-primary hover:bg-primary-hover"
+                      onClick={handleAddContact}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Contactpersoon toevoegen
                     </Button>
@@ -662,10 +701,20 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                               </div>
                               
                               <div className="flex space-x-2 ml-4">
-                                <Button variant="ghost" size="sm" className="text-primary hover:text-primary-hover">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-primary hover:text-primary-hover"
+                                  onClick={() => handleEditContact(contact)}
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-red-600 hover:text-red-700"
+                                  onClick={() => handleDeleteContact(contact.id)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
