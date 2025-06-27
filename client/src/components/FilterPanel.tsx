@@ -33,6 +33,18 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
     queryKey: ["/api/candidates"],
   });
 
+  const getStatusCount = (status: string) => {
+    if (!allCandidates) return 0;
+    return allCandidates.filter(candidate => candidate.status === status).length;
+  };
+
+  const getDrivingLicenseCount = (license: string) => {
+    if (!allCandidates) return 0;
+    return allCandidates.filter(candidate => 
+      candidate.drivingLicenses && candidate.drivingLicenses.includes(license)
+    ).length;
+  };
+
   const handleStatusChange = (status: string, checked: boolean) => {
     const newStatus = checked
       ? [...filters.status, status]
@@ -127,28 +139,40 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       {/* Region Filter */}
       <div className="mb-4 sm:mb-6">
         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Regio</Label>
-        <SearchableSelect
-          options={[
-            { value: "alle", label: "Alle regio's" },
-            { value: "Noord-Holland", label: "Noord-Holland" },
-            { value: "Zuid-Holland", label: "Zuid-Holland" },
-            { value: "Utrecht", label: "Utrecht" },
-            { value: "Gelderland", label: "Gelderland" },
-            { value: "Noord-Brabant", label: "Noord-Brabant" },
-            { value: "Overijssel", label: "Overijssel" },
-            { value: "Groningen", label: "Groningen" },
-            { value: "Friesland", label: "Friesland" },
-            { value: "Drenthe", label: "Drenthe" },
-            { value: "Flevoland", label: "Flevoland" },
-            { value: "Zeeland", label: "Zeeland" },
-            { value: "Limburg", label: "Limburg" }
-          ]}
-          value={filters.region}
-          onValueChange={handleRegionChange}
-          placeholder="Alle regio's"
-          searchPlaceholder="Zoek regio..."
-          emptyMessage="Geen regio's gevonden."
-        />
+        <div className="flex items-center space-x-2">
+          <SearchableSelect
+            options={[
+              { value: "", label: "Alle regio's" },
+              { value: "Noord-Holland", label: "Noord-Holland" },
+              { value: "Zuid-Holland", label: "Zuid-Holland" },
+              { value: "Utrecht", label: "Utrecht" },
+              { value: "Gelderland", label: "Gelderland" },
+              { value: "Noord-Brabant", label: "Noord-Brabant" },
+              { value: "Overijssel", label: "Overijssel" },
+              { value: "Groningen", label: "Groningen" },
+              { value: "Friesland", label: "Friesland" },
+              { value: "Drenthe", label: "Drenthe" },
+              { value: "Flevoland", label: "Flevoland" },
+              { value: "Zeeland", label: "Zeeland" },
+              { value: "Limburg", label: "Limburg" }
+            ]}
+            value={filters.region}
+            onValueChange={handleRegionChange}
+            placeholder="Alle regio's"
+            searchPlaceholder="Zoek regio..."
+            emptyMessage="Geen regio's gevonden."
+          />
+          {filters.region && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRegionChange("")}
+              className="px-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Driving License Filter */}
