@@ -8,11 +8,14 @@ import { Search, Plus, Building } from "lucide-react";
 import type { ClientWithRelations } from "@shared/schema";
 import DetailModal from "./DetailModal";
 import NewClientModal from "./NewClientModal";
+import ClientForm from "./client-form";
 
 export default function ClientsList() {
   const [search, setSearch] = useState("");
   const [selectedClient, setSelectedClient] = useState<ClientWithRelations | null>(null);
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingClient, setEditingClient] = useState<ClientWithRelations | null>(null);
 
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["/api/clients", { search }],

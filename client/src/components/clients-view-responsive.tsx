@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { ClientWithRelations } from "@shared/schema";
 import DetailModal from "./DetailModal";
 import NewClientModal from "./NewClientModal";
+import ClientForm from "./client-form";
 import CompactList from "./compact-list";
 
 export default function ClientsView() {
@@ -44,13 +45,22 @@ export default function ClientsView() {
   // Count active filters
   const activeFiltersCount = selectedWorkTypes.length;
 
+  const [showForm, setShowForm] = useState(false);
+  const [editingClient, setEditingClient] = useState<ClientWithRelations | null>(null);
+
   const openEditForm = (client: ClientWithRelations) => {
-    setIsNewClientModalOpen(true);
+    setEditingClient(client);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingClient(null);
   };
 
   const handleFormSuccess = () => {
     refetch();
-    setIsNewClientModalOpen(false);
+    closeForm();
   };
 
   return (
@@ -156,6 +166,10 @@ export default function ClientsView() {
           entityType="client"
           isOpen={!!selectedClient}
           onClose={() => setSelectedClient(null)}
+          onEdit={() => {
+            openEditForm(selectedClient);
+            setSelectedClient(null);
+          }}
         />
       )}
 
@@ -164,6 +178,15 @@ export default function ClientsView() {
         isOpen={isNewClientModalOpen}
         onClose={() => setIsNewClientModalOpen(false)}
       />
+
+      {/* Edit Client Form */}
+      {showForm && (
+        <ClientForm
+          client={editingClient}
+          onClose={closeForm}
+          onSuccess={handleFormSuccess}
+        />
+      )}
     </>
   );
 }
