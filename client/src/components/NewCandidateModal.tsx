@@ -91,7 +91,18 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
 
         <div className="overflow-y-auto flex-1 p-6">
           <form id="new-candidate-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            {/* Beroep eerst */}
+          <div>
+            <Label htmlFor="description">Beroep</Label>
+            <Input
+              id="description"
+              placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..."
+              {...form.register("description")}
+              className="mt-1"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">Volledige Naam *</Label>
               <Input
@@ -184,16 +195,6 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
                 </div>
               ))}
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="description">Beroep</Label>
-            <Input
-              id="description"
-              placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..."
-              {...form.register("description")}
-              className="mt-1"
-            />
           </div>
 
         </form>
