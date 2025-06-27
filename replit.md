@@ -133,6 +133,10 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Enhanced candidate overview with dynamic filtered results counter showing detailed filter information
+- June 27, 2025. Improved FilterPanel responsiveness with proper flexbox layout preventing button cutoff
+- June 27, 2025. Made filter UI fully responsive with auto-scaling containers and clear button positioning
+- June 27, 2025. Added gradient results counter with badge display for active filters
 - June 27, 2025. Fixed trajectory edit functionality with proper form modal and error handling
 - June 27, 2025. Added TrajectoryForm component integration to trajectory overview with full CRUD support
 - June 27, 2025. Enhanced trajectory edit with validation for missing trajectory data and user feedback

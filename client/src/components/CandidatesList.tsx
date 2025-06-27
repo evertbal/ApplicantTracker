@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Plus, MoreVertical, Edit, StickyNote } from "lucide-react";
+import { Search, Plus, MoreVertical, Edit, StickyNote, X } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import type { CandidateWithRelations } from "@shared/schema";
@@ -136,34 +136,54 @@ export default function CandidatesList() {
         
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6">
-            {/* Results Counter */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-900">
-                    {candidates.length} kandidaten gevonden
-                  </h3>
-                  {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search) && (
-                    <div className="mt-2 text-sm text-blue-700">
-                      Actieve filters: 
-                      {search && <span className="ml-1 font-medium">Zoekterm: "{search}"</span>}
-                      {filters.status.length > 0 && (
-                        <span className="ml-1 font-medium">
-                          Status: {filters.status.join(", ")}
-                        </span>
-                      )}
-                      {filters.region && (
-                        <span className="ml-1 font-medium">Regio: {filters.region}</span>
-                      )}
-                      {filters.drivingLicense.length > 0 && (
-                        <span className="ml-1 font-medium">
-                          Rijbewijs: {filters.drivingLicense.join(", ")}
-                        </span>
-                      )}
+            {/* Enhanced Results Counter */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-bold text-blue-900">
+                      {candidates.length}
+                    </h3>
+                    <span className="text-base text-blue-700">
+                      {candidates.length === 1 ? 'kandidaat gevonden' : 'kandidaten gevonden'}
+                    </span>
+                  </div>
+                  
+                  {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search || filters.dateFrom || filters.dateTo) && (
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-blue-800">Actieve filters:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {search && (
+                          <Badge variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
+                            Zoekterm: "{search}"
+                          </Badge>
+                        )}
+                        {filters.status.map(status => (
+                          <Badge key={status} variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
+                            Status: {status === 'active' ? 'Actief' : status === 'placed' ? 'Geplaatst' : 'Inactief'}
+                          </Badge>
+                        ))}
+                        {filters.region && (
+                          <Badge variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
+                            Regio: {filters.region}
+                          </Badge>
+                        )}
+                        {filters.drivingLicense.map(license => (
+                          <Badge key={license} variant="outline" className="text-xs bg-white border-blue-300 text-blue-700 font-mono">
+                            Rijbewijs: {license}
+                          </Badge>
+                        ))}
+                        {(filters.dateFrom || filters.dateTo) && (
+                          <Badge variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
+                            Datum: {filters.dateFrom || '...'} - {filters.dateTo || '...'}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
-                {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search) && (
+                
+                {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search || filters.dateFrom || filters.dateTo) && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -177,8 +197,9 @@ export default function CandidatesList() {
                         dateTo: "",
                       });
                     }}
-                    className="text-blue-700 border-blue-300 hover:bg-blue-100"
+                    className="text-blue-700 border-blue-300 hover:bg-blue-100 flex-shrink-0"
                   >
+                    <X className="h-4 w-4 mr-1" />
                     Alle filters wissen
                   </Button>
                 )}
