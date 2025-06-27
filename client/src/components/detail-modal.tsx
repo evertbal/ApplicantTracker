@@ -203,7 +203,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
             <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Functie</Label>
-                <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-2 rounded border mt-1">{trajectory.jobTitle || 'Niet opgegeven'}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.jobTitle || 'Niet opgegeven'}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</Label>
@@ -213,11 +213,11 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarief</Label>
-                <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-2 rounded border mt-1">{trajectory.hourlyRate || 'Niet opgegeven'}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.hourlyRate || 'Niet opgegeven'}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Startdatum</Label>
-                <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-2 rounded border mt-1">
+                <p className="text-gray-900 dark:text-gray-100 mt-1">
                   {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd-MM-yyyy') : 'Niet opgegeven'}
                 </p>
               </div>
@@ -229,7 +229,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
             <div className="space-y-3 sm:space-y-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Kandidaat</Label>
-                <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-2 rounded border mt-1">{trajectory.candidate?.name || 'Niet gekoppeld'}</p>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.candidate?.name || 'Niet gekoppeld'}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Opdrachtgever</Label>

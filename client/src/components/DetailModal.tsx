@@ -259,23 +259,23 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Volledige Naam</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).name}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).name}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Telefoon</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).phone || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).phone || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).email || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).email || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Woonplaats</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).city || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).city || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Regio</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).region || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).region || "Niet opgegeven"}</p>
                         </div>
                       </div>
                     </div>
@@ -284,15 +284,15 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).status || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).status || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Fase</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).phase || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).phase || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Marketing Bron</label>
-                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).marketing || "Niet opgegeven"}</p>
+                          <p className="text-gray-900">{(entity as CandidateWithRelations).marketing || "Niet opgegeven"}</p>
                         </div>
                       </div>
                     </div>
@@ -308,15 +308,15 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Bedrijfsnaam</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).name}</p>
+                            <p className="text-gray-900">{(entity as ClientWithRelations).name}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Contactpersoon</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).contactPerson || "Niet opgegeven"}</p>
+                            <p className="text-gray-900">{(entity as ClientWithRelations).contactPerson || "Niet opgegeven"}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).location || "Niet opgegeven"}</p>
+                            <p className="text-gray-900">{(entity as ClientWithRelations).location || "Niet opgegeven"}</p>
                           </div>
                         </div>
                       </div>
@@ -325,7 +325,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Werktype</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).workType || "Niet opgegeven"}</p>
+                            <p className="text-gray-900">{(entity as ClientWithRelations).workType || "Niet opgegeven"}</p>
                           </div>
                         </div>
                       </div>
@@ -341,19 +341,19 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Functietitel</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatJobTitle(entity as TrajectoryWithRelations)}</p>
+                            <p className="text-gray-900">{formatJobTitle(entity as TrajectoryWithRelations)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatTrajectoryStatus((entity as TrajectoryWithRelations).status)}</p>
+                            <p className="text-gray-900">{formatTrajectoryStatus((entity as TrajectoryWithRelations).status)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Startdatum</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatTrajectoryDate((entity as TrajectoryWithRelations).startDate)}</p>
+                            <p className="text-gray-900">{formatTrajectoryDate((entity as TrajectoryWithRelations).startDate)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Uurtarief</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatHourlyRate((entity as TrajectoryWithRelations).hourlyRate)}</p>
+                            <p className="text-gray-900">{formatHourlyRate((entity as TrajectoryWithRelations).hourlyRate)}</p>
                           </div>
                         </div>
                       </div>
@@ -362,11 +362,11 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Kandidaatnaam</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatCandidateName(entity as TrajectoryWithRelations)}</p>
+                            <p className="text-gray-900">{formatCandidateName(entity as TrajectoryWithRelations)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Opdrachtgever</label>
-                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatClientName(entity as TrajectoryWithRelations)}</p>
+                            <p className="text-gray-900">{formatClientName(entity as TrajectoryWithRelations)}</p>
                           </div>
                         </div>
                       </div>
