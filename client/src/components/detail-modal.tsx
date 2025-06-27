@@ -553,7 +553,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                               </div>
                               <div>
                                 <Label className="text-xs font-medium text-gray-500 dark:text-gray-400">OPMERKINGEN</Label>
-                                <p className="text-sm text-gray-900 dark:text-white">{trajectory.notes || 'Geen opmerkingen'}</p>
+                                <p className="text-sm text-gray-900 dark:text-white">Geen opmerkingen</p>
                               </div>
                             </div>
                           </CardContent>

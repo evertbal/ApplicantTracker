@@ -133,6 +133,10 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Added comprehensive clear options to all dropdown components throughout the application
+- June 27, 2025. Enhanced SearchableSelect component with clear functionality and "Geen selectie" option
+- June 27, 2025. Updated all Select components in forms to include clear options for resetting selections
+- June 27, 2025. Fixed TypeScript errors in FilterPanel and detail-modal components
 - June 27, 2025. Changed all "beschrijving" labels to "beroep" throughout the application
 - June 27, 2025. Repositioned profession field to display prominently at the top of all candidate views
 - June 27, 2025. Updated profession field styling to match consistent design pattern across all views
