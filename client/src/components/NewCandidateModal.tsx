@@ -187,11 +187,10 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
           </div>
 
           <div>
-            <Label htmlFor="description">Beschrijving</Label>
-            <Textarea
+            <Label htmlFor="description">Beroep</Label>
+            <Input
               id="description"
-              rows={3}
-              placeholder="Korte beschrijving van de kandidaat..."
+              placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..."
               {...form.register("description")}
               className="mt-1"
             />

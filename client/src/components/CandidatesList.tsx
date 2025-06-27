@@ -170,6 +170,11 @@ export default function CandidatesList() {
                             <h3 className="text-lg font-semibold text-gray-900">
                               {candidate.name}
                             </h3>
+                            {candidate.description && (
+                              <p className="text-sm font-medium text-primary mb-1">
+                                {candidate.description}
+                              </p>
+                            )}
                             <p className="text-sm text-gray-600">
                               {candidate.city}, {candidate.region}
                             </p>

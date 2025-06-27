@@ -5,7 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface FilterPanelProps {
   onFiltersChange: (filters: {

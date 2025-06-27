@@ -336,38 +336,19 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="drivingLicenseNotes"
-                render={({ field }) => (
-                  <FormItem className="mt-3">
-                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">Aanvullende informatie rijbewijs</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Bijzonderheden, beperkingen of andere categorieën..."
-                        className="mt-1 text-sm"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
 
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Beschrijving</FormLabel>
+                    <FormLabel>Beroep</FormLabel>
                     <FormControl>
-                      <Textarea
+                      <Input
                         {...field}
                         value={field.value || ""}
-                        rows={3}
-                        placeholder="Korte beschrijving van de kandidaat..."
-                        className="resize-none"
+                        placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..."
                       />
                     </FormControl>
                     <FormMessage />
