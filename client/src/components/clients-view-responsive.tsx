@@ -184,19 +184,7 @@ export default function ClientsView() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedClient && (
-        <DetailModal
-          entity={selectedClient}
-          entityType="client"
-          isOpen={!!selectedClient}
-          onClose={() => setSelectedClient(null)}
-          onEdit={() => {
-            openEditForm(selectedClient);
-            setSelectedClient(null);
-          }}
-        />
-      )}
+
 
       {/* New Client Modal */}
       <NewClientModal
