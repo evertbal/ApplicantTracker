@@ -133,6 +133,11 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Changed all "beschrijving" labels to "beroep" throughout the application
+- June 27, 2025. Repositioned profession field to display prominently at the top of all candidate views
+- June 27, 2025. Added filter result counts showing candidate quantities for each status and driving license
+- June 27, 2025. Made region dropdown clearable with X button to remove selections
+- June 27, 2025. Completely removed driving license notes field from all forms and detail views
 - June 19, 2025. Enhanced timestamp display in notes to show both date and time consistently across all modals
 - June 19, 2025. Fixed mobile modal scrolling issues with CSS body scroll lock and overflow handling
 - June 18, 2025. Fixed 500 errors when adding candidates by correcting audit log user ID references
