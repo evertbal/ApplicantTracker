@@ -81,6 +81,7 @@ export const clients = pgTable("clients", {
   location: text("location"),
   workType: text("work_type"),
   adresHoofdlocatie: text("adres_hoofdlocatie"),
+  afspraken: text("afspraken"),
   notities: text("notities"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

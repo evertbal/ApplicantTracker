@@ -39,6 +39,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
       location: client?.location || "",
       workType: client?.workType || "",
       adresHoofdlocatie: client?.adresHoofdlocatie || "",
+      afspraken: client?.afspraken || "",
       notities: client?.notities || "",
     },
   });
