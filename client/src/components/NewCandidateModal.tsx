@@ -82,11 +82,8 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between flex-shrink-0">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Nieuwe Kandidaat Toevoegen</DialogTitle>
-          <Button variant="ghost" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
         </DialogHeader>
 
         <div className="overflow-y-auto flex-1 p-6">

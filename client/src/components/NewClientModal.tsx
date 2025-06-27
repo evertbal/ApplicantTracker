@@ -58,11 +58,8 @@ export default function NewClientModal({ isOpen, onClose }: NewClientModalProps)
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-xl">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle>Nieuwe Opdrachtgever Toevoegen</DialogTitle>
-          <Button variant="ghost" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">

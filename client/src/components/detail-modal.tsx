@@ -335,9 +335,6 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Bewerken</span>
             </Button>
-            <Button variant="ghost" onClick={onClose} size="sm">
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
           </div>
         </div>
 
