@@ -34,13 +34,13 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
   });
 
   const getStatusCount = (status: string) => {
-    if (!allCandidates) return 0;
-    return allCandidates.filter(candidate => candidate.status === status).length;
+    if (!Array.isArray(allCandidates)) return 0;
+    return (allCandidates as any[]).filter((candidate: any) => candidate.status === status).length;
   };
 
   const getDrivingLicenseCount = (license: string) => {
-    if (!allCandidates) return 0;
-    return allCandidates.filter(candidate => 
+    if (!Array.isArray(allCandidates)) return 0;
+    return (allCandidates as any[]).filter((candidate: any) => 
       candidate.drivingLicenses && candidate.drivingLicenses.includes(license)
     ).length;
   };
@@ -71,16 +71,7 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
     onFiltersChange(newFilters);
   };
 
-  // Count functions for filter badges
-  const getStatusCount = (status: string) => {
-    return (allCandidates as any[]).filter((candidate: any) => candidate.status === status).length;
-  };
 
-  const getDrivingLicenseCount = (license: string) => {
-    return (allCandidates as any[]).filter((candidate: any) => 
-      candidate.drivingLicenses && candidate.drivingLicenses.includes(license)
-    ).length;
-  };
 
   const getRegionCount = (region: string) => {
     return (allCandidates as any[]).filter((candidate: any) => candidate.region === region).length;

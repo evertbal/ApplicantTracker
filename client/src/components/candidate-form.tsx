@@ -248,7 +248,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -276,7 +276,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Fase</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecteer fase" />
@@ -301,7 +301,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Marketing Bron</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecteer bron" />
