@@ -341,25 +341,19 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Functietitel</label>
-                            <Input value={formatJobTitle(entity as TrajectoryWithRelations)} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatJobTitle(entity as TrajectoryWithRelations)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <Input value={formatTrajectoryStatus((entity as TrajectoryWithRelations).status)} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatTrajectoryStatus((entity as TrajectoryWithRelations).status)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Startdatum</label>
-                            <Input 
-                              value={formatTrajectoryDate((entity as TrajectoryWithRelations).startDate)} 
-                              readOnly 
-                            />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatTrajectoryDate((entity as TrajectoryWithRelations).startDate)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Uurtarief</label>
-                            <Input 
-                              value={formatHourlyRate((entity as TrajectoryWithRelations).hourlyRate)} 
-                              readOnly 
-                            />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatHourlyRate((entity as TrajectoryWithRelations).hourlyRate)}</p>
                           </div>
                         </div>
                       </div>
@@ -368,11 +362,11 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Kandidaatnaam</label>
-                            <Input value={formatCandidateName(entity as TrajectoryWithRelations)} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatCandidateName(entity as TrajectoryWithRelations)}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Opdrachtgever</label>
-                            <Input value={formatClientName(entity as TrajectoryWithRelations)} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{formatClientName(entity as TrajectoryWithRelations)}</p>
                           </div>
                         </div>
                       </div>

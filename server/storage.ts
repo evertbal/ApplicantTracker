@@ -425,14 +425,28 @@ export class DatabaseStorage implements IStorage {
 
     const trajectoryResults = await query.orderBy(desc(trajectories.createdAt));
     
-    // Return trajectories without relations for performance - relations can be loaded on detail page
-    return trajectoryResults.map(trajectory => ({
-      ...trajectory,
-      candidate: undefined,
-      client: undefined,
-      notes: [],
-      documents: []
-    } as TrajectoryWithRelations));
+    // Load candidate and client relations for each trajectory
+    const trajectoriesWithRelations: TrajectoryWithRelations[] = await Promise.all(
+      trajectoryResults.map(async (trajectory) => {
+        const candidate = trajectory.candidateId 
+          ? await db.select().from(candidates).where(eq(candidates.id, trajectory.candidateId)).then(r => r[0])
+          : undefined;
+        
+        const client = trajectory.clientId
+          ? await db.select().from(clients).where(eq(clients.id, trajectory.clientId)).then(r => r[0])
+          : undefined;
+
+        return {
+          ...trajectory,
+          candidate,
+          client,
+          notes: [],
+          documents: []
+        };
+      })
+    );
+
+    return trajectoriesWithRelations;
   }
 
   async getTrajectory(id: number): Promise<TrajectoryWithRelations | undefined> {
