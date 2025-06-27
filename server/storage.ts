@@ -1,6 +1,8 @@
 import {
   candidates,
   clients,
+  clientLocations,
+  clientContacts,
   trajectories,
   notes,
   documents,
@@ -9,11 +11,15 @@ import {
   adminUsers,
   type Candidate,
   type Client,
+  type ClientLocation,
+  type ClientContact,
   type Trajectory,
   type Note,
   type Document,
   type InsertCandidate,
   type InsertClient,
+  type InsertClientLocation,
+  type InsertClientContact,
   type InsertTrajectory,
   type InsertNote,
   type InsertDocument,
@@ -73,6 +79,18 @@ export interface IStorage {
   createClient(client: InsertClient): Promise<Client>;
   updateClient(id: number, client: Partial<InsertClient>): Promise<Client>;
   deleteClient(id: number): Promise<void>;
+
+  // Client location operations
+  getClientLocations(clientId: number): Promise<ClientLocation[]>;
+  createClientLocation(location: InsertClientLocation): Promise<ClientLocation>;
+  updateClientLocation(id: number, location: Partial<InsertClientLocation>): Promise<ClientLocation>;
+  deleteClientLocation(id: number): Promise<void>;
+
+  // Client contact operations
+  getClientContacts(clientId: number): Promise<ClientContact[]>;
+  createClientContact(contact: InsertClientContact): Promise<ClientContact>;
+  updateClientContact(id: number, contact: Partial<InsertClientContact>): Promise<ClientContact>;
+  deleteClientContact(id: number): Promise<void>;
 
   // Trajectory operations
   getTrajectories(filters?: {
@@ -355,27 +373,21 @@ export class DatabaseStorage implements IStorage {
     const [client] = await db.select().from(clients).where(eq(clients.id, id));
     if (!client) return undefined;
 
-    const clientTrajectories = await db
-      .select()
-      .from(trajectories)
-      .where(eq(trajectories.clientId, id));
-
-    const clientNotes = await db
-      .select()
-      .from(notes)
-      .where(and(eq(notes.entityType, "client"), eq(notes.entityId, id)))
-      .orderBy(desc(notes.createdAt));
-
-    const clientDocuments = await db
-      .select()
-      .from(documents)
-      .where(and(eq(documents.entityType, "client"), eq(documents.entityId, id)));
+    const [clientTrajectories, clientNotes, clientDocuments, clientLocations, clientContacts] = await Promise.all([
+      db.select().from(trajectories).where(eq(trajectories.clientId, id)),
+      db.select().from(notes).where(and(eq(notes.entityType, "client"), eq(notes.entityId, id))).orderBy(desc(notes.createdAt)),
+      db.select().from(documents).where(and(eq(documents.entityType, "client"), eq(documents.entityId, id))),
+      db.select().from(clientLocations).where(eq(clientLocations.clientId, id)).orderBy(desc(clientLocations.createdAt)),
+      db.select().from(clientContacts).where(eq(clientContacts.clientId, id)).orderBy(desc(clientContacts.createdAt))
+    ]);
 
     return {
       ...client,
       trajectories: clientTrajectories,
       notes: clientNotes,
       documents: clientDocuments,
+      locations: clientLocations,
+      contacts: clientContacts,
     };
   }
 
@@ -395,6 +407,52 @@ export class DatabaseStorage implements IStorage {
 
   async deleteClient(id: number): Promise<void> {
     await db.delete(clients).where(eq(clients.id, id));
+  }
+
+  // Client location operations
+  async getClientLocations(clientId: number): Promise<ClientLocation[]> {
+    return db.select().from(clientLocations).where(eq(clientLocations.clientId, clientId)).orderBy(desc(clientLocations.createdAt));
+  }
+
+  async createClientLocation(location: InsertClientLocation): Promise<ClientLocation> {
+    const [newLocation] = await db.insert(clientLocations).values(location).returning();
+    return newLocation;
+  }
+
+  async updateClientLocation(id: number, location: Partial<InsertClientLocation>): Promise<ClientLocation> {
+    const [updatedLocation] = await db
+      .update(clientLocations)
+      .set({ ...location, updatedAt: new Date() })
+      .where(eq(clientLocations.id, id))
+      .returning();
+    return updatedLocation;
+  }
+
+  async deleteClientLocation(id: number): Promise<void> {
+    await db.delete(clientLocations).where(eq(clientLocations.id, id));
+  }
+
+  // Client contact operations
+  async getClientContacts(clientId: number): Promise<ClientContact[]> {
+    return db.select().from(clientContacts).where(eq(clientContacts.clientId, clientId)).orderBy(desc(clientContacts.createdAt));
+  }
+
+  async createClientContact(contact: InsertClientContact): Promise<ClientContact> {
+    const [newContact] = await db.insert(clientContacts).values(contact).returning();
+    return newContact;
+  }
+
+  async updateClientContact(id: number, contact: Partial<InsertClientContact>): Promise<ClientContact> {
+    const [updatedContact] = await db
+      .update(clientContacts)
+      .set({ ...contact, updatedAt: new Date() })
+      .where(eq(clientContacts.id, id))
+      .returning();
+    return updatedContact;
+  }
+
+  async deleteClientContact(id: number): Promise<void> {
+    await db.delete(clientContacts).where(eq(clientContacts.id, id));
   }
 
   // Trajectory operations
