@@ -259,23 +259,23 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Volledige Naam</label>
-                          <Input value={(entity as CandidateWithRelations).name} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).name}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Telefoon</label>
-                          <Input value={(entity as CandidateWithRelations).phone || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).phone || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-                          <Input value={(entity as CandidateWithRelations).email || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).email || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Woonplaats</label>
-                          <Input value={(entity as CandidateWithRelations).city || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).city || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Regio</label>
-                          <Input value={(entity as CandidateWithRelations).region || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).region || "Niet opgegeven"}</p>
                         </div>
                       </div>
                     </div>
@@ -284,15 +284,15 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                          <Input value={(entity as CandidateWithRelations).status || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).status || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Fase</label>
-                          <Input value={(entity as CandidateWithRelations).phase || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).phase || "Niet opgegeven"}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Marketing Bron</label>
-                          <Input value={(entity as CandidateWithRelations).marketing || ""} readOnly />
+                          <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as CandidateWithRelations).marketing || "Niet opgegeven"}</p>
                         </div>
                       </div>
                     </div>
@@ -308,15 +308,15 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Bedrijfsnaam</label>
-                            <Input value={(entity as ClientWithRelations).name} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).name}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Contactpersoon</label>
-                            <Input value={(entity as ClientWithRelations).contactPerson || ""} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).contactPerson || "Niet opgegeven"}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
-                            <Input value={(entity as ClientWithRelations).location || ""} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).location || "Niet opgegeven"}</p>
                           </div>
                         </div>
                       </div>
@@ -325,7 +325,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Werktype</label>
-                            <Input value={(entity as ClientWithRelations).workType || ""} readOnly />
+                            <p className="text-gray-900 bg-gray-50 p-2 rounded border">{(entity as ClientWithRelations).workType || "Niet opgegeven"}</p>
                           </div>
                         </div>
                       </div>
