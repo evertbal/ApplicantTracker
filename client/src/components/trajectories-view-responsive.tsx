@@ -23,6 +23,7 @@ export default function TrajectoriesView() {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: trajectories = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/trajectories'],
@@ -52,6 +53,15 @@ export default function TrajectoriesView() {
   const activeFiltersCount = selectedStatuses.length;
 
   const openEditForm = (trajectory: TrajectoryWithRelations) => {
+    if (!trajectory || !trajectory.id) {
+      toast({
+        title: "Fout",
+        description: "Het geselecteerde traject kan niet worden gevonden.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setEditingTrajectory(trajectory);
     setIsEditFormOpen(true);
   };

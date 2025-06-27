@@ -133,6 +133,10 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 27, 2025. Fixed trajectory edit functionality with proper form modal and error handling
+- June 27, 2025. Added TrajectoryForm component integration to trajectory overview with full CRUD support
+- June 27, 2025. Enhanced trajectory edit with validation for missing trajectory data and user feedback
+- June 27, 2025. Implemented separate edit and new trajectory forms for better user experience
 - June 27, 2025. Added prominent results counter to candidate overview showing total filtered results
 - June 27, 2025. Enhanced results display with active filter details and clear all filters button
 - June 27, 2025. Made results counter visually prominent with blue highlighting box
