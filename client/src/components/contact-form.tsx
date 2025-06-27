@@ -94,10 +94,19 @@ export default function ContactForm({ isOpen, onClose, clientId, contact }: Cont
   });
 
   const onSubmit = (data: ContactFormData) => {
+    // Transform empty strings to null for date fields
+    const transformedData = {
+      ...data,
+      geboortedatum: data.geboortedatum === "" ? null : data.geboortedatum,
+      rol: data.rol === "" ? null : data.rol,
+      telefoonnummer: data.telefoonnummer === "" ? null : data.telefoonnummer,
+      opmerkingen: data.opmerkingen === "" ? null : data.opmerkingen,
+    };
+
     if (isEditing) {
-      updateMutation.mutate(data);
+      updateMutation.mutate(transformedData);
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(transformedData);
     }
   };
 

@@ -966,9 +966,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contactData = insertClientContactSchema.partial().parse(req.body);
       const contact = await storage.updateClientContact(id, contactData);
       
-      // Log audit
+      // Log audit - get clientId from the updated contact
       const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
-      await storage.logAudit("client", contact.clientId, "update_contact", contactData, userId);
+      const clientId = contact.clientId ?? 0;
+      await storage.logAudit("client", clientId, "update_contact", contactData, userId);
       
       res.json(contact);
     } catch (error) {

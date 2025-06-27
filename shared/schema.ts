@@ -265,11 +265,11 @@ export const insertClientContactSchema = createInsertSchema(clientContacts).omit
 }).extend({
   clientId: z.number().min(1, "Client ID is verplicht"),
   naam: z.string().min(1, "Naam is verplicht"),
-  rol: z.string().optional().nullable(),
-  telefoonnummer: z.string().optional().nullable(),
+  rol: z.string().optional().nullable().transform(val => val === "" ? null : val),
+  telefoonnummer: z.string().optional().nullable().transform(val => val === "" ? null : val),
   emailadres: z.string().email("Ongeldig e-mailadres").optional().nullable(),
-  geboortedatum: z.string().optional().nullable(),
-  opmerkingen: z.string().optional().nullable(),
+  geboortedatum: z.string().optional().nullable().transform(val => val === "" ? null : val),
+  opmerkingen: z.string().optional().nullable().transform(val => val === "" ? null : val),
 });
 
 export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
