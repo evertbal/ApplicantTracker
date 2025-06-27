@@ -201,6 +201,25 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
 
                 <FormField
                   control={form.control}
+                  name="afspraken"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Afspraken</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          placeholder="Bijvoorbeeld tariefafspraken, kleding die wordt geleverd, standaard aanwezigheidstijden, etc."
+                          className="min-h-[100px]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="adresHoofdlocatie"
                   render={({ field }) => (
                     <FormItem>

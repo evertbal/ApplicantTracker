@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { insertClientSchema, type InsertClient } from "@shared/schema";
@@ -101,6 +102,16 @@ export default function NewClientModal({ isOpen, onClose }: NewClientModalProps)
               {...form.register("workType")}
               placeholder="Bijv. Transport, Logistiek, Bouw"
               className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="afspraken">Afspraken</Label>
+            <Textarea
+              id="afspraken"
+              {...form.register("afspraken")}
+              placeholder="Bijvoorbeeld tariefafspraken, kleding die wordt geleverd, standaard aanwezigheidstijden, etc."
+              className="mt-1 min-h-[80px]"
             />
           </div>
 
