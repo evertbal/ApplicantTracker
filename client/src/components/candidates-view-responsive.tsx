@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Search, Plus, Download, Upload, RefreshCw, FileSpreadsheet, X } from "lucide-react";

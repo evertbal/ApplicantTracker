@@ -21,11 +21,7 @@ interface CollapsibleFiltersProps {
   activeFiltersCount: number;
 }
 
-export interface CollapsibleFiltersRef {
-  collapse: () => void;
-}
-
-const CollapsibleFilters = forwardRef<CollapsibleFiltersRef, CollapsibleFiltersProps>(({
+export default function CollapsibleFilters({
   statusOptions,
   regionOptions,
   licenseOptions,
@@ -36,12 +32,8 @@ const CollapsibleFilters = forwardRef<CollapsibleFiltersRef, CollapsibleFiltersP
   onRegionChange,
   onLicenseChange,
   activeFiltersCount,
-}, ref) => {
+}: CollapsibleFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  useImperativeHandle(ref, () => ({
-    collapse: () => setIsOpen(false),
-  }));
 
   return (
     <div className="space-y-3">
@@ -147,15 +139,9 @@ const CollapsibleFilters = forwardRef<CollapsibleFiltersRef, CollapsibleFiltersP
                 ))}
               </div>
             </div>
-
-            
           </CardContent>
         </Card>
       </div>
     </div>
   );
-});
-
-CollapsibleFilters.displayName = "CollapsibleFilters";
-
-export default CollapsibleFilters;
+}
