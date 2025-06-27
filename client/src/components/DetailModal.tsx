@@ -280,7 +280,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose }: Det
                       </div>
                     </div>
                     <div className="lg:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Beschrijving</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Beroep</label>
                       <Textarea 
                         value={(entity as CandidateWithRelations).description || ""} 
                         rows={4} 

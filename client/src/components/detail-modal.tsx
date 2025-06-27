@@ -190,7 +190,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
           </div>
 
           <div className="col-span-full mt-4 sm:mt-8">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beschrijving</Label>
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Beroep</Label>
             <Textarea
               value={candidate.description || ''}
               readOnly
