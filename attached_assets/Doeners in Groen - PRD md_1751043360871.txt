@@ -1,0 +1,204 @@
+PRD MD
+
+# Applicant Tracking System (ATS) — Product Requirements Document
+
+## Doel van de Applicatie
+
+Dit ATS ondersteunt Nederlandse uitzendbureaus in de groenvoorziening bij het beheren van kandidaten, trajecten, opdrachtgevers, notities en documenten. De app is gebouwd in Replit met de volgende stack:
+
+- **Frontend**: React 18, TypeScript, Tailwind CSS
+- **Backend**: Node.js met Express
+- **Database**: PostgreSQL via Neon
+- **ORM**: Drizzle ORM
+- **Authenticatie**: JWT + e-mail login, met drie rollen
+
+---
+
+## Gebruikersrollen
+
+| Rol        | Rechten                                                  |
+|------------|-----------------------------------------------------------|
+| Viewer     | Alleen lezen, geen bewerkrechten                         |
+| Recruiter  | Toevoegen/bewerken van kandidaten, trajecten, notities   |
+| Admin      | Alle rechten, incl. gebruikersbeheer en toegang tot dashboard |
+
+---
+
+## Entiteiten en Relaties
+
+### 1. Kandidaat
+
+| Veld              | Type       |
+|-------------------|------------|
+| id                | UUID (PK)  |
+| voornaam          | TEXT       |
+| achternaam        | TEXT       |
+| geboortedatum     | DATE       |
+| email             | TEXT       |
+| telefoon          | TEXT       |
+| woonplaats        | TEXT       |
+| rijbewijs         | TEXT[]     |
+| status            | TEXT       |
+| datum_registratie | TIMESTAMP  |
+
+**Relaties**:
+- 1:n met `Traject`
+- 1:n met `Notitie`
+- 1:n met `Document`
+
+---
+
+### 2. Traject
+
+| Veld              | Type       |
+|-------------------|------------|
+| id                | UUID (PK)  |
+| kandidaat_id      | UUID (FK)  |
+| opdrachtgever_id  | UUID (FK)  |
+| startdatum        | DATE       |
+| einddatum         | DATE       |
+| status            | TEXT       |
+| functie           | TEXT       |
+| opmerking         | TEXT       |
+
+---
+
+### 3. Opdrachtgever
+
+| Veld              | Type       |
+|-------------------|------------|
+| id                | UUID (PK)  |
+| naam              | TEXT       |
+| contactpersoon    | TEXT       |
+| email             | TEXT       |
+| telefoon          | TEXT       |
+| adres             | TEXT       |
+
+---
+
+### 4. Notitie
+
+| Veld              | Type       |
+|-------------------|------------|
+| id                | UUID (PK)  |
+| kandidaat_id      | UUID (FK)  |
+| datum             | TIMESTAMP  |
+| inhoud            | TEXT       |
+| auteur            | TEXT       |
+
+---
+
+### 5. Document
+
+| Veld              | Type       |
+|-------------------|------------|
+| id                | UUID (PK)  |
+| kandidaat_id      | UUID (FK)  |
+| type              | TEXT       |
+| bestandsnaam      | TEXT       |
+| upload_datum      | TIMESTAMP  |
+| url               | TEXT       |
+
+> ⚠️ **Let op**: Documenten kunnen bekeken worden, maar uploadfunctionaliteit is nog niet operationeel. Staat op de to-do.
+
+---
+
+## Frontend Functionaliteiten
+
+### Navigatie
+
+- Sidebar met vaste routes: kandidaten, trajecten, opdrachtgevers, admin-dashboard
+
+### Kandidatenbeheer
+
+- Lijstweergave met filters (status, regio, rijbewijs)
+- Modal voor toevoegen/bewerken
+- Detailpagina met gekoppelde trajecten, notities en documenten
+- Notities kunnen per kandidaat worden toegevoegd
+
+### Trajectbeheer
+
+- Modal voor toevoegen/bewerken van trajecten
+- Koppeling met kandidaat en opdrachtgever
+- Statusselectie en datumvelden
+
+### Opdrachtgeverbeheer
+
+- Lijst + modale invoer en bewerkopties
+- Koppeling met trajecten via dropdown of ID
+
+### Documentbeheer
+
+- Documenten zichtbaar in kandidaat-profiel
+- Bestanden kunnen nog niet worden geüpload (to-do)
+- Types nog vrij (geen categorisatie enforced)
+
+---
+
+## Filtering & Sorting
+
+- Collapsible filters op kandidatenlijst
+- Multiselect rijbewijs-filter
+- Client-side filtering met TanStack Query
+- Sortering per kolom
+- Paginering aanwezig
+
+---
+
+## Authenticatie & Beveiliging
+
+- JWT-based login op basis van e-mail/wachtwoord
+- Geen externe OAuth verplicht
+- Rolgebaseerde toegangscontrole
+- Login redirect op basis van rol (viewer, recruiter, admin)
+
+---
+
+## Technische Architectuur
+
+### Frontend
+
+- **React 18 + TypeScript**
+- **Wouter** voor routing
+- **TanStack Query** voor data en caching
+- **Tailwind CSS** voor styling
+- Responsive design voor mobiel, tablet en desktop
+
+### Backend
+
+- Node.js met Express
+- RESTful API’s met JWT authenticatie
+- Middleware per route voor rolverificatie
+
+### Database
+
+- PostgreSQL via Neon
+- Drizzle ORM voor type-safe database interactie
+
+---
+
+## Teststrategie
+
+- Unit tests: Jest
+- Component tests: React Testing Library
+- API tests: (nog niet zeker of aanwezig, mogelijk Supertest)
+- Filter/CRUD-functionaliteit getest via smoke tests
+
+---
+
+## Bekende To-do’s
+
+- [ ] Uploadfunctionaliteit voor documenten activeren
+- [ ] Overwegen: logging & monitoring toevoegen
+- [ ] Overwegen: CI/CD integratie instellen (bijv. Replit Deploy Hooks)
+- [ ] Documentatie aanvullen met API-specs en ontwikkelset-up
+
+---
+
+## Vragen nog ter bevestiging
+
+- Moeten uploads beveiligd of beperkt zijn qua bestandstype en grootte?
+- Moet er een audit trail komen voor wijzigingen (optioneel)?
+- Zijn er plannen voor exports (bijv. PDF, CSV)?
+
+---
