@@ -161,6 +161,7 @@ export default function ClientsView() {
                   size="sm"
                   onClick={() => {
                     setSelectedWorkTypes([]);
+                    setIsFiltersOpen(false);
                   }}
                   className="text-green-700 border-green-300 hover:bg-green-50 dark:text-green-300 dark:border-green-600 dark:hover:bg-green-900/20"
                 >
