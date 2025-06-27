@@ -140,6 +140,8 @@ Changelog:
 - June 27, 2025. Created trajectory-formatters.ts library with consistent data mapping for all trajectory components
 - June 27, 2025. Synchronized trajectory display across cards, detail modal, and edit forms using shared formatters
 - June 27, 2025. Added comprehensive data validation and error handling for trajectory operations
+- June 27, 2025. Updated results counter styling from blue to green theme for brand consistency
+- June 27, 2025. Removed duplicate "Filters wissen" button from collapsible filter panel
 - June 27, 2025. Enhanced filter panel height when active filters are present to prevent content cutoff
 - June 27, 2025. Added prominent results counter with filter information across all entity views
 - June 27, 2025. Implemented clear all filters button in results counter for better UX

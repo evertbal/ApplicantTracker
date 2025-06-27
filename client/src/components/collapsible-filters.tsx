@@ -140,21 +140,7 @@ export default function CollapsibleFilters({
               </div>
             </div>
 
-            {/* Clear Filters */}
-            {activeFiltersCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  onStatusChange([]);
-                  onRegionChange("");
-                  onLicenseChange([]);
-                }}
-                className="w-full"
-              >
-                Filters wissen
-              </Button>
-            )}
+            
           </CardContent>
         </Card>
       </div>
