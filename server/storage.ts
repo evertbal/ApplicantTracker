@@ -481,7 +481,7 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(clientAgreements).where(eq(clientAgreements.clientId, clientId)).orderBy(desc(clientAgreements.createdAt));
   }
 
-  async createClientAgreement(agreement: InsertClientAgreement): Promise<ClientAgreement> {
+  async createClientAgreement(agreement: InsertClientAgreement & { authorId?: string }): Promise<ClientAgreement> {
     const [newAgreement] = await db.insert(clientAgreements).values(agreement).returning();
     return newAgreement;
   }

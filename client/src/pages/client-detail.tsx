@@ -575,40 +575,22 @@ export default function ClientDetail() {
                       {agreements.map((agreement) => (
                         <div key={agreement.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
                           <div className="flex items-start justify-between">
-                            <div className="space-y-2">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                                  Titel
-                                </label>
-                                <p className="text-sm text-gray-900 dark:text-white font-medium">
+                            <div className="flex-1">
+                              <div className="mb-2">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
                                   {agreement.title}
                                 </p>
                               </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                                  Beschrijving
-                                </label>
+                              <div className="mb-2">
                                 <p className="text-sm text-gray-900 dark:text-white">
                                   {agreement.description}
                                 </p>
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Status
-                                  </label>
-                                  <Badge variant="outline" className="text-xs">
-                                    {agreement.status}
-                                  </Badge>
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium mr-2">
+                                  {getUserInitials(agreement.authorId)}
                                 </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Datum
-                                  </label>
-                                  <p className="text-sm text-gray-900 dark:text-white">
-                                    {agreement.agreementDate ? format(new Date(agreement.agreementDate), "d MMM yyyy", { locale: nl }) : "-"}
-                                  </p>
-                                </div>
+                                {formatDate(agreement.createdAt)}
                               </div>
                             </div>
                             <div className="flex space-x-2">

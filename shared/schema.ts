@@ -151,6 +151,7 @@ export const clientAgreements = pgTable("client_agreements", {
   clientId: integer("client_id").notNull().references(() => clients.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
+  authorId: varchar("author_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -294,6 +295,7 @@ export const insertClientAgreementSchema = createInsertSchema(clientAgreements).
   id: true,
   createdAt: true,
   updatedAt: true,
+  authorId: true,
 }).extend({
   clientId: z.number().min(1, "Client ID is verplicht"),
   title: z.string().min(1, "Titel is verplicht"),

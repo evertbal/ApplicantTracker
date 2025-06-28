@@ -1014,11 +1014,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/clients/:clientId/agreements", authenticateAny, async (req: any, res) => {
     try {
       const clientId = parseInt(req.params.clientId);
-      const agreementData = insertClientAgreementSchema.parse({ ...req.body, clientId });
-      const agreement = await storage.createClientAgreement(agreementData);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      const agreementData = insertClientAgreementSchema.parse({ 
+        ...req.body, 
+        clientId 
+      });
+      
+      // Create agreement with authorId
+      const agreement = await storage.createClientAgreement({
+        ...agreementData,
+        authorId: userId
+      });
       
       // Log audit
-      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
       await storage.logAudit("client", clientId, "add_agreement", agreementData, userId);
       
       res.status(201).json(agreement);
