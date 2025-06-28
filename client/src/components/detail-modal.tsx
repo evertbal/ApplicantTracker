@@ -33,6 +33,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   const [editData, setEditData] = useState(entity);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -102,6 +103,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
 
   const handleUploadComplete = () => {
     queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
+    setShowUploadForm(false); // Close upload form after successful upload
   };
 
   const getInitials = (name: string) => {
@@ -470,14 +472,23 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               <TabsContent value="documents" className="mt-0 space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Documenten</h3>
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => setShowUploadForm(!showUploadForm)}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Document uploaden
+                  </Button>
                 </div>
 
-                {/* Document Upload Component */}
-                <DocumentUpload 
-                  entityType={entityType}
-                  entityId={entity.id}
-                  onUploadComplete={handleUploadComplete}
-                />
+                {/* Document Upload Component - Show/Hide */}
+                {showUploadForm && (
+                  <DocumentUpload 
+                    entityType={entityType}
+                    entityId={entity.id}
+                    onUploadComplete={handleUploadComplete}
+                  />
+                )}
 
                 {/* Documents List */}
                 <div className="space-y-3">
