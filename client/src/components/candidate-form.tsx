@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { candidateApi } from "@/lib/api";
+import { candidateApi, notesApi } from "@/lib/api";
 import { insertCandidateSchema } from "@shared/schema";
 import type { CandidateWithRelations, InsertCandidate } from "@shared/schema";
 import { z } from "zod";
@@ -37,6 +37,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isEditing = !!candidate;
+  const [initialNotes, setInitialNotes] = useState<string[]>([""]);
 
   const form = useForm<CandidateFormData>({
     resolver: zodResolver(candidateFormSchema),
@@ -56,7 +57,25 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
   });
 
   const createMutation = useMutation({
-    mutationFn: candidateApi.create,
+    mutationFn: async (candidateData: InsertCandidate) => {
+      // First create the candidate
+      const candidate = await candidateApi.create(candidateData);
+      
+      // Then create notes if any exist for new candidates
+      if (!isEditing && initialNotes.some(note => note.trim())) {
+        const notePromises = initialNotes
+          .filter(note => note.trim())
+          .map(note => notesApi.create({
+            entityType: "candidate",
+            entityId: candidate.id,
+            content: note.trim(),
+          }));
+        
+        await Promise.all(notePromises);
+      }
+      
+      return candidate;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/candidates"] });
       toast({
@@ -110,6 +129,23 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
     } else {
       createMutation.mutate(cleanedData);
     }
+  };
+
+  // Helper functions for managing initial notes
+  const addNoteField = () => {
+    setInitialNotes([...initialNotes, ""]);
+  };
+
+  const removeNoteField = (index: number) => {
+    if (initialNotes.length > 1) {
+      setInitialNotes(initialNotes.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateNoteField = (index: number, value: string) => {
+    const updated = [...initialNotes];
+    updated[index] = value;
+    setInitialNotes(updated);
   };
 
 
@@ -358,6 +394,56 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   </FormItem>
                 )}
               />
+
+              {/* Initial Notes Section - Only for new candidates */}
+              {!isEditing && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Initiële Notities (optioneel)
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addNoteField}
+                      className="flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Notitie toevoegen</span>
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {initialNotes.map((note, index) => (
+                      <div key={index} className="flex items-start space-x-2">
+                        <Textarea
+                          placeholder={`Notitie ${index + 1}...`}
+                          value={note}
+                          onChange={(e) => updateNoteField(index, e.target.value)}
+                          rows={3}
+                          className="flex-1 resize-none"
+                        />
+                        {initialNotes.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeNoteField(index)}
+                            className="mt-1 text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Deze notities worden automatisch toegevoegd aan de kandidaat na het opslaan.
+                  </p>
+                </div>
+              )}
 
             </form>
           </Form>
