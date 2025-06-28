@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { notesApi, documentsApi } from "@/lib/api";
+import DocumentUpload from "@/components/document-upload";
+import DocumentViewer from "@/components/document-viewer";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import DocumentUpload from "@/components/document-upload";
