@@ -371,20 +371,27 @@ export default function ClientDetail() {
         {/* Tabs for additional content */}
         <div className="mt-8">
           <Tabs defaultValue="contacts" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="contacts">
-                Contactpersonen ({client.contacts?.length || 0})
-              </TabsTrigger>
-              <TabsTrigger value="notes">
-                Notities ({notes.length})
-              </TabsTrigger>
-              <TabsTrigger value="agreements">
-                Specifieke Afspraken ({agreements.length})
-              </TabsTrigger>
-              <TabsTrigger value="documents">
-                Documenten ({documents.length})
-              </TabsTrigger>
-            </TabsList>
+            <div className="relative">
+              <div className="overflow-x-auto">
+                <TabsList className="inline-flex w-auto min-w-full md:grid md:w-full md:grid-cols-4">
+                  <TabsTrigger value="contacts" className="whitespace-nowrap flex-shrink-0">
+                    Contactpersonen ({client.contacts?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger value="notes" className="whitespace-nowrap flex-shrink-0">
+                    Notities ({notes.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="agreements" className="whitespace-nowrap flex-shrink-0">
+                    Specifieke Afspraken ({agreements.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="documents" className="whitespace-nowrap flex-shrink-0">
+                    Documenten ({documents.length})
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+              {/* Fade indicators for scroll */}
+              <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none md:hidden"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none md:hidden"></div>
+            </div>
 
             <TabsContent value="contacts" className="mt-6">
               <Card>
