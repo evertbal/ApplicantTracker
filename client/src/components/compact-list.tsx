@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Eye, FileText, Route, Building, BriefcaseIcon } from "lucide-react";
+import { MoreHorizontal, Edit, Eye, FileText, Route, Building, BriefcaseIcon, User, MapPin, Phone, Calendar, Briefcase } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { 
@@ -27,15 +27,19 @@ interface CompactListProps {
 export default function CompactList({ items, type, onView, onEdit, isLoading }: CompactListProps) {
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-4">
         {[...Array(5)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div className="flex-1 space-y-1">
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+          <Card key={i} className="card-enhanced animate-pulse">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                <div className="flex-1 space-y-3">
+                  <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/5"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/5"></div>
+                  <div className="flex space-x-2">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-16"></div>
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -47,15 +51,26 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
 
   const getStatusColor = (status: string) => {
     const colors = {
-      active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      inactive: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
-      pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-      completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      interview: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      proposed: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-      placed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      active: "status-badge status-active",
+      inactive: "status-badge status-inactive", 
+      pending: "status-badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      completed: "status-badge status-placed",
+      interview: "status-badge bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      proposed: "status-badge bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+      placed: "status-badge status-placed",
+      intake: "status-badge bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      matching: "status-badge bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
     };
-    return colors[status as keyof typeof colors] || colors.active;
+    return colors[status as keyof typeof colors] || "status-badge status-active";
+  };
+
+  const getTypeIcon = (type: string) => {
+    const icons = {
+      candidates: User,
+      clients: Building,
+      trajectories: Briefcase,
+    };
+    return icons[type as keyof typeof icons] || User;
   };
 
   const getStatusLabel = (status: string) => {
@@ -72,8 +87,8 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   };
 
   const renderCandidateItem = (candidate: any) => (
-    <Card key={candidate.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(candidate)}>
-      <CardContent className="p-3 sm:p-4">
+    <Card key={candidate.id} className="list-item-enhanced cursor-pointer group" onClick={() => onView(candidate)}>
+      <CardContent className="p-4 md:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <Avatar className="w-8 h-8 sm:w-10 sm:h-10">

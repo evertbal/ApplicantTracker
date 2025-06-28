@@ -1,0 +1,50 @@
+Doel: Maak een visuele en interactieve upgrade van de ATS Portal UI. Gebruik de onderstaande punten als leidraad. Zorg voor consistente implementatie in de gehele applicatie, zowel op de Kandidaten, Opdrachtgevers als Trajecten pagina’s.
+
+⸻
+
+✅ Wat goed is (behouden):
+	•	Duidelijke structuur en hiërarchie.
+	•	Prima contrast en leesbaarheid, met consistent kleurgebruik en typografie.
+	•	Simpele interacties en overzichtelijke navigatie zonder overbodige visuele ruis.
+
+⸻
+
+🔥 Wat verbeterd moet worden:
+
+1️⃣ Typografie en Ruimtelijk Ritme
+	•	Voeg nuance toe in typografie door subtiel verschillende groottes, diktes en letterspatiëring te gebruiken om belangrijke labels en data visueel sterker te maken.
+	•	Vergroot verticale ruimte tussen secties, vooral onder headings en tussen componenten in lijsten.
+
+2️⃣ Kleur en Visuele Hiërarchie
+	•	Voeg subtiele kleurgradaties of lichte achtergrondtinten toe aan componenten (bijv. hover states, of scheiding van rijen) voor visuele hiërarchie.
+	•	Gebruik een contrasterende accentkleur voor belangrijke call-to-actions en actieve items in lijsten.
+
+3️⃣ Interactie & Animatie
+	•	Voeg micro-interacties toe: fade-in/out transitions bij openen van modals, lichte zoom/scale op hover van knoppen.
+	•	Toon korte visuele bevestigingen/toasts (met animatie) bij state-wijzigingen zoals opslaan van formulier.
+
+4️⃣ Component Refinement
+	•	Geef modals een subtiele schaduw en scaling animatie bij binnenkomst.
+	•	Geef notities-lijsten en vergelijkbare lijsten een kaart-stijl met lichte border en achtergrondkleur voor individuele items.
+
+5️⃣ Iconografie en Visuele Details
+	•	Gebruik een consistente icon set (bijv. lucide-react of heroicons). Voeg kleine icons toe naast labels zoals Rijbewijs, Status, Fase ter ondersteuning van betekenis.
+	•	Voeg een minimalistisch logo of app header toe voor sterkere branding.
+
+⸻
+
+🎨 Tailwind & Implementatie Suggesties
+	•	Gebruik Tailwind Variants en utility classes voor animaties: transition, ease-in-out, duration-300.
+	•	Maak consistent gebruik van rounded-2xl, shadow-xl, p-4 md:p-6, gap-4 voor component spacing.
+	•	Zet theme-based kleurvariabelen op in Tailwind config voor consistente theming en makkelijk onderhoud.
+
+⸻
+
+❌ Wat niet te doen:
+	•	Wijzig geen onderliggende businesslogica of dataflows.
+	•	Voeg geen nieuwe routes of entiteiten toe.
+	•	Pas geen authenticatie- of authorisatiemechanismes aan.
+
+⸻
+
+Vergeet niet: Check UI consistentie op desktop en mobiel, test visuele transities en animaties in verschillende browsers en apparaten.
