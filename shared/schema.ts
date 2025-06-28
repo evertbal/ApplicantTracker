@@ -145,6 +145,16 @@ export const documents = pgTable("documents", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
+// Client agreements table
+export const clientAgreements = pgTable("client_agreements", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").notNull().references(() => clients.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Audit log table
 export const auditLog = pgTable("audit_log", {
   id: serial("id").primaryKey(),
@@ -169,6 +179,7 @@ export const clientsRelations = relations(clients, ({ many }) => ({
   documents: many(documents),
   locations: many(clientLocations),
   contacts: many(clientContacts),
+  agreements: many(clientAgreements),
 }));
 
 export const clientLocationsRelations = relations(clientLocations, ({ one }) => ({
@@ -181,6 +192,13 @@ export const clientLocationsRelations = relations(clientLocations, ({ one }) => 
 export const clientContactsRelations = relations(clientContacts, ({ one }) => ({
   client: one(clients, {
     fields: [clientContacts.clientId],
+    references: [clients.id],
+  }),
+}));
+
+export const clientAgreementsRelations = relations(clientAgreements, ({ one }) => ({
+  client: one(clients, {
+    fields: [clientAgreements.clientId],
     references: [clients.id],
   }),
 }));
