@@ -3,18 +3,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, ExternalLink, X, FileText, Image as ImageIcon, File } from "lucide-react";
-import type { Document } from "@shared/schema";
+import type { Document as DocumentType } from "@shared/schema";
 
 interface DocumentViewerProps {
-  document: Document | null;
+  document: DocumentType | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function DocumentViewer({ document, isOpen, onClose }: DocumentViewerProps) {
+export default function DocumentViewer({ document: documentFile, isOpen, onClose }: DocumentViewerProps) {
   const [imageError, setImageError] = useState(false);
 
-  if (!document) return null;
+  if (!documentFile) return null;
 
   const getFileExtension = (filename: string) => {
     return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
@@ -53,19 +53,21 @@ export default function DocumentViewer({ document, isOpen, onClose }: DocumentVi
 
   const handleDownload = () => {
     const link = window.document.createElement('a');
-    link.href = document.storageUrl;
-    link.download = document.filename;
+    link.href = documentFile.storageUrl;
+    link.download = documentFile.filename;
     window.document.body.appendChild(link);
     link.click();
     window.document.body.removeChild(link);
   };
 
   const handleOpenInNewTab = () => {
-    window.open(document.storageUrl, '_blank');
+    window.open(documentFile.storageUrl, '_blank');
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('nl-NL', {
+  const formatDate = (dateString: string | Date | null) => {
+    if (!dateString) return 'Onbekende datum';
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('nl-NL', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -75,7 +77,7 @@ export default function DocumentViewer({ document, isOpen, onClose }: DocumentVi
   };
 
   const renderFilePreview = () => {
-    const fileType = getFileType(document.filename);
+    const fileType = getFileType(documentFile.filename);
 
     switch (fileType) {
       case 'image':
@@ -83,8 +85,8 @@ export default function DocumentViewer({ document, isOpen, onClose }: DocumentVi
           <div className="w-full h-96 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
             {!imageError ? (
               <img
-                src={document.storageUrl}
-                alt={document.filename}
+                src={documentFile.storageUrl}
+                alt={documentFile.filename}
                 className="max-w-full max-h-full object-contain"
                 onError={() => setImageError(true)}
               />
@@ -150,18 +152,18 @@ export default function DocumentViewer({ document, isOpen, onClose }: DocumentVi
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-white">
-                {getFileIcon(document.filename)}
+                {getFileIcon(documentFile.filename)}
               </div>
               <div>
                 <DialogTitle className="heading-enhanced text-xl">
-                  {document.filename}
+                  {documentFile.filename}
                 </DialogTitle>
                 <div className="flex items-center space-x-2 mt-1">
-                  <Badge className={getFileTypeColor(document.filename)}>
-                    {getFileExtension(document.filename).toUpperCase()}
+                  <Badge className={getFileTypeColor(documentFile.filename)}>
+                    {getFileExtension(documentFile.filename).toUpperCase()}
                   </Badge>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
-                    Geüpload op {formatDate(document.uploadedAt)}
+                    Geüpload op {formatDate(documentFile.uploadedAt)}
                   </span>
                 </div>
               </div>
@@ -184,7 +186,7 @@ export default function DocumentViewer({ document, isOpen, onClose }: DocumentVi
         <div className="flex-shrink-0 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              <strong>Bestandsnaam:</strong> {document.filename}
+              <strong>Bestandsnaam:</strong> {documentFile.filename}
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={handleDownload}>
