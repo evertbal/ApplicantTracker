@@ -470,20 +470,14 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
               <TabsContent value="documents" className="mt-0 space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Documenten</h3>
-                  <Button className="bg-primary hover:bg-primary-hover text-white">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Document
-                  </Button>
                 </div>
 
-                {/* Document Upload Area */}
-                <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600">
-                  <CardContent className="p-8 text-center">
-                    <CloudUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">Sleep bestanden hierheen of klik om te uploaden</p>
-                    <p className="text-sm text-gray-500">PDF, DOC, DOCX, JPG, PNG (max 10MB)</p>
-                  </CardContent>
-                </Card>
+                {/* Document Upload Component */}
+                <DocumentUpload 
+                  entityType={entityType}
+                  entityId={entity.id}
+                  onUploadComplete={handleUploadComplete}
+                />
 
                 {/* Documents List */}
                 <div className="space-y-3">
@@ -495,29 +489,30 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                     </Card>
                   ) : (
                     documents.map((document: any) => (
-                      <Card key={document.id}>
+                      <Card key={document.id} className="hover:shadow-md transition-shadow">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                                <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center text-white">
+                                <FileText className="w-5 h-5" />
                               </div>
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">{document.filename}</p>
+                              <div className="flex-1 cursor-pointer" onClick={() => handleDocumentView(document)}>
+                                <p className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">{document.filename}</p>
                                 <p className="text-sm text-gray-500">
                                   Geüpload op {document.uploadedAt ? format(new Date(document.uploadedAt), 'dd MMM yyyy', { locale: nl }) : 'Onbekend'}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <Button variant="ghost" size="sm">
-                                <Download className="w-4 h-4" />
+                              <Button variant="ghost" size="sm" onClick={() => handleDocumentView(document)}>
+                                <Eye className="w-4 h-4" />
                               </Button>
                               <Button 
                                 variant="ghost" 
                                 size="sm"
                                 onClick={() => deleteDocumentMutation.mutate(document.id)}
                                 disabled={deleteDocumentMutation.isPending}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -583,6 +578,13 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
           </Tabs>
         </div>
       </div>
+
+      {/* Document Viewer Modal */}
+      <DocumentViewer
+        document={selectedDocument}
+        isOpen={isDocumentViewerOpen}
+        onClose={() => setIsDocumentViewerOpen(false)}
+      />
     </div>
   );
 }
