@@ -524,6 +524,157 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 </div>
               )}
 
+              {/* Trajecten sectie - alleen bij nieuwe kandidaten */}
+              {!isEditing && (
+                <div className="space-y-6">
+                  <Separator className="my-8" />
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="heading-enhanced text-lg">Trajecten</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Voeg direct trajecten toe voor deze kandidaat (optioneel)
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addTrajectory}
+                        className="flex items-center space-x-2 rounded-xl"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Traject toevoegen</span>
+                      </Button>
+                    </div>
+
+                    {trajectories.length > 0 && (
+                      <div className="space-y-6">
+                        {trajectories.map((trajectory, index) => (
+                          <div key={index} className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="outline" className="text-xs">
+                                  Traject {index + 1}
+                                </Badge>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeTrajectory(index)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Opdrachtgever */}
+                              <div className="space-y-2">
+                                <Label className="label-enhanced flex items-center space-x-2">
+                                  <Building2 className="w-4 h-4 text-primary" />
+                                  <span>Opdrachtgever *</span>
+                                </Label>
+                                <Select
+                                  value={trajectory.clientId ? trajectory.clientId.toString() : ""}
+                                  onValueChange={(value) => updateTrajectory(index, 'clientId', value ? parseInt(value) : 0)}
+                                >
+                                  <SelectTrigger className="rounded-xl">
+                                    <SelectValue placeholder="Selecteer opdrachtgever" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {(clients as Client[]).map((client) => (
+                                      <SelectItem key={client.id} value={client.id.toString()}>
+                                        {client.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {/* Functietitel */}
+                              <div className="space-y-2">
+                                <Label className="label-enhanced flex items-center space-x-2">
+                                  <Briefcase className="w-4 h-4 text-primary" />
+                                  <span>Functietitel *</span>
+                                </Label>
+                                <Input
+                                  value={trajectory.jobTitle}
+                                  onChange={(e) => updateTrajectory(index, 'jobTitle', e.target.value)}
+                                  placeholder="Bijvoorbeeld: Senior Developer, Magazijnmedewerker..."
+                                  className="rounded-xl"
+                                />
+                              </div>
+
+                              {/* Status */}
+                              <div className="space-y-2">
+                                <Label className="label-enhanced">Status</Label>
+                                <Select
+                                  value={trajectory.status}
+                                  onValueChange={(value) => updateTrajectory(index, 'status', value)}
+                                >
+                                  <SelectTrigger className="rounded-xl">
+                                    <SelectValue placeholder="Selecteer status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="interview">Interview</SelectItem>
+                                    <SelectItem value="proposed">Voorgesteld</SelectItem>
+                                    <SelectItem value="placed">Geplaatst</SelectItem>
+                                    <SelectItem value="active">Actief</SelectItem>
+                                    <SelectItem value="completed">Afgerond</SelectItem>
+                                    <SelectItem value="cancelled">Geannuleerd</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {/* Startdatum */}
+                              <div className="space-y-2">
+                                <Label className="label-enhanced flex items-center space-x-2">
+                                  <Calendar className="w-4 h-4 text-primary" />
+                                  <span>Startdatum</span>
+                                </Label>
+                                <Input
+                                  type="date"
+                                  value={trajectory.startDate || ""}
+                                  onChange={(e) => updateTrajectory(index, 'startDate', e.target.value)}
+                                  className="rounded-xl"
+                                />
+                              </div>
+
+                              {/* Uurtarief */}
+                              <div className="space-y-2 md:col-span-2">
+                                <Label className="label-enhanced">Uurtarief</Label>
+                                <Input
+                                  value={trajectory.hourlyRate || ""}
+                                  onChange={(e) => updateTrajectory(index, 'hourlyRate', e.target.value)}
+                                  placeholder="Bijvoorbeeld: €75 per uur"
+                                  className="rounded-xl"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {trajectories.length === 0 && (
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <Building2 className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                        <p>Geen trajecten toegevoegd</p>
+                        <p className="text-sm">Klik op "Traject toevoegen" om te beginnen</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
             </form>
           </Form>
         </div>
