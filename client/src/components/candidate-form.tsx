@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, User, Briefcase, Mail, Phone, MapPin, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -153,33 +153,51 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col my-8">
+    <div className="modal-overlay z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="modal-content w-full max-w-3xl max-h-[90vh] flex flex-col my-8">
         {/* Modal Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="p-6 md:p-8 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {isEditing ? 'Kandidaat Bewerken' : 'Nieuwe Kandidaat Toevoegen'}
-            </h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
+                <User className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="heading-enhanced text-2xl">
+                {isEditing ? 'Kandidaat Bewerken' : 'Nieuwe Kandidaat Toevoegen'}
+              </h2>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose}
+              className="rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
               <X className="w-5 h-5" />
             </Button>
           </div>
         </div>
 
         {/* Modal Content - Scrollable */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 md:p-8 overflow-y-auto flex-1">
           <Form {...form}>
-            <form id="candidate-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form id="candidate-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {/* Beroep eerst */}
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Beroep</FormLabel>
+                  <FormItem className="space-y-3">
+                    <FormLabel className="label-enhanced flex items-center space-x-2">
+                      <Briefcase className="w-4 h-4 text-primary" />
+                      <span>Beroep</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..." />
+                      <Input 
+                        {...field} 
+                        value={field.value || ""} 
+                        placeholder="Bijvoorbeeld: chauffeur, magazijnmedewerker, kok..." 
+                        className="rounded-xl border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-primary/20 transition-colors"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -450,16 +468,21 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
         </div>
         
         {/* Modal Footer - Fixed at bottom */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex justify-end space-x-3">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+        <div className="p-6 md:p-8 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="flex justify-end space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              disabled={isLoading}
+              className="rounded-xl border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+            >
               Annuleren
             </Button>
             <Button
               type="submit"
               form="candidate-form"
               disabled={isLoading}
-              className="bg-primary hover:bg-primary-hover text-white"
+              className="btn-primary-enhanced"
             >
               {isLoading ? (isEditing ? 'Bijwerken...' : 'Toevoegen...') : (isEditing ? 'Bijwerken' : 'Kandidaat Toevoegen')}
             </Button>
