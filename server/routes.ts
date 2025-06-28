@@ -1024,7 +1024,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const agreement = await storage.createClientAgreement({
         ...agreementData,
         authorId: userId
-      });
+      } as any);
       
       // Log audit
       await storage.logAudit("client", clientId, "add_agreement", agreementData, userId);

@@ -654,7 +654,7 @@ export default function ClientDetail() {
                                   {document.filename}
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  Toegevoegd: {formatDate(document.createdAt)}
+                                  Toegevoegd: {formatDate(document.uploadedAt)}
                                 </p>
                               </div>
                             </div>
@@ -662,7 +662,7 @@ export default function ClientDetail() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.open(document.url, '_blank')}
+                                onClick={() => window.open(document.storageUrl, '_blank')}
                               >
                                 <Download className="w-4 h-4" />
                               </Button>
