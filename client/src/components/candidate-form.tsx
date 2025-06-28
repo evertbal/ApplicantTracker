@@ -204,15 +204,21 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 )}
               />
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Volledige Naam *</FormLabel>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="label-enhanced flex items-center space-x-2">
+                        <User className="w-4 h-4 text-primary" />
+                        <span>Volledige Naam *</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input 
+                          {...field} 
+                          className="rounded-xl border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-primary/20 transition-colors"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -222,10 +228,16 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   control={form.control}
                   name="phone"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Telefoon</FormLabel>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="label-enhanced flex items-center space-x-2">
+                        <Phone className="w-4 h-4 text-primary" />
+                        <span>Telefoon</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input 
+                          {...field} 
+                          className="rounded-xl border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-primary/20 transition-colors"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
