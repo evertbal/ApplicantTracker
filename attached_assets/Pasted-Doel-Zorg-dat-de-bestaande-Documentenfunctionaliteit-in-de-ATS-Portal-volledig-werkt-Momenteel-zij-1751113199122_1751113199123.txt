@@ -1,0 +1,36 @@
+Doel: Zorg dat de bestaande Documentenfunctionaliteit in de ATS Portal volledig werkt. Momenteel zijn de knoppen, ruimte en tabbladen aanwezig voor het toevoegen van documenten, maar daadwerkelijk uploaden, opslaan en bekijken werkt niet. Maak deze feature robuust en gebruiksvriendelijk.
+
+⸻
+
+🔧 Functionaliteit:
+	•	Zorg dat gebruikers via de bestaande knoppen één of meerdere documenten kunnen uploaden (PDF, DOCX, PNG, etc.).
+	•	Sla geüploade documenten op:
+	•	In de backend (bijv. op de filesystem storage in Replit of via externe storage zoals AWS S3 / Replit DB blob support).
+	•	Registreer de metadata (bijv. bestandsnaam, type, upload-datum, URL) in de database in de documents tabel.
+	•	Na upload:
+	•	Toon het document direct in het Documenten-tabblad, inclusief metadata.
+	•	Voeg een knop toe om het document te openen in een documentviewer modal (met embedded viewer of link naar bestand in nieuw tabblad).
+
+🖥 UI & Interactie:
+	•	Houd de styling consistent met bestaande tabs en lijsten.
+	•	Gebruik een icon (bijv. paperclip) naast elk document in de lijst.
+	•	Geef gebruikers duidelijke feedback bij upload (bijv. loading indicator, toast bij succes/mislukking).
+
+⚙ Backend & Opslag:
+	•	Implementeer upload endpoint in de backend (Node.js/Express).
+	•	Voeg authenticatie/autorisatie checks toe zodat alleen geautoriseerde rollen documenten mogen uploaden.
+	•	Zorg dat bestanden beveiligd worden opgeslagen en alleen via beveiligde routes opgevraagd kunnen worden.
+	•	Log elke uploadactie in de audit log.
+
+📄 Document Viewer:
+	•	Bouw een modal of aparte pagina waarin documenten direct kunnen worden geopend/bekeken.
+	•	Voor PDF’s: gebruik een ingebedde PDF viewer component (bijv. react-pdf).
+	•	Voor andere bestandstypen: download link aanbieden of openen in nieuw tabblad.
+
+❌ Wat niet te doen:
+	•	Wijzig niets aan bestaande notities, trajecten of kandidaat CRUD-functionaliteit.
+	•	Voeg geen filters of sortering toe op Documenten tabblad op dit moment.
+
+⸻
+
+Belangrijk: Test upload van grote en kleine bestanden, en controleer dat alle metadata correct wordt opgeslagen in de database en de documentviewer soepel werkt op desktop en mobiel.

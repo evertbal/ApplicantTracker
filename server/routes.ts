@@ -51,6 +51,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Document upload multer configuration
+  const documentUpload = multer({
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'text/csv',
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'text/plain'
+      ];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Bestandstype niet toegestaan. Ondersteunde typen: PDF, DOC, DOCX, XLS, XLSX, CSV, JPG, PNG, GIF, TXT'));
+      }
+    },
+    limits: {
+      fileSize: 10 * 1024 * 1024 // 10MB limit
+    }
+  });
+
   // Enable Replit Auth alongside simple auth
   await setupAuth(app);
 
@@ -1244,6 +1272,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Document upload endpoint
+  app.post("/api/documents/upload", authenticateAny, documentUpload.single('file'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Geen bestand geüpload" });
+      }
+
+      const { entityType, entityId } = req.body;
+      if (!entityType || !entityId) {
+        return res.status(400).json({ message: "EntityType en entityId zijn verplicht" });
+      }
+
+      // Generate unique filename to prevent conflicts
+      const timestamp = Date.now();
+      const originalName = req.file.originalname;
+      const fileExtension = originalName.substring(originalName.lastIndexOf('.'));
+      const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const uniqueFilename = `${timestamp}_${sanitizedName}`;
+      
+      // Save file to uploads directory
+      const fs = require('fs').promises;
+      const path = require('path');
+      const uploadDir = path.join(process.cwd(), 'uploads');
+      
+      // Ensure uploads directory exists
+      try {
+        await fs.access(uploadDir);
+      } catch {
+        await fs.mkdir(uploadDir, { recursive: true });
+      }
+      
+      const filePath = path.join(uploadDir, uniqueFilename);
+      await fs.writeFile(filePath, req.file.buffer);
+
+      // Save document metadata to database
+      const userId = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'system';
+      const documentData = {
+        entityType,
+        entityId: parseInt(entityId),
+        filename: originalName,
+        storageUrl: `/uploads/${uniqueFilename}`,
+      };
+
+      const document = await storage.createDocument(documentData);
+      
+      // Log audit
+      await storage.logAudit("document", document.id, "create", documentData, userId);
+      
+      res.status(201).json(document);
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      res.status(500).json({ message: "Failed to upload document" });
+    }
+  });
+
   app.post("/api/documents", authenticateAny, async (req: any, res) => {
     try {
       const uploadedBy = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'system';
@@ -1262,10 +1345,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/documents/:id", authenticateAny, async (req, res) => {
+  // Serve uploaded files
+  app.get("/uploads/:filename", authenticateAny, async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const path = require('path');
+      const fs = require('fs').promises;
+      
+      const filePath = path.join(process.cwd(), 'uploads', filename);
+      
+      // Check if file exists
+      try {
+        await fs.access(filePath);
+      } catch {
+        return res.status(404).json({ message: "Bestand niet gevonden" });
+      }
+      
+      // Serve the file
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error("Error serving file:", error);
+      res.status(500).json({ message: "Failed to serve file" });
+    }
+  });
+
+  app.delete("/api/documents/:id", authenticateAny, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get document info before deletion to remove file
+      const documents = await storage.getDocuments('', 0); // Get all documents to find the one to delete
+      const document = documents.find(d => d.id === id);
+      
+      if (document && document.storageUrl) {
+        const path = require('path');
+        const fs = require('fs').promises;
+        
+        // Extract filename from storage URL
+        const filename = document.storageUrl.replace('/uploads/', '');
+        const filePath = path.join(process.cwd(), 'uploads', filename);
+        
+        // Try to delete the file (don't fail if file doesn't exist)
+        try {
+          await fs.unlink(filePath);
+        } catch (fileError) {
+          console.warn("Could not delete file:", fileError);
+        }
+      }
+      
       await storage.deleteDocument(id);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'system';
+      await storage.logAudit("document", id, "delete", {}, userId);
+      
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting document:", error);

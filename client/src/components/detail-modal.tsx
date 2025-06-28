@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { X, Edit, Plus, Download, Trash2, Upload, CloudUpload } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { X, Edit, Plus, Download, Trash2, Upload, CloudUpload, FileText, Eye, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,10 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
 import { notesApi, documentsApi } from "@/lib/api";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
+import DocumentUpload from "@/components/document-upload";
+import DocumentViewer from "@/components/document-viewer";
 import type { CandidateWithRelations, TrajectoryWithRelations, ClientWithRelations } from "@shared/schema";
 
 interface DetailModalProps {
