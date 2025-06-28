@@ -375,12 +375,12 @@ export default function CandidateDetail() {
             <TabsContent value="notes" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Notities</CardTitle>
                     <Button
                       size="sm"
                       onClick={() => setIsAddingNote(true)}
-                      className="bg-primary hover:bg-primary-hover text-white"
+                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Nieuwe Notitie
@@ -458,7 +458,9 @@ export default function CandidateDetail() {
             <TabsContent value="documents" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Documenten</CardTitle>
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
+                    <CardTitle>Documenten</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">

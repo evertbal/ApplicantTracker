@@ -396,12 +396,12 @@ export default function ClientDetail() {
             <TabsContent value="contacts" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Contactpersonen</CardTitle>
                     <Button
                       onClick={() => setIsNewContactModalOpen(true)}
                       size="sm"
-                      className="bg-primary hover:bg-primary-hover text-white"
+                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Nieuwe Contactpersoon
@@ -486,12 +486,12 @@ export default function ClientDetail() {
             <TabsContent value="notes" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Notities</CardTitle>
                     <Button
                       size="sm"
                       onClick={() => setIsAddingNote(true)}
-                      className="bg-primary hover:bg-primary-hover text-white"
+                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Nieuwe Notitie
@@ -564,12 +564,12 @@ export default function ClientDetail() {
             <TabsContent value="agreements" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Specifieke Afspraken</CardTitle>
                     <Button
                       onClick={() => setIsNewAgreementModalOpen(true)}
                       size="sm"
-                      className="bg-primary hover:bg-primary-hover text-white"
+                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Nieuwe Afspraak
@@ -636,12 +636,12 @@ export default function ClientDetail() {
             <TabsContent value="documents" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Documenten</CardTitle>
                     <Button
                       size="sm"
                       onClick={() => setIsAddingDocument(true)}
-                      className="bg-primary hover:bg-primary-hover text-white"
+                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Document Toevoegen
