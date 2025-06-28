@@ -144,35 +144,33 @@ export default function DocumentUpload({ entityType, entityId, onUploadComplete 
   };
 
   return (
-    <div className="space-y-6">
-      {/* Upload Area */}
-      <Card 
-        className={`border-2 border-dashed transition-colors ${
-          isDragOver 
-            ? 'border-primary bg-primary/5' 
-            : 'border-gray-300 dark:border-gray-600'
-        }`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        <CardContent className="p-8 text-center">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center">
-              <Upload className="w-8 h-8 text-primary" />
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Document uploaden</h3>
+      </div>
+      
+      <div className="p-4">
+        {/* Upload Area */}
+        <div 
+          className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+            isDragOver 
+              ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
+              : 'border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500'
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <div className="flex flex-col items-center space-y-3">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <Upload className="w-6 h-6 text-gray-500 dark:text-gray-400" />
             </div>
             <div>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">
-                Sleep bestanden hierheen of{' '}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-primary hover:text-primary-hover underline"
-                >
-                  klik om te uploaden
-                </button>
+              <p className="text-gray-600 dark:text-gray-300 mb-1">
+                Sleep bestanden hierheen of klik om te selecteren
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 PDF, DOC, DOCX, XLS, XLSX, CSV, JPG, PNG, GIF, TXT (max 10MB)
               </p>
             </div>
@@ -185,81 +183,78 @@ export default function DocumentUpload({ entityType, entityId, onUploadComplete 
             className="hidden"
             accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif,.txt"
           />
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Selected Files */}
-      {selectedFiles.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-              Geselecteerde bestanden ({selectedFiles.length})
-            </h4>
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedFiles([])}
-                disabled={uploadMutation.isPending}
-              >
-                Wissen
-              </Button>
-              <Button
-                size="sm"
-                onClick={uploadFiles}
-                disabled={uploadMutation.isPending}
-                className="btn-primary-enhanced"
-              >
-                {uploadMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Uploaden...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload {selectedFiles.length} bestand{selectedFiles.length !== 1 ? 'en' : ''}
-                  </>
-                )}
-              </Button>
+        {/* Selected Files */}
+        {selectedFiles.length > 0 && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-600 pb-2">
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                Geselecteerde bestanden ({selectedFiles.length})
+              </h4>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedFiles([])}
+                  disabled={uploadMutation.isPending}
+                  className="text-xs"
+                >
+                  Wissen
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={uploadFiles}
+                  disabled={uploadMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                >
+                  {uploadMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Uploaden...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3 h-3 mr-1" />
+                      Upload {selectedFiles.length} bestand{selectedFiles.length !== 1 ? 'en' : ''}
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            {selectedFiles.map((file, index) => (
-              <Card key={index} className="bg-gray-50/50 dark:bg-gray-800/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-2xl">{getFileIcon(file.type)}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                          {file.name}
-                        </p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <span>{formatFileSize(file.size)}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {file.type.split('/')[1]?.toUpperCase() || 'FILE'}
-                          </Badge>
-                        </div>
+            <div className="space-y-2">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded border">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-lg">{getFileIcon(file.type)}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {file.name}
+                      </p>
+                      <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                        <span>{formatFileSize(file.size)}</span>
+                        <span className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded text-xs">
+                          {file.type.split('/')[1]?.toUpperCase() || 'FILE'}
+                        </span>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(index)}
-                      disabled={uploadMutation.isPending}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFile(index)}
+                    disabled={uploadMutation.isPending}
+                    className="text-gray-400 hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
