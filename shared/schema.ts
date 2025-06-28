@@ -290,6 +290,16 @@ export const insertClientContactSchema = createInsertSchema(clientContacts).omit
   opmerkingen: z.string().optional().nullable().transform(val => val === "" ? null : val),
 });
 
+export const insertClientAgreementSchema = createInsertSchema(clientAgreements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  clientId: z.number().min(1, "Client ID is verplicht"),
+  title: z.string().min(1, "Titel is verplicht"),
+  description: z.string().min(1, "Beschrijving is verplicht"),
+});
+
 export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
   id: true,
   createdAt: true,
@@ -327,6 +337,7 @@ export type Candidate = typeof candidates.$inferSelect;
 export type Client = typeof clients.$inferSelect;
 export type ClientLocation = typeof clientLocations.$inferSelect;
 export type ClientContact = typeof clientContacts.$inferSelect;
+export type ClientAgreement = typeof clientAgreements.$inferSelect;
 export type Trajectory = typeof trajectories.$inferSelect;
 export type Note = typeof notes.$inferSelect;
 export type Document = typeof documents.$inferSelect;
@@ -338,6 +349,7 @@ export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type InsertClientLocation = z.infer<typeof insertClientLocationSchema>;
 export type InsertClientContact = z.infer<typeof insertClientContactSchema>;
+export type InsertClientAgreement = z.infer<typeof insertClientAgreementSchema>;
 export type InsertTrajectory = z.infer<typeof insertTrajectorySchema>;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
@@ -364,4 +376,5 @@ export type ClientWithRelations = Client & {
   documents?: Document[];
   locations?: ClientLocation[];
   contacts?: ClientContact[];
+  agreements?: ClientAgreement[];
 };

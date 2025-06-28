@@ -3,6 +3,7 @@ import {
   clients,
   clientLocations,
   clientContacts,
+  clientAgreements,
   trajectories,
   notes,
   documents,
@@ -13,6 +14,7 @@ import {
   type Client,
   type ClientLocation,
   type ClientContact,
+  type ClientAgreement,
   type Trajectory,
   type Note,
   type Document,
@@ -20,6 +22,7 @@ import {
   type InsertClient,
   type InsertClientLocation,
   type InsertClientContact,
+  type InsertClientAgreement,
   type InsertTrajectory,
   type InsertNote,
   type InsertDocument,
@@ -91,6 +94,12 @@ export interface IStorage {
   createClientContact(contact: InsertClientContact): Promise<ClientContact>;
   updateClientContact(id: number, contact: Partial<InsertClientContact>): Promise<ClientContact>;
   deleteClientContact(id: number): Promise<void>;
+
+  // Client agreement operations
+  getClientAgreements(clientId: number): Promise<ClientAgreement[]>;
+  createClientAgreement(agreement: InsertClientAgreement): Promise<ClientAgreement>;
+  updateClientAgreement(id: number, agreement: Partial<InsertClientAgreement>): Promise<ClientAgreement>;
+  deleteClientAgreement(id: number): Promise<void>;
 
   // Trajectory operations
   getTrajectories(filters?: {
