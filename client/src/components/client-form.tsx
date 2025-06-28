@@ -39,7 +39,6 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
       location: client?.location || "",
       workType: client?.workType || "",
       adresHoofdlocatie: client?.adresHoofdlocatie || "",
-      afspraken: client?.afspraken || "",
       notities: client?.notities || "",
     },
   });
@@ -194,25 +193,6 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
                           <SelectItem value="other">Anders</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="afspraken"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Afspraken</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value || ""}
-                          placeholder="Bijvoorbeeld tariefafspraken, kleding die wordt geleverd, standaard aanwezigheidstijden, etc."
-                          className="min-h-[100px]"
-                        />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

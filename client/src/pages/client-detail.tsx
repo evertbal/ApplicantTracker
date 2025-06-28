@@ -195,16 +195,6 @@ export default function ClientDetail() {
             </div>
           </div>
 
-          {/* Afspraken - prominent weergegeven */}
-          {client.afspraken && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-              <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Afspraken</label>
-              <div className="text-base text-blue-900 dark:text-blue-100 whitespace-pre-wrap">
-                {client.afspraken}
-              </div>
-            </div>
-          )}
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Bedrijfsgegevens</h3>
