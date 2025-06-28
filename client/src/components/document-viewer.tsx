@@ -16,6 +16,9 @@ export default function DocumentViewer({ document: documentFile, isOpen, onClose
 
   if (!documentFile) return null;
 
+  // Cast to ensure TypeScript knows this is our DocumentType, not DOM Document
+  const doc = documentFile as DocumentType;
+
   const getFileExtension = (filename: string) => {
     return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
   };
@@ -53,15 +56,15 @@ export default function DocumentViewer({ document: documentFile, isOpen, onClose
 
   const handleDownload = () => {
     const link = window.document.createElement('a');
-    link.href = documentFile.storageUrl;
-    link.download = documentFile.filename;
+    link.href = doc.storageUrl;
+    link.download = doc.filename;
     window.document.body.appendChild(link);
     link.click();
     window.document.body.removeChild(link);
   };
 
   const handleOpenInNewTab = () => {
-    window.open(documentFile.storageUrl, '_blank');
+    window.open(doc.storageUrl, '_blank');
   };
 
   const formatDate = (dateString: string | Date | null) => {
@@ -77,7 +80,7 @@ export default function DocumentViewer({ document: documentFile, isOpen, onClose
   };
 
   const renderFilePreview = () => {
-    const fileType = getFileType(documentFile.filename);
+    const fileType = getFileType(doc.filename);
 
     switch (fileType) {
       case 'image':
@@ -85,8 +88,8 @@ export default function DocumentViewer({ document: documentFile, isOpen, onClose
           <div className="w-full h-96 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
             {!imageError ? (
               <img
-                src={documentFile.storageUrl}
-                alt={documentFile.filename}
+                src={doc.storageUrl}
+                alt={doc.filename}
                 className="max-w-full max-h-full object-contain"
                 onError={() => setImageError(true)}
               />
@@ -152,18 +155,18 @@ export default function DocumentViewer({ document: documentFile, isOpen, onClose
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-white">
-                {getFileIcon(documentFile.filename)}
+                {getFileIcon(doc.filename)}
               </div>
               <div>
                 <DialogTitle className="heading-enhanced text-xl">
-                  {documentFile.filename}
+                  {doc.filename}
                 </DialogTitle>
                 <div className="flex items-center space-x-2 mt-1">
-                  <Badge className={getFileTypeColor(documentFile.filename)}>
-                    {getFileExtension(documentFile.filename).toUpperCase()}
+                  <Badge className={getFileTypeColor(doc.filename)}>
+                    {getFileExtension(doc.filename).toUpperCase()}
                   </Badge>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
-                    Geüpload op {formatDate(documentFile.uploadedAt)}
+                    Geüpload op {formatDate(doc.uploadedAt)}
                   </span>
                 </div>
               </div>
@@ -186,7 +189,7 @@ export default function DocumentViewer({ document: documentFile, isOpen, onClose
         <div className="flex-shrink-0 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              <strong>Bestandsnaam:</strong> {documentFile.filename}
+              <strong>Bestandsnaam:</strong> {doc.filename}
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={handleDownload}>

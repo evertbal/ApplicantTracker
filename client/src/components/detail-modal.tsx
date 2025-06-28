@@ -31,7 +31,10 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   const [newNote, setNewNote] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState(entity);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: notes = [], refetch: refetchNotes } = useQuery({
     queryKey: ['/api/notes', entityType, entity.id],
@@ -67,9 +70,17 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   });
 
   const deleteDocumentMutation = useMutation({
-    mutationFn: (documentId: number) => documentsApi.delete(documentId),
+    mutationFn: async (documentId: number) => {
+      const response = await fetch(`/api/documents/${documentId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete document');
+      }
+    },
     onSuccess: () => {
-      refetchDocuments();
+      queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
       toast({
         title: "Document verwijderd",
         description: "Het document is succesvol verwijderd.",
@@ -83,6 +94,15 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
       });
     },
   });
+
+  const handleDocumentView = (document: any) => {
+    setSelectedDocument(document);
+    setIsDocumentViewerOpen(true);
+  };
+
+  const handleUploadComplete = () => {
+    queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
+  };
 
   const getInitials = (name: string) => {
     return name
