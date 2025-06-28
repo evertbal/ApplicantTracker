@@ -1,0 +1,43 @@
+Doel: Controleer en repareer de document upload functionaliteit in de ATS Portal. Momenteel staan de knoppen en het design klaar (bij Documenten tab bij kandidaten en bij Trajecten), maar het uploaden en opslaan van documenten werkt niet. Maak deze functionaliteit volledig werkend en robuust.
+
+⸻
+
+🔧 Te Doen:
+
+1️⃣ Controleer huidige implementatie
+	•	Inspecteer bestaande document upload componenten in zowel Documenten tabblad (kandidaat/opdrachtgever) als traject-detailview.
+	•	Controleer of de upload-knoppen daadwerkelijk een bestand verzenden naar de backend.
+	•	Controleer of de backend endpoint voor uploaden bestaat, correct luistert, en bestanden verwerkt.
+	•	Log alle verzoeken/responses in de console bij frontend en backend om te zien of uploadpogingen mislukken (bijv. 404, 500 of silent fail).
+
+2️⃣ Corrigeer & implementeer uploadflow
+	•	Als de backend endpoint ontbreekt of niet werkt:
+	•	Bouw/controleer de endpoint voor het ontvangen van bestand (bijv. multipart/form-data) en sla het op op de server of in blob storage.
+	•	Sla metadata (bijv. filename, type, datum, URL) op in de database (PostgreSQL).
+	•	Zorg dat de frontend component de juiste API route aanroept en bestand verzendt.
+
+3️⃣ Document Viewer & Feedback
+	•	Implementeer of debug de document viewer modal die het geüploade bestand toont (zoals bij Trajecten beoogd was qua design).
+	•	Voeg duidelijke feedback toe aan de gebruiker (upload succes, upload mislukt) met animatie/toast.
+
+4️⃣ Design Consistentie
+	•	Gebruik het document upload patroon van de Trajecten pagina als uitgangspunt voor design van alle document uploads in de app.
+	•	Maak consistent gebruik van iconografie, knoppen en modals zoals in dat patroon.
+
+⸻
+
+❌ Wat niet te doen:
+	•	Wijzig geen businesslogica rond trajecten/kandidaten/relaties.
+	•	Voeg geen nieuwe routes toe buiten upload endpoint.
+	•	Pas geen role-based access of authenticatie flows aan.
+
+⸻
+
+✅ Test & Verbeter
+	•	Test upload van meerdere bestanden, groot en klein, en controleer dat ze direct getoond worden in de documentenlijst.
+	•	Test document openen/bekijken in modal.
+	•	Zorg dat audit logs worden aangemaakt voor elke upload.
+
+⸻
+
+Let op: Huidig design van Trajecten upload werkt ook niet correct — zorg dat dit design wordt gebruikt als visueel uitgangspunt, maar fix ook daar de upload flow zodat het werkt. Implementeer dit consistent in de hele applicatie.

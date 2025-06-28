@@ -163,7 +163,7 @@ export const notesApi = {
 // Documents API
 export const documentsApi = {
   getByEntity: async (entityType: string, entityId: number) => {
-    const response = await fetch(`/api/documents?entityType=${entityType}&entityId=${entityId}`, { 
+    const response = await fetch(`/api/documents/${entityType}/${entityId}`, { 
       credentials: 'include',
       headers: getRequestHeaders()
     });
