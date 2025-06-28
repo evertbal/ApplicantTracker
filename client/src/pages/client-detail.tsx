@@ -59,6 +59,10 @@ export default function ClientDetail() {
     queryKey: [`/api/notes/client/${id}`],
   });
 
+  const { data: agreements = [] } = useQuery<any[]>({
+    queryKey: [`/api/clients/${id}/agreements`],
+  });
+
   const deleteContactMutation = useMutation({
     mutationFn: async (contactId: number) => {
       await apiRequest("DELETE", `/api/clients/${id}/contacts/${contactId}`);
@@ -68,6 +72,26 @@ export default function ClientDetail() {
       toast({
         title: "Contactpersoon verwijderd",
         description: "De contactpersoon is succesvol verwijderd.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Fout bij verwijderen",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteAgreementMutation = useMutation({
+    mutationFn: async (agreementId: number) => {
+      await apiRequest("DELETE", `/api/clients/${id}/agreements/${agreementId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${id}/agreements`] });
+      toast({
+        title: "Afspraak verwijderd",
+        description: "De afspraak is succesvol verwijderd.",
       });
     },
     onError: (error: Error) => {
@@ -92,6 +116,22 @@ export default function ClientDetail() {
   const handleDeleteContact = (contactId: number) => {
     if (confirm("Weet je zeker dat je deze contactpersoon wilt verwijderen?")) {
       deleteContactMutation.mutate(contactId);
+    }
+  };
+
+  const handleAddAgreement = () => {
+    setEditingAgreement(null);
+    setIsAgreementFormOpen(true);
+  };
+
+  const handleEditAgreement = (agreement: any) => {
+    setEditingAgreement(agreement);
+    setIsAgreementFormOpen(true);
+  };
+
+  const handleDeleteAgreement = (agreementId: number) => {
+    if (confirm("Weet je zeker dat je deze afspraak wilt verwijderen?")) {
+      deleteAgreementMutation.mutate(agreementId);
     }
   };
 
@@ -175,6 +215,16 @@ export default function ClientDetail() {
             Notities
             <Badge variant="secondary" className="ml-2">
               {notes.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="agreements" 
+            className="flex items-center justify-center text-gray-700 hover:bg-white hover:shadow-sm"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Specifieke Afspraken
+            <Badge variant="secondary" className="ml-2">
+              {agreements.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger 
@@ -413,6 +463,76 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
+        <TabsContent value="agreements" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Specifieke Afspraken</h3>
+            <Button onClick={handleAddAgreement} className="flex items-center">
+              <Plus className="h-4 w-4 mr-2" />
+              Nieuwe afspraak
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            {agreements.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-gray-500">Nog geen afspraken toegevoegd</p>
+                </CardContent>
+              </Card>
+            ) : (
+              agreements.map((agreement: any) => (
+                <Card key={agreement.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="bg-primary/10 p-2 rounded-full">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900">{agreement.title}</h4>
+                            <p className="text-sm text-gray-500">
+                              <Calendar className="h-4 w-4 inline mr-1" />
+                              Toegevoegd op {format(new Date(agreement.createdAt), "d MMMM yyyy 'om' HH:mm", { locale: nl })}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+                            {agreement.description.length > 200 
+                              ? `${agreement.description.substring(0, 200)}...` 
+                              : agreement.description
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2 ml-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditAgreement(agreement)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteAgreement(agreement.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
         <TabsContent value="documents" className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">Documenten</h3>
@@ -468,6 +588,17 @@ export default function ClientDetail() {
         }}
         clientId={parseInt(id!)}
         contact={editingContact}
+      />
+
+      {/* Agreement Form Modal */}
+      <AgreementForm
+        isOpen={isAgreementFormOpen}
+        onClose={() => {
+          setIsAgreementFormOpen(false);
+          setEditingAgreement(null);
+        }}
+        clientId={parseInt(id!)}
+        agreement={editingAgreement}
       />
     </div>
   );
