@@ -42,7 +42,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   });
 
   const { data: documents = [], refetch: refetchDocuments } = useQuery({
-    queryKey: ['/api/documents', entityType, entity.id],
+    queryKey: [`/api/documents/${entityType}/${entity.id}`],
     queryFn: () => documentsApi.getByEntity(entityType, entity.id),
   });
 
