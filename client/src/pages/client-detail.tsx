@@ -34,6 +34,7 @@ import {
 import type { ClientWithRelations } from "@shared/schema";
 import ClientForm from "@/components/client-form";
 import ContactForm from "@/components/contact-form";
+import AgreementForm from "@/components/agreement-form";
 
 export default function ClientDetail() {
   const { id } = useParams();
@@ -43,6 +44,8 @@ export default function ClientDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
+  const [isAgreementFormOpen, setIsAgreementFormOpen] = useState(false);
+  const [editingAgreement, setEditingAgreement] = useState(null);
 
   const { data: client, isLoading } = useQuery<ClientWithRelations>({
     queryKey: [`/api/clients/${id}`],

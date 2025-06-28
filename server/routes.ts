@@ -22,6 +22,7 @@ import {
   insertClientSchema,
   insertClientLocationSchema,
   insertClientContactSchema,
+  insertClientAgreementSchema,
   insertTrajectorySchema,
   insertNoteSchema,
   insertDocumentSchema
@@ -995,6 +996,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting client contact:", error);
       res.status(500).json({ message: "Failed to delete client contact" });
+    }
+  });
+
+  // Client agreements routes
+  app.get("/api/clients/:clientId/agreements", authenticateAny, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const agreements = await storage.getClientAgreements(clientId);
+      res.json(agreements);
+    } catch (error) {
+      console.error("Error fetching client agreements:", error);
+      res.status(500).json({ message: "Failed to fetch client agreements" });
+    }
+  });
+
+  app.post("/api/clients/:clientId/agreements", authenticateAny, async (req: any, res) => {
+    try {
+      const clientId = parseInt(req.params.clientId);
+      const agreementData = insertClientAgreementSchema.parse({ ...req.body, clientId });
+      const agreement = await storage.createClientAgreement(agreementData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "add_agreement", agreementData, userId);
+      
+      res.status(201).json(agreement);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating client agreement:", error);
+      res.status(500).json({ message: "Failed to create client agreement" });
+    }
+  });
+
+  app.put("/api/clients/:clientId/agreements/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientId = parseInt(req.params.clientId);
+      const agreementData = insertClientAgreementSchema.partial().parse(req.body);
+      const agreement = await storage.updateClientAgreement(id, agreementData);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "update_agreement", agreementData, userId);
+      
+      res.json(agreement);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating client agreement:", error);
+      res.status(500).json({ message: "Failed to update client agreement" });
+    }
+  });
+
+  app.delete("/api/clients/:clientId/agreements/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const clientId = parseInt(req.params.clientId);
+      await storage.deleteClientAgreement(id);
+      
+      // Log audit
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      await storage.logAudit("client", clientId, "delete_agreement", {}, userId);
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting client agreement:", error);
+      res.status(500).json({ message: "Failed to delete client agreement" });
     }
   });
 

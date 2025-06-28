@@ -476,6 +476,29 @@ export class DatabaseStorage implements IStorage {
     await db.delete(clientContacts).where(eq(clientContacts.id, id));
   }
 
+  // Client agreement operations
+  async getClientAgreements(clientId: number): Promise<ClientAgreement[]> {
+    return db.select().from(clientAgreements).where(eq(clientAgreements.clientId, clientId)).orderBy(desc(clientAgreements.createdAt));
+  }
+
+  async createClientAgreement(agreement: InsertClientAgreement): Promise<ClientAgreement> {
+    const [newAgreement] = await db.insert(clientAgreements).values(agreement).returning();
+    return newAgreement;
+  }
+
+  async updateClientAgreement(id: number, agreement: Partial<InsertClientAgreement>): Promise<ClientAgreement> {
+    const [updatedAgreement] = await db
+      .update(clientAgreements)
+      .set({ ...agreement, updatedAt: new Date() })
+      .where(eq(clientAgreements.id, id))
+      .returning();
+    return updatedAgreement;
+  }
+
+  async deleteClientAgreement(id: number): Promise<void> {
+    await db.delete(clientAgreements).where(eq(clientAgreements.id, id));
+  }
+
   // Trajectory operations
   async getTrajectories(filters?: {
     search?: string;
