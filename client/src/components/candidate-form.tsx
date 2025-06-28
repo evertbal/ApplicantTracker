@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Plus, Trash2, User, Briefcase, Mail, Phone, MapPin, Calendar } from "lucide-react";
+import { X, Plus, Trash2, User, Briefcase, Mail, Phone, MapPin, Calendar, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,10 +11,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { candidateApi, notesApi } from "@/lib/api";
-import { insertCandidateSchema } from "@shared/schema";
-import type { CandidateWithRelations, InsertCandidate } from "@shared/schema";
+import { insertCandidateSchema, insertTrajectorySchema } from "@shared/schema";
+import type { CandidateWithRelations, InsertCandidate, InsertTrajectory, Client } from "@shared/schema";
 import { z } from "zod";
 
 // Extend the schema with client-side validation
@@ -33,11 +35,29 @@ interface CandidateFormProps {
   onSuccess: () => void;
 }
 
+// Trajectory form schema
+const trajectoryFormSchema = insertTrajectorySchema.omit({ candidateId: true }).extend({
+  clientId: z.number().min(1, "Opdrachtgever is verplicht"),
+  jobTitle: z.string().min(1, "Functietitel is verplicht"),
+  status: z.string().default("interview"),
+  startDate: z.string().optional().nullable(),
+  hourlyRate: z.string().optional().nullable(),
+});
+
+type TrajectoryFormData = z.infer<typeof trajectoryFormSchema>;
+
 export default function CandidateForm({ candidate, onClose, onSuccess }: CandidateFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isEditing = !!candidate;
   const [initialNotes, setInitialNotes] = useState<string[]>([""]);
+  const [trajectories, setTrajectories] = useState<TrajectoryFormData[]>([]);
+
+  // Fetch clients for trajectory dropdowns
+  const { data: clients = [] } = useQuery({
+    queryKey: ["/api/clients"],
+    enabled: !isEditing, // Only fetch when creating new candidates
+  });
 
   const form = useForm<CandidateFormData>({
     resolver: zodResolver(candidateFormSchema),
@@ -127,7 +147,15 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
     if (isEditing) {
       updateMutation.mutate(cleanedData);
     } else {
-      createMutation.mutate(cleanedData);
+      // Voor nieuwe kandidaten, voeg trajecten en notities toe
+      const submissionData = {
+        ...cleanedData,
+        trajectories: trajectories.filter(t => t.clientId > 0 && t.jobTitle.trim()),
+        notes: initialNotes
+          .filter(note => note.trim())
+          .map(content => ({ content }))
+      };
+      createMutation.mutate(submissionData);
     }
   };
 
@@ -146,6 +174,27 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
     const updated = [...initialNotes];
     updated[index] = value;
     setInitialNotes(updated);
+  };
+
+  // Helper functions for managing trajectories
+  const addTrajectory = () => {
+    setTrajectories([...trajectories, {
+      clientId: 0,
+      jobTitle: "",
+      status: "interview",
+      startDate: "",
+      hourlyRate: "",
+    }]);
+  };
+
+  const removeTrajectory = (index: number) => {
+    setTrajectories(trajectories.filter((_, i) => i !== index));
+  };
+
+  const updateTrajectory = (index: number, field: keyof TrajectoryFormData, value: any) => {
+    const updated = [...trajectories];
+    updated[index] = { ...updated[index], [field]: value };
+    setTrajectories(updated);
   };
 
 

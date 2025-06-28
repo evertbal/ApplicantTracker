@@ -487,20 +487,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/candidates", authenticateAny, async (req: any, res) => {
     try {
-      const candidateData = insertCandidateSchema.parse(req.body);
+      const { trajectories, notes, ...candidateData } = req.body;
+      const validatedCandidateData = insertCandidateSchema.parse(candidateData);
       
       // Normaliseer rijbewijs data als aanwezig
-      if (candidateData.drivingLicenses && candidateData.drivingLicenses.length > 0) {
-        const rawLicenseString = candidateData.drivingLicenses.join(', ');
+      if (validatedCandidateData.drivingLicenses && validatedCandidateData.drivingLicenses.length > 0) {
+        const rawLicenseString = validatedCandidateData.drivingLicenses.join(', ');
         const normalized = normalizeDrivingLicense(rawLicenseString);
-        candidateData.drivingLicenses = normalized.licenses;
+        validatedCandidateData.drivingLicenses = normalized.licenses;
       }
       
-      const candidate = await storage.createCandidate(candidateData);
-      
-      // Log audit
+      const candidate = await storage.createCandidate(validatedCandidateData);
       const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
-      await storage.logAudit("candidate", candidate.id, "create", candidateData, userId);
+      
+      // Log audit voor kandidaat
+      await storage.logAudit("candidate", candidate.id, "create", validatedCandidateData, userId);
+      
+      // Voeg trajecten toe als deze zijn opgegeven
+      if (trajectories && Array.isArray(trajectories) && trajectories.length > 0) {
+        for (const trajectoryData of trajectories) {
+          try {
+            const validatedTrajectoryData = insertTrajectorySchema.parse({
+              ...trajectoryData,
+              candidateId: candidate.id
+            });
+            
+            const trajectory = await storage.createTrajectory(validatedTrajectoryData);
+            await storage.logAudit("trajectory", trajectory.id, "create", validatedTrajectoryData, userId);
+          } catch (trajectoryError) {
+            console.error("Error creating trajectory:", trajectoryError);
+            // Continue met andere trajecten, log de fout maar fail niet de hele operatie
+          }
+        }
+      }
+      
+      // Voeg initiële notities toe als deze zijn opgegeven
+      if (notes && Array.isArray(notes) && notes.length > 0) {
+        for (const note of notes) {
+          if (note.content && note.content.trim()) {
+            try {
+              await storage.createNote({
+                entityType: "candidate",
+                entityId: candidate.id,
+                content: note.content.trim(),
+                authorId: userId
+              });
+            } catch (noteError) {
+              console.error("Error creating note:", noteError);
+              // Continue met andere notities
+            }
+          }
+        }
+      }
       
       res.status(201).json(candidate);
     } catch (error) {
