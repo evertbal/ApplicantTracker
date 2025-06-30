@@ -17,7 +17,6 @@ import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import DocumentViewer from "@/components/document-viewer";
 import type { CandidateWithRelations, TrajectoryWithRelations, ClientWithRelations } from "@shared/schema";
 
 interface DetailModalProps {
@@ -30,7 +29,6 @@ interface DetailModalProps {
 export default function DetailModal({ entity, entityType, onClose, onEdit }: DetailModalProps) {
   const [activeTab, setActiveTab] = useState("information");
   const [newNote, setNewNote] = useState("");
-  const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState(entity);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
@@ -43,9 +41,11 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     queryFn: () => notesApi.getByEntity(entityType, entity.id),
   });
 
-  const { data: documents = [], refetch: refetchDocuments } = useQuery({
+  const { data: documents = [], refetch: refetchDocuments, isError: documentsError } = useQuery({
     queryKey: [`/api/documents/${entityType}/${entity.id}`],
     queryFn: () => documentsApi.getByEntity(entityType, entity.id),
+    retry: 1,
+    retryOnMount: false,
   });
 
   const createNoteMutation = useMutation({
@@ -59,30 +59,22 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
       setNewNote("");
       toast({
         title: "Notitie toegevoegd",
-        description: "De notitie is succesvol opgeslagen.",
+        description: "De notitie is succesvol toegevoegd.",
       });
     },
     onError: () => {
       toast({
         title: "Fout",
-        description: "Er is een fout opgetreden bij het opslaan van de notitie.",
+        description: "Er is een fout opgetreden bij het toevoegen van de notitie.",
         variant: "destructive",
       });
     },
   });
 
   const deleteDocumentMutation = useMutation({
-    mutationFn: async (documentId: number) => {
-      const response = await fetch(`/api/documents/${documentId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete document');
-      }
-    },
+    mutationFn: (documentId: number) => documentsApi.delete(documentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
+      refetchDocuments();
       toast({
         title: "Document verwijderd",
         description: "Het document is succesvol verwijderd.",
@@ -96,6 +88,12 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
       });
     },
   });
+
+  const handleAddNote = () => {
+    if (newNote.trim()) {
+      createNoteMutation.mutate(newNote.trim());
+    }
+  };
 
   const handleDocumentView = (document: any) => {
     setSelectedDocument(document);
@@ -117,103 +115,85 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   };
 
   const getStatusBadge = (status: string, type: string) => {
-    if (type === 'candidate') {
-      switch (status) {
-        case 'active':
-          return <Badge className="status-active">Actief</Badge>;
-        case 'placed':
-          return <Badge className="status-placed">Geplaatst</Badge>;
-        case 'inactive':
-          return <Badge className="status-inactive">Inactief</Badge>;
-        default:
-          return <Badge variant="secondary">{status}</Badge>;
+    const statusConfig = {
+      candidate: {
+        active: { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400', label: 'Actief' },
+        inactive: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400', label: 'Inactief' },
+        placed: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400', label: 'Geplaatst' }
+      },
+      trajectory: {
+        interview: { color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400', label: 'Interview' },
+        selected: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400', label: 'Geselecteerd' },
+        placed: { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400', label: 'Geplaatst' },
+        rejected: { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400', label: 'Afgewezen' }
       }
-    } else if (type === 'trajectory') {
-      switch (status) {
-        case 'interview':
-          return <Badge className="status-interview">In Gesprek</Badge>;
-        case 'proposed':
-          return <Badge className="status-proposed">Voorgesteld</Badge>;
-        case 'placed':
-          return <Badge className="status-placed">Geplaatst</Badge>;
-        default:
-          return <Badge variant="secondary">{status}</Badge>;
-      }
-    }
-    return <Badge variant="secondary">{status}</Badge>;
-  };
-
-  const handleAddNote = () => {
-    if (!newNote.trim()) return;
-    createNoteMutation.mutate(newNote);
+    };
+    
+    const config = statusConfig[type as keyof typeof statusConfig]?.[status as keyof any] || 
+                  { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400', label: status };
+    
+    return (
+      <Badge className={config.color}>
+        {config.label}
+      </Badge>
+    );
   };
 
   const renderInformationTab = () => {
     if (entityType === 'candidate') {
       const candidate = entity as CandidateWithRelations;
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Persoonlijke Gegevens</h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Beroep</Label>
-                <Input value={candidate.description || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Volledige Naam</Label>
-                <Input value={candidate.name} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Telefoon</Label>
-                <Input value={candidate.phone || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">E-mail</Label>
-                <Input value={candidate.email || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Woonplaats</Label>
-                <Input value={candidate.city || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Regio</Label>
-                <Input value={candidate.region || ''} readOnly className="mt-1" />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Naam</Label>
+              <p className="text-base font-medium text-gray-900 dark:text-white mt-1">{candidate.name}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">E-mail</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{candidate.email || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Telefoon</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{candidate.phone || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Leeftijd</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{candidate.age || 'Niet opgegeven'}</p>
+            </div>
+            <div className="sm:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Beroep</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{candidate.profession || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Regio</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{candidate.region || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</Label>
+              <div className="mt-1">
+                {getStatusBadge(candidate.status || 'active', 'candidate')}
               </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Professionele Informatie</h3>
-            <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</Label>
-                <div className="mt-1">
-                  {getStatusBadge(candidate.status || 'active', 'candidate')}
-                </div>
+            <div className="sm:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Rijbewijzen</Label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {candidate.drivingLicenses && candidate.drivingLicenses.length > 0 ? (
+                  candidate.drivingLicenses.map((license, index) => (
+                    <Badge key={index} className="driving-license-badge">
+                      {license}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Geen rijbewijzen opgegeven</p>
+                )}
               </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Fase</Label>
-                <Input value={candidate.phase || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rijbewijs</Label>
-                <div className="flex flex-wrap gap-2">
-                  {candidate.drivingLicenses && candidate.drivingLicenses.length > 0 ? (
-                    candidate.drivingLicenses.map((license) => (
-                      <Badge key={license} variant="secondary" className="font-mono">
-                        {license}
-                      </Badge>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Geen rijbewijs opgegeven</p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Marketing Bron</Label>
-                <Input value={candidate.marketing || ''} readOnly className="mt-1" />
-              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Datum toegevoegd</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">
+                {candidate.dateAdded ? format(new Date(candidate.dateAdded), 'dd MMMM yyyy', { locale: nl }) : 'Onbekend'}
+              </p>
             </div>
           </div>
         </div>
@@ -221,81 +201,63 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     } else if (entityType === 'trajectory') {
       const trajectory = entity as TrajectoryWithRelations;
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Trajectinformatie</h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Functie</Label>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.jobTitle || 'Niet opgegeven'}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</Label>
-                <div className="mt-1">
-                  {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tarief</Label>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.hourlyRate || 'Niet opgegeven'}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Startdatum</Label>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">
-                  {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd-MM-yyyy') : 'Niet opgegeven'}
-                </p>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Functietitel</Label>
+              <p className="text-base font-medium text-gray-900 dark:text-white mt-1">{trajectory.jobTitle}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</Label>
+              <div className="mt-1">
+                {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
               </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Betrokken partijen</h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Kandidaat</Label>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.candidate?.name || 'Niet gekoppeld'}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Opdrachtgever</Label>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{trajectory.client?.name || 'Niet gekoppeld'}</p>
-              </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Kandidaat</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{trajectory.candidate?.name || 'Onbekend'}</p>
             </div>
-          </div>
-
-          <div className="col-span-full mt-4 sm:mt-8">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Opmerkingen</Label>
-            <Textarea
-              value=""
-              readOnly
-              rows={3}
-              className="resize-none text-sm"
-            />
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Opdrachtgever</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{trajectory.client?.name || 'Onbekend'}</p>
+            </div>
+            <div className="sm:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Startdatum</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">
+                {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd MMMM yyyy', { locale: nl }) : 'Niet opgegeven'}
+              </p>
+            </div>
           </div>
         </div>
       );
     } else {
       const client = entity as ClientWithRelations;
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Bedrijfsinformatie</h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Bedrijfsnaam</Label>
-                <Input value={client.name} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Contactpersoon</Label>
-                <Input value={client.contactPerson || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Locatie</Label>
-                <Input value={client.location || ''} readOnly className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Soort Werkzaamheden</Label>
-                <Input value={client.workType || ''} readOnly className="mt-1" />
-              </div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Naam</Label>
+              <p className="text-base font-medium text-gray-900 dark:text-white mt-1">{client.name}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Contactpersoon</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{client.contactPerson || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">E-mail</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{client.email || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Telefoon</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{client.phone || 'Niet opgegeven'}</p>
+            </div>
+            <div className="sm:col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Adres</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{client.address || 'Niet opgegeven'}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Type werk</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">{client.workType || 'Algemeen'}</p>
             </div>
           </div>
         </div>
@@ -304,279 +266,226 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-full sm:h-5/6 flex flex-col">
-        {/* Modal Header */}
-        <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
-            <Avatar className="w-10 h-10 sm:w-16 sm:h-16 flex-shrink-0">
-              <AvatarFallback className="bg-gray-200 text-gray-600 text-xl">
-                {getInitials(
-                  entityType === 'candidate' ? (entity as CandidateWithRelations).name :
-                  entityType === 'trajectory' ? (entity as TrajectoryWithRelations).jobTitle || 'T' :
-                  (entity as ClientWithRelations).name
-                )}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white truncate">
-                {entityType === 'candidate' ? (entity as CandidateWithRelations).name :
-                 entityType === 'trajectory' ? `${(entity as TrajectoryWithRelations).jobTitle} - ${(entity as TrajectoryWithRelations).client?.name}` :
-                 (entity as ClientWithRelations).name}
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
-                {entityType === 'candidate' ? 
-                  `${(entity as CandidateWithRelations).city}, ${(entity as CandidateWithRelations).region} • ${(entity as CandidateWithRelations).phone}` :
-                 entityType === 'trajectory' ?
-                  `Startdatum: ${(entity as TrajectoryWithRelations).startDate ? format(new Date((entity as TrajectoryWithRelations).startDate!), 'dd MMM yyyy', { locale: nl }) : 'Onbekend'}` :
-                  `${(entity as ClientWithRelations).location} • ${(entity as ClientWithRelations).contactPerson}`
-                }
-              </p>
-              <div className="flex items-center mt-2 space-x-2">
-                {entityType === 'candidate' ? (
-                  <>
-                    {getStatusBadge((entity as CandidateWithRelations).status || 'active', 'candidate')}
-                    {(entity as CandidateWithRelations).drivingLicenses?.map((license) => (
-                      <Badge key={license} className="driving-license-badge">
-                        {license}
-                      </Badge>
-                    ))}
-                  </>
-                ) : entityType === 'trajectory' ? (
-                  getStatusBadge((entity as TrajectoryWithRelations).status || 'interview', 'trajectory')
-                ) : (
-                  <Badge variant="secondary">{(entity as ClientWithRelations).workType || 'Algemeen'}</Badge>
-                )}
+    <>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
+          {/* Modal Header */}
+          <div className="flex items-start justify-between p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="flex items-start space-x-3 sm:space-x-4 flex-1 min-w-0">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                <span className="text-lg sm:text-xl font-bold">
+                  {entityType === 'candidate' 
+                    ? getInitials((entity as CandidateWithRelations).name)
+                    : entityType === 'trajectory'
+                    ? 'T'
+                    : getInitials((entity as ClientWithRelations).name)
+                  }
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1 truncate">
+                  {entityType === 'candidate' 
+                    ? (entity as CandidateWithRelations).name
+                    : entityType === 'trajectory'
+                    ? (entity as TrajectoryWithRelations).jobTitle
+                    : (entity as ClientWithRelations).name
+                  }
+                </h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  {entityType === 'candidate' ? (
+                    <>
+                      {getStatusBadge((entity as CandidateWithRelations).status || 'active', 'candidate')}
+                      {(entity as CandidateWithRelations).drivingLicenses?.map((license, index) => (
+                        <Badge key={index} className="driving-license-badge">
+                          {license}
+                        </Badge>
+                      ))}
+                    </>
+                  ) : entityType === 'trajectory' ? (
+                    getStatusBadge((entity as TrajectoryWithRelations).status || 'interview', 'trajectory')
+                  ) : (
+                    <Badge variant="secondary">{(entity as ClientWithRelations).workType || 'Algemeen'}</Badge>
+                  )}
+                </div>
               </div>
             </div>
+            <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
+              <Button
+                className="bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm px-2 sm:px-4"
+                onClick={onEdit}
+                size="sm"
+              >
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Bewerken</span>
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
-            <Button
-              className="bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm px-2 sm:px-4"
-              onClick={onEdit}
-              size="sm"
-            >
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Bewerken</span>
-            </Button>
-          </div>
-        </div>
 
-        {/* Modal Content */}
-        <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
-            {/* Tab Navigation */}
-            <div className="w-full sm:w-64 bg-gray-50 dark:bg-gray-900 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 p-2 sm:p-4 overflow-x-auto sm:overflow-x-visible">
-              <TabsList className="flex sm:flex-col h-auto space-x-1 sm:space-x-0 sm:space-y-1 bg-transparent w-full overflow-x-auto">
-                <TabsTrigger 
-                  value="information" 
-                  className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
-                >
-                  Info
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="notes" 
-                  className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
-                >
-                  Notities
-                  <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
-                    {notes.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="documents" 
-                  className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
-                >
-                  Docs
-                  <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
-                    {documents.length}
-                  </Badge>
-                </TabsTrigger>
-                {entityType === 'candidate' && (
+          {/* Modal Content */}
+          <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
+              {/* Tab Navigation */}
+              <div className="w-full sm:w-64 bg-gray-50 dark:bg-gray-900 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 p-2 sm:p-4 overflow-x-auto sm:overflow-x-visible">
+                <TabsList className="flex sm:flex-col h-auto space-x-1 sm:space-x-0 sm:space-y-1 bg-transparent w-full overflow-x-auto">
                   <TabsTrigger 
-                    value="trajectories" 
+                    value="information" 
                     className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
                   >
-                    Trajec
+                    Info
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="notes" 
+                    className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
+                  >
+                    Notities
                     <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
-                      {(entity as CandidateWithRelations).trajectories?.length || 0}
+                      {notes.length}
                     </Badge>
                   </TabsTrigger>
-                )}
-              </TabsList>
-            </div>
-
-            {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-6">
-              <TabsContent value="information" className="mt-0">
-                {renderInformationTab()}
-              </TabsContent>
-
-              <TabsContent value="notes" className="mt-0 space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Notities</h3>
-                </div>
-
-                {/* Add Note Form */}
-                <Card>
-                  <CardContent className="p-4">
-                    <Textarea
-                      placeholder="Voeg een notitie toe..."
-                      value={newNote}
-                      onChange={(e) => setNewNote(e.target.value)}
-                      rows={3}
-                      className="resize-none mb-3"
-                    />
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={handleAddNote}
-                        disabled={!newNote.trim() || createNoteMutation.isPending}
-                        className="bg-primary hover:bg-primary-hover text-white"
-                      >
-                        {createNoteMutation.isPending ? 'Opslaan...' : 'Opslaan'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Notes List */}
-                <div className="space-y-4">
-                  {notes.length === 0 ? (
-                    <Card>
-                      <CardContent className="p-8 text-center">
-                        <p className="text-gray-500 dark:text-gray-400">Nog geen notities toegevoegd.</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    notes.map((note: any) => (
-                      <Card key={note.id}>
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                Gebruiker
-                              </span>
-                              <span className="text-sm text-gray-500">•</span>
-                              <span className="text-sm text-gray-500">
-                                {note.createdAt ? format(new Date(note.createdAt), 'dd MMM yyyy \'om\' HH:mm', { locale: nl }) : 'Onbekend'}
-                              </span>
-                            </div>
-                          </div>
-                          <p className="text-gray-700 dark:text-gray-300">{note.content}</p>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="documents" className="mt-0 space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Documenten</h3>
-                  <Button 
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => setShowUploadForm(!showUploadForm)}
+                  <TabsTrigger 
+                    value="documents" 
+                    className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
                   >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Document uploaden
-                  </Button>
-                </div>
-
-                {/* Document Upload Component - Show/Hide */}
-                {showUploadForm && (
-                  <DocumentUpload 
-                    entityType={entityType}
-                    entityId={entity.id}
-                    onUploadComplete={handleUploadComplete}
-                  />
-                )}
-
-                {/* Documents List */}
-                <div className="space-y-3">
-                  {documents.length === 0 ? (
-                    <Card>
-                      <CardContent className="p-8 text-center">
-                        <p className="text-gray-500 dark:text-gray-400">Nog geen documenten geüpload.</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    documents.map((document: any) => (
-                      <Card key={document.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center text-white">
-                                <FileText className="w-5 h-5" />
-                              </div>
-                              <div className="flex-1 cursor-pointer" onClick={() => handleDocumentView(document)}>
-                                <p className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">{document.filename}</p>
-                                <p className="text-sm text-gray-500">
-                                  Geüpload op {document.uploadedAt ? format(new Date(document.uploadedAt), 'dd MMM yyyy', { locale: nl }) : 'Onbekend'}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Button variant="ghost" size="sm" onClick={() => handleDocumentView(document)}>
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => deleteDocumentMutation.mutate(document.id)}
-                                disabled={deleteDocumentMutation.isPending}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
+                    Docs
+                    <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
+                      {documents.length}
+                    </Badge>
+                  </TabsTrigger>
+                  {entityType === 'candidate' && (
+                    <TabsTrigger 
+                      value="trajectories" 
+                      className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
+                    >
+                      Trajec
+                      <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
+                        {(entity as CandidateWithRelations).trajectories?.length || 0}
+                      </Badge>
+                    </TabsTrigger>
                   )}
-                </div>
-              </TabsContent>
+                </TabsList>
+              </div>
 
-              {entityType === 'candidate' && (
-                <TabsContent value="trajectories" className="mt-0 space-y-6">
+              {/* Tab Content */}
+              <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+                <TabsContent value="information" className="mt-0">
+                  {renderInformationTab()}
+                </TabsContent>
+
+                <TabsContent value="notes" className="mt-0 space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Trajecten</h3>
-                    <Button className="bg-primary hover:bg-primary-hover text-white">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Nieuw Traject
-                    </Button>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Notities</h3>
                   </div>
 
+                  {/* Add Note Form */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <Textarea
+                        placeholder="Voeg een notitie toe..."
+                        value={newNote}
+                        onChange={(e) => setNewNote(e.target.value)}
+                        rows={3}
+                        className="resize-none mb-3"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={handleAddNote}
+                          disabled={!newNote.trim() || createNoteMutation.isPending}
+                          className="bg-primary hover:bg-primary-hover text-white"
+                        >
+                          {createNoteMutation.isPending ? 'Opslaan...' : 'Opslaan'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Notes List */}
                   <div className="space-y-4">
-                    {(entity as CandidateWithRelations).trajectories?.length === 0 ? (
+                    {notes.length === 0 ? (
                       <Card>
                         <CardContent className="p-8 text-center">
-                          <p className="text-gray-500 dark:text-gray-400">Nog geen trajecten gekoppeld.</p>
+                          <p className="text-gray-500 dark:text-gray-400">Nog geen notities toegevoegd.</p>
                         </CardContent>
                       </Card>
                     ) : (
-                      (entity as CandidateWithRelations).trajectories?.map((trajectory) => (
-                        <Card key={trajectory.id}>
-                          <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                              <div>
-                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                  {trajectory.jobTitle || 'Onbekende functie'}
-                                </h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  Gestart op {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl }) : 'Onbekende datum'}
-                                </p>
+                      notes.map((note: any) => (
+                        <Card key={note.id}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                  Gebruiker
+                                </span>
+                                <span className="text-sm text-gray-500">•</span>
+                                <span className="text-sm text-gray-500">
+                                  {note.createdAt ? format(new Date(note.createdAt), 'dd MMM yyyy \'om\' HH:mm', { locale: nl }) : 'Onbekend'}
+                                </span>
                               </div>
-                              {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-xs font-medium text-gray-500 dark:text-gray-400">TARIEF</Label>
-                                <p className="text-sm text-gray-900 dark:text-white">{trajectory.hourlyRate || 'Niet opgegeven'}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{note.content}</p>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="documents" className="mt-0 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Documenten</h3>
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setShowUploadForm(!showUploadForm)}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Document uploaden
+                    </Button>
+                  </div>
+
+                  {/* Document Upload Component - Show/Hide */}
+                  {showUploadForm && (
+                    <DocumentUpload 
+                      entityType={entityType}
+                      entityId={entity.id}
+                      onUploadComplete={handleUploadComplete}
+                    />
+                  )}
+
+                  {/* Documents List */}
+                  <div className="space-y-3">
+                    {documents.length === 0 ? (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <p className="text-gray-500 dark:text-gray-400">Nog geen documenten geüpload.</p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      documents.map((document: any) => (
+                        <Card key={document.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center text-white">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 cursor-pointer" onClick={() => handleDocumentView(document)}>
+                                  <p className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">{document.filename}</p>
+                                  <p className="text-sm text-gray-500">
+                                    Geüpload op {document.uploadedAt ? format(new Date(document.uploadedAt), 'dd MMM yyyy', { locale: nl }) : 'Onbekend'}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <Label className="text-xs font-medium text-gray-500 dark:text-gray-400">OPMERKINGEN</Label>
-                                <p className="text-sm text-gray-900 dark:text-white">Geen opmerkingen</p>
+                              <div className="flex items-center space-x-2">
+                                <Button variant="ghost" size="sm" onClick={() => handleDocumentView(document)}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => deleteDocumentMutation.mutate(document.id)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
                               </div>
                             </div>
                           </CardContent>
@@ -585,18 +494,68 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                     )}
                   </div>
                 </TabsContent>
-              )}
-            </div>
-          </Tabs>
+
+                {entityType === 'candidate' && (
+                  <TabsContent value="trajectories" className="mt-0 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Trajecten</h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      {(entity as CandidateWithRelations).trajectories?.length === 0 || !(entity as CandidateWithRelations).trajectories ? (
+                        <Card>
+                          <CardContent className="p-8 text-center">
+                            <p className="text-gray-500 dark:text-gray-400">Nog geen trajecten toegevoegd.</p>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        (entity as CandidateWithRelations).trajectories?.map((trajectory: any) => (
+                          <Card key={trajectory.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900 dark:text-white">{trajectory.jobTitle}</p>
+                                  <p className="text-sm text-gray-500">
+                                    {trajectory.client?.name} • {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl }) : 'Geen datum'}
+                                  </p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+                  </TabsContent>
+                )}
+              </div>
+            </Tabs>
+          </div>
+
+          {/* Close button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
       {/* Document Viewer Modal */}
-      <DocumentViewer
-        document={selectedDocument}
-        isOpen={isDocumentViewerOpen}
-        onClose={() => setIsDocumentViewerOpen(false)}
-      />
-    </div>
+      {isDocumentViewerOpen && selectedDocument && (
+        <DocumentViewer
+          document={selectedDocument}
+          onClose={() => {
+            setIsDocumentViewerOpen(false);
+            setSelectedDocument(null);
+          }}
+        />
+      )}
+    </>
   );
 }
