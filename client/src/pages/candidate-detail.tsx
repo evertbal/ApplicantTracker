@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn, Route, Users, Calendar, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,13 @@ import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
+import { 
+  formatTrajectoryTitle, 
+  formatTrajectoryDate, 
+  formatTrajectoryStatus, 
+  getTrajectoryStatusColor,
+  formatHourlyRate 
+} from "@/lib/trajectory-formatters";
 
 export default function CandidateDetail() {
   const { id } = useParams();
@@ -51,6 +58,12 @@ export default function CandidateDetail() {
   // Fetch documents
   const { data: documents = [] } = useQuery<Document[]>({
     queryKey: [`/api/documents/candidate/${id}`],
+    enabled: !!id,
+  });
+
+  // Fetch candidate trajectories
+  const { data: candidateTrajectories = [], isLoading: trajectoriesLoading } = useQuery({
+    queryKey: [`/api/trajectories/candidate/${id}`],
     enabled: !!id,
   });
 
@@ -368,12 +381,15 @@ export default function CandidateDetail() {
           <Tabs defaultValue="notes" className="w-full">
             <div className="relative">
               <div className="overflow-x-auto">
-                <TabsList className="inline-flex w-auto min-w-full md:grid md:w-full md:grid-cols-2">
+                <TabsList className="inline-flex w-auto min-w-full md:grid md:w-full md:grid-cols-3">
                   <TabsTrigger value="notes" className="whitespace-nowrap flex-shrink-0">
                     Notities ({notes.length})
                   </TabsTrigger>
                   <TabsTrigger value="documents" className="whitespace-nowrap flex-shrink-0">
                     Documenten ({documents.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="trajectories" className="whitespace-nowrap flex-shrink-0">
+                    Trajecten ({(candidateTrajectories as any[]).length})
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -553,6 +569,88 @@ export default function CandidateDetail() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="trajectories" className="mt-6">
+              <div className="space-y-4">
+                {trajectoriesLoading ? (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <p className="text-gray-500">Trajecten laden...</p>
+                    </CardContent>
+                  </Card>
+                ) : (candidateTrajectories as any[]).length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <Route className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 font-medium">Geen trajecten gevonden</p>
+                      <p className="text-sm text-gray-400 mt-1">Deze kandidaat heeft nog geen trajecten</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  candidateTrajectories.map((trajectory: any) => (
+                    <Card key={trajectory.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500"
+                          onClick={() => window.open(`/trajectories?id=${trajectory.id}`, '_blank')}>
+                      <CardContent className="p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                          <div className="flex-1 space-y-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                  {trajectory.jobTitle || "Onbekende functie"}
+                                </h3>
+                                <div className="flex items-center text-gray-600 mb-3">
+                                  <Users className="h-5 w-5 mr-2 text-blue-600" />
+                                  <span className="font-medium">
+                                    {trajectory.client?.name || "Onbekende opdrachtgever"}
+                                  </span>
+                                </div>
+                              </div>
+                              <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white px-3 py-1 text-sm font-medium`}>
+                                {formatTrajectoryStatus(trajectory.status)}
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                              <div className="flex items-center text-gray-600">
+                                <Calendar className="h-5 w-5 mr-3 text-green-600" />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Startdatum</p>
+                                  <p className="text-sm">{formatTrajectoryDate(trajectory.startDate)}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center text-gray-600">
+                                <Briefcase className="h-5 w-5 mr-3 text-purple-600" />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Uurtarief</p>
+                                  <p className="text-sm">{formatHourlyRate(trajectory.hourlyRate)}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center text-gray-600">
+                                <Route className="h-5 w-5 mr-3 text-orange-600" />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Traject ID</p>
+                                  <p className="text-sm">#{trajectory.id}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {trajectory.description && (
+                              <div className="mt-4 pt-4 border-t border-gray-100">
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                  {trajectory.description}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </div>
