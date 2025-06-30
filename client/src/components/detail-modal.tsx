@@ -464,36 +464,39 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                       </Card>
                     ) : (
                       documents.map((document: any) => (
-                        <Card key={document.id} className="hover:shadow-md transition-shadow">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center text-white">
-                                  <FileText className="w-5 h-5" />
-                                </div>
-                                <div className="flex-1 cursor-pointer" onClick={() => handleDocumentView(document)}>
-                                  <p className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">{document.filename}</p>
-                                  <p className="text-sm text-gray-500">
-                                    Geüpload op {document.uploadedAt ? format(new Date(document.uploadedAt), 'dd MMM yyyy', { locale: nl }) : 'Onbekend'}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Button variant="ghost" size="sm" onClick={() => handleDocumentView(document)}>
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  onClick={() => deleteDocumentMutation.mutate(document.id)}
-                                  className="text-red-500 hover:text-red-700"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
+                        <div
+                          key={document.id}
+                          className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <FileText className="w-5 h-5 text-gray-400" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {document.filename}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {document.uploadedAt ? format(new Date(document.uploadedAt), 'dd MMM yyyy', { locale: nl }) : 'Onbekend'}
+                              </p>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(document.storageUrl, "_blank")}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteDocumentMutation.mutate(document.id)}
+                              disabled={deleteDocumentMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
                       ))
                     )}
                   </div>

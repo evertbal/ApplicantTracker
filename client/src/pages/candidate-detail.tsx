@@ -528,8 +528,8 @@ export default function CandidateDetail() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                        Geen documenten gevonden
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Nog geen documenten geüpload.
                       </p>
                     )}
                   </div>

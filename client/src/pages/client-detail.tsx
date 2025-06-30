@@ -667,48 +667,49 @@ export default function ClientDetail() {
                       />
                     </div>
                   )}
-                  {documents.length > 0 ? (
-                    <div className="space-y-4">
-                      {documents.map((document) => (
-                        <div key={document.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <FileText className="w-5 h-5 text-gray-400" />
-                              <div>
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                  {document.filename}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  Toegevoegd: {formatDate(document.uploadedAt)}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => window.open(document.storageUrl, '_blank')}
-                              >
-                                <Download className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteDocument(document.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                  <div className="space-y-4">
+                    {documents.length > 0 ? (
+                      documents.map((document: Document) => (
+                        <div
+                          key={document.id}
+                          className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <FileText className="w-5 h-5 text-gray-400" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {document.filename}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {formatDate(document.uploadedAt)}
+                              </p>
                             </div>
                           </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(document.storageUrl, "_blank")}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteDocumentMutation.mutate(document.id)}
+                              disabled={deleteDocumentMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Geen documenten gevonden.
-                    </p>
-                  )}
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Nog geen documenten geüpload.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
