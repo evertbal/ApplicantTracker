@@ -17,6 +17,8 @@ import { insertAdminUserSchema, upsertUserSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import * as XLSX from "xlsx";
+import fs from "fs";
+import path from "path";
 import { 
   insertCandidateSchema, 
   insertClientSchema,
@@ -1295,19 +1297,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const uniqueFilename = `${timestamp}_${sanitizedName}`;
       
       // Save file to uploads directory
-      const fs = require('fs').promises;
-      const path = require('path');
       const uploadDir = path.join(process.cwd(), 'uploads');
       
       // Ensure uploads directory exists
       try {
-        await fs.access(uploadDir);
+        await fs.promises.access(uploadDir);
       } catch {
-        await fs.mkdir(uploadDir, { recursive: true });
+        await fs.promises.mkdir(uploadDir, { recursive: true });
       }
       
       const filePath = path.join(uploadDir, uniqueFilename);
-      await fs.writeFile(filePath, req.file.buffer);
+      await fs.promises.writeFile(filePath, req.file.buffer);
 
       // Save document metadata to database
       const userId = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'system';
