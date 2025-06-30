@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
 import DocumentUpload from "@/components/document-upload";
+import DocumentViewer from "@/components/document-viewer";
 
 export default function CandidateDetail() {
   const { id } = useParams();
@@ -25,6 +26,8 @@ export default function CandidateDetail() {
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
 
   // Fetch candidate data
   const { data: candidate, isLoading } = useQuery<CandidateWithRelations>({
@@ -115,6 +118,11 @@ export default function CandidateDetail() {
 
   const handleBack = () => {
     setLocation("/");
+  };
+
+  const handleDocumentView = (document: Document) => {
+    setSelectedDocument(document);
+    setIsDocumentViewerOpen(true);
   };
 
   const handleAddNote = () => {
@@ -512,7 +520,16 @@ export default function CandidateDetail() {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => handleDocumentView(document)}
+                              title="Document bekijken"
+                            >
+                              <ZoomIn className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => window.open(document.storageUrl, "_blank")}
+                              title="Document downloaden"
                             >
                               <Download className="w-4 h-4" />
                             </Button>
@@ -521,6 +538,7 @@ export default function CandidateDetail() {
                               size="sm"
                               onClick={() => deleteDocumentMutation.mutate(document.id)}
                               disabled={deleteDocumentMutation.isPending}
+                              title="Document verwijderen"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -548,6 +566,18 @@ export default function CandidateDetail() {
           onSuccess={() => {
             setShowEditForm(false);
             queryClient.invalidateQueries({ queryKey: ["/api/candidates", id] });
+          }}
+        />
+      )}
+
+      {/* Document Viewer Modal */}
+      {selectedDocument && (
+        <DocumentViewer
+          document={selectedDocument}
+          isOpen={isDocumentViewerOpen}
+          onClose={() => {
+            setIsDocumentViewerOpen(false);
+            setSelectedDocument(null);
           }}
         />
       )}
