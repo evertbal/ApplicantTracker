@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Search, Plus, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export default function TrajectoriesView() {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const { data: trajectories = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/trajectories'],
@@ -85,6 +87,10 @@ export default function TrajectoriesView() {
   const handleNewFormSuccess = () => {
     refetch();
     setIsNewTrajectoryModalOpen(false);
+  };
+
+  const handleTrajectoryView = (trajectory: TrajectoryWithRelations) => {
+    setLocation(`/trajectory/${trajectory.id}`);
   };
 
   return (
@@ -201,7 +207,7 @@ export default function TrajectoriesView() {
           <CompactList
             items={filteredTrajectories}
             type="trajectories"
-            onView={setSelectedTrajectory}
+            onView={handleTrajectoryView}
             onEdit={openEditForm}
             isLoading={isLoading}
           />

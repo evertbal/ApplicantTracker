@@ -445,10 +445,6 @@ export default function TrajectoryDetail() {
         <TrajectoryForm
           trajectory={trajectory}
           onClose={() => setShowEditForm(false)}
-          onSuccess={() => {
-            setShowEditForm(false);
-            queryClient.invalidateQueries({ queryKey: ["/api/trajectories", id] });
-          }}
         />
       )}
     </div>
