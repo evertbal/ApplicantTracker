@@ -240,45 +240,49 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
 
         <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
-            <div className="w-full sm:w-64 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-3 sm:p-4">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-1 gap-1 bg-transparent"
-                style={{ gridTemplateColumns: entityType === "client" ? "repeat(4, 1fr)" : "repeat(3, 1fr)" }}
-              >
+            <div className="w-full sm:w-72 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 p-3 sm:p-4">
+              <TabsList className="flex flex-col sm:flex-col w-full gap-2 bg-transparent h-auto space-y-1">
                 <TabsTrigger 
                   value="information" 
-                  className="justify-center sm:justify-start bg-white border border-gray-200 text-primary shadow-sm text-xs sm:text-sm"
+                  className="w-full justify-start bg-white border border-gray-200 text-primary shadow-sm text-sm py-3 px-4"
                 >
-                  <User className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Informatie</span>
+                  <User className="h-4 w-4 mr-2" />
+                  <span>Informatie</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="notes" 
-                  className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
+                  className="w-full justify-between text-gray-700 hover:bg-white hover:shadow-sm text-sm py-3 px-4"
                 >
-                  <StickyNote className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Notities</span>
-                  <Badge variant="secondary" className="ml-auto hidden sm:block">
+                  <div className="flex items-center">
+                    <StickyNote className="h-4 w-4 mr-2" />
+                    <span>Notities</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
                     {(notes as any[])?.length || 0}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="documents" 
-                  className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
+                  className="w-full justify-between text-gray-700 hover:bg-white hover:shadow-sm text-sm py-3 px-4"
                 >
-                  <FileText className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Documenten</span>
-                  <Badge variant="secondary" className="ml-auto hidden sm:block">
+                  <div className="flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    <span>Documenten</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
                     {(documents as any[])?.length || 0}
                   </Badge>
                 </TabsTrigger>
                 {entityType === "client" && (
                   <TabsTrigger 
                     value="contacts" 
-                    className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
+                    className="w-full justify-between text-gray-700 hover:bg-white hover:shadow-sm text-sm py-3 px-4"
                   >
-                    <Users className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Contactpersonen</span>
-                    <Badge variant="secondary" className="ml-auto hidden sm:block">
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2" />
+                      <span>Contactpersonen</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
                       {((entity as any)?.contacts as any[])?.length || 0}
                     </Badge>
                   </TabsTrigger>
@@ -286,11 +290,13 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                 {entityType === "candidate" && (
                   <TabsTrigger 
                     value="trajectories" 
-                    className="justify-center sm:justify-start text-gray-700 hover:bg-white hover:shadow-sm text-xs sm:text-sm"
+                    className="w-full justify-between text-gray-700 hover:bg-white hover:shadow-sm text-sm py-3 px-4"
                   >
-                    <Route className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Trajecten</span>
-                    <Badge variant="secondary" className="ml-auto hidden sm:block">
+                    <div className="flex items-center">
+                      <Route className="h-4 w-4 mr-2" />
+                      <span>Trajecten</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
                       {(entity as CandidateWithRelations).trajectories?.length || 0}
                     </Badge>
                   </TabsTrigger>
