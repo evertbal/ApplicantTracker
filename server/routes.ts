@@ -1263,8 +1263,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Documents routes - temporarily bypass auth for debugging
-  app.get("/api/documents/:entityType/:entityId", async (req, res) => {
+  // Documents routes with proper authentication
+  app.get("/api/documents/:entityType/:entityId", authenticateAny, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const documents = await storage.getDocuments(entityType, parseInt(entityId));
@@ -1275,8 +1275,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Document upload endpoint - temporarily bypass auth for debugging
-  app.post("/api/documents/upload", documentUpload.single('file'), async (req: any, res) => {
+  // Document upload endpoint with proper authentication
+  app.post("/api/documents/upload", authenticateAny, documentUpload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Geen bestand geüpload" });
@@ -1316,6 +1316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         entityId: parseInt(entityId),
         filename: originalName,
         storageUrl: `/uploads/${uniqueFilename}`,
+        uploadedBy: userId
       };
 
       const document = await storage.createDocument(documentData);
@@ -1326,7 +1327,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(document);
     } catch (error) {
       console.error("Error uploading document:", error);
-      res.status(500).json({ message: "Failed to upload document" });
+      res.status(500).json({ 
+        message: "Failed to upload document",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
@@ -1349,7 +1353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve uploaded files
-  app.get("/uploads/:filename", isAuthenticated, async (req, res) => {
+  app.get("/uploads/:filename", authenticateAny, async (req, res) => {
     try {
       const { filename } = req.params;
       const path = require('path');

@@ -26,15 +26,29 @@ export default function DocumentUpload({ entityType, entityId, onUploadComplete 
       formData.append('entityType', entityType);
       formData.append('entityId', entityId.toString());
 
+      const adminToken = localStorage.getItem('adminToken');
+      const headers: HeadersInit = {};
+      
+      if (adminToken) {
+        headers['Authorization'] = `Bearer ${adminToken}`;
+      }
+
       const response = await fetch('/api/documents/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Upload failed');
+        let errorMessage = 'Upload failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();

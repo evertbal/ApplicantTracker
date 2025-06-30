@@ -323,6 +323,12 @@ export const insertNoteSchema = createInsertSchema(notes).omit({
 export const insertDocumentSchema = createInsertSchema(documents).omit({
   id: true,
   uploadedAt: true,
+}).extend({
+  entityType: z.string(),
+  entityId: z.number(),
+  filename: z.string(),
+  storageUrl: z.string(),
+  uploadedBy: z.string().optional()
 });
 
 export const upsertUserSchema = createInsertSchema(users);

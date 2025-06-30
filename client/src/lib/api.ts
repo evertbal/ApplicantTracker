@@ -163,9 +163,16 @@ export const notesApi = {
 // Documents API
 export const documentsApi = {
   getByEntity: async (entityType: string, entityId: number) => {
+    const adminToken = localStorage.getItem('adminToken');
+    const headers: HeadersInit = {};
+    
+    if (adminToken) {
+      headers['Authorization'] = `Bearer ${adminToken}`;
+    }
+    
     const response = await fetch(`/api/documents/${entityType}/${entityId}`, { 
       credentials: 'include',
-      headers: getRequestHeaders()
+      headers
     });
     if (!response.ok) {
       throw new Error(`${response.status}: Failed to fetch documents`);
