@@ -15,6 +15,7 @@ import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
+import DetailModal from "@/components/DetailModal";
 import { 
   formatTrajectoryTitle, 
   formatTrajectoryDate, 
@@ -35,6 +36,8 @@ export default function CandidateDetail() {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
+  const [selectedTrajectory, setSelectedTrajectory] = useState<any>(null);
+  const [isTrajectoryModalOpen, setIsTrajectoryModalOpen] = useState(false);
 
   // Fetch candidate data
   const { data: candidate, isLoading } = useQuery<CandidateWithRelations>({
@@ -590,7 +593,10 @@ export default function CandidateDetail() {
                 ) : (
                   (candidateTrajectories as any[]).map((trajectory: any) => (
                     <Card key={trajectory.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500"
-                          onClick={() => window.open(`/trajectories?id=${trajectory.id}`, '_blank')}>
+                          onClick={() => {
+                            setSelectedTrajectory(trajectory);
+                            setIsTrajectoryModalOpen(true);
+                          }}>
                       <CardContent className="p-6">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                           <div className="flex-1 space-y-4">
@@ -606,7 +612,7 @@ export default function CandidateDetail() {
                                   </span>
                                 </div>
                               </div>
-                              <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white px-3 py-1 text-sm font-medium`}>
+                              <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white px-4 py-2 text-sm font-bold shadow-lg border-2 border-white`}>
                                 {formatTrajectoryStatus(trajectory.status)}
                               </Badge>
                             </div>
@@ -676,6 +682,19 @@ export default function CandidateDetail() {
           onClose={() => {
             setIsDocumentViewerOpen(false);
             setSelectedDocument(null);
+          }}
+        />
+      )}
+
+      {/* Trajectory Detail Modal */}
+      {selectedTrajectory && (
+        <DetailModal
+          entity={selectedTrajectory}
+          entityType="trajectory"
+          isOpen={isTrajectoryModalOpen}
+          onClose={() => {
+            setIsTrajectoryModalOpen(false);
+            setSelectedTrajectory(null);
           }}
         />
       )}
