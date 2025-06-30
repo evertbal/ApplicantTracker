@@ -1356,14 +1356,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/uploads/:filename", authenticateAny, async (req, res) => {
     try {
       const { filename } = req.params;
-      const path = require('path');
-      const fs = require('fs').promises;
       
       const filePath = path.join(process.cwd(), 'uploads', filename);
       
       // Check if file exists
       try {
-        await fs.access(filePath);
+        await fs.promises.access(filePath);
       } catch {
         return res.status(404).json({ message: "Bestand niet gevonden" });
       }

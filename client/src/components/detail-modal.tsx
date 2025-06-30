@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { X, Edit, Plus, Download, Trash2, Upload, CloudUpload, FileText, Eye, Paperclip } from "lucide-react";
+import { X, Edit, Plus, Download, Trash2, Upload, CloudUpload, FileText, Eye, Paperclip, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -485,7 +485,16 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => handleDocumentView(document)}
+                              title="Document bekijken"
+                            >
+                              <ZoomIn className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => window.open(document.storageUrl, "_blank")}
+                              title="Document downloaden"
                             >
                               <Download className="w-4 h-4" />
                             </Button>
@@ -494,6 +503,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                               size="sm"
                               onClick={() => deleteDocumentMutation.mutate(document.id)}
                               disabled={deleteDocumentMutation.isPending}
+                              title="Document verwijderen"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
