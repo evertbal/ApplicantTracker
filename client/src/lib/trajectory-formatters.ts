@@ -31,16 +31,16 @@ export const formatTrajectoryStatus = (status: string | null): string => {
 
 export const getTrajectoryStatusColor = (status: string | null): string => {
   const statusColors = {
-    interview: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-    proposed: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300", 
-    placed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-    active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-    completed: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
-    cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+    interview: "bg-blue-600",
+    proposed: "bg-yellow-600", 
+    placed: "bg-green-600",
+    active: "bg-green-600",
+    completed: "bg-gray-600",
+    cancelled: "bg-red-600",
+    pending: "bg-yellow-600"
   };
   
-  return statusColors[status?.toLowerCase() as keyof typeof statusColors] || "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+  return statusColors[status?.toLowerCase() as keyof typeof statusColors] || "bg-gray-600";
 };
 
 export const formatCandidateName = (trajectory: TrajectoryWithRelations): string => {

@@ -612,7 +612,7 @@ export default function CandidateDetail() {
                                   </span>
                                 </div>
                               </div>
-                              <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white px-4 py-2 text-sm font-bold shadow-lg border-2 border-white`}>
+                              <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white px-3 py-1 text-sm font-medium`}>
                                 {formatTrajectoryStatus(trajectory.status)}
                               </Badge>
                             </div>
