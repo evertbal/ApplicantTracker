@@ -133,6 +133,10 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 30, 2025 (Latest). Added zoom/view functionality to all document locations with ZoomIn icon buttons
+- June 30, 2025. Integrated DocumentViewer component across all three entity types (candidates, clients, trajectories)
+- June 30, 2025. Enhanced document upload with comprehensive debugging and multiple query invalidation patterns
+- June 30, 2025. Standardized document viewing patterns with consistent button layout: Zoom/View, Download, Delete
 - June 30, 2025. Completed document upload functionality for all three entity types with full database persistence
 - June 30, 2025. Fixed ES module import issues in upload route by replacing require() with proper import statements
 - June 30, 2025. Added uploaded_by column to documents table and updated schema for complete document tracking

@@ -53,8 +53,10 @@ export default function DocumentUpload({ entityType, entityId, onUploadComplete 
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(`Document upload success for ${entityType} ${entityId}:`, data);
       queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entityId}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/documents', entityType, entityId] });
       toast({
         title: "Document geüpload",
         description: "Het document is succesvol geüpload.",
