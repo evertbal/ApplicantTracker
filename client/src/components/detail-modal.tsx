@@ -101,8 +101,12 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   };
 
   const handleUploadComplete = () => {
-    queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
-    setShowUploadForm(false); // Close upload form after successful upload
+    refetchDocuments();
+    setShowUploadForm(false);
+    toast({
+      title: "Upload voltooid",
+      description: "Het document is succesvol geüpload.",
+    });
   };
 
   const getInitials = (name: string) => {
@@ -115,7 +119,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   };
 
   const getStatusBadge = (status: string, type: string) => {
-    const statusConfig = {
+    const statusConfig: any = {
       candidate: {
         active: { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400', label: 'Actief' },
         inactive: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400', label: 'Inactief' },
@@ -129,7 +133,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
       }
     };
     
-    const config = statusConfig[type as keyof typeof statusConfig]?.[status as keyof any] || 
+    const config = statusConfig[type]?.[status] || 
                   { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400', label: status };
     
     return (

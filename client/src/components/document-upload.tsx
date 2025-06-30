@@ -135,10 +135,14 @@ export default function DocumentUpload({ entityType, entityId, onUploadComplete 
   };
 
   const uploadFiles = async () => {
-    for (const file of selectedFiles) {
-      await uploadMutation.mutateAsync(file);
+    try {
+      for (const file of selectedFiles) {
+        await uploadMutation.mutateAsync(file);
+      }
+      setSelectedFiles([]);
+    } catch (error) {
+      console.error('Upload error:', error);
     }
-    setSelectedFiles([]);
   };
 
   const getFileIcon = (fileType: string) => {
