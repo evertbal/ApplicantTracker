@@ -17,7 +17,6 @@ import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
 import type { CandidateWithRelations, TrajectoryWithRelations, ClientWithRelations } from "@shared/schema";
 
