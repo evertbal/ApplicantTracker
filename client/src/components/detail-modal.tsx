@@ -101,6 +101,8 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   };
 
   const handleUploadComplete = () => {
+    // Invalidate queries to refresh document list
+    queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
     refetchDocuments();
     setShowUploadForm(false);
     toast({

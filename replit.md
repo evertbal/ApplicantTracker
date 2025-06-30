@@ -133,6 +133,13 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
+- June 30, 2025. Completed document upload functionality for all three entity types with full database persistence
+- June 30, 2025. Fixed ES module import issues in upload route by replacing require() with proper import statements
+- June 30, 2025. Added uploaded_by column to documents table and updated schema for complete document tracking
+- June 30, 2025. Standardized document upload and viewing patterns across candidates, clients, and trajectories
+- June 30, 2025. Implemented uniform document interface with green upload buttons and consistent viewing layout
+- June 30, 2025. Fixed trajectory upload functionality in DetailModal with proper query invalidation
+- June 30, 2025. Unified document display styling with FileText icons, timestamps, and Download/Delete actions
 - June 27, 2025. Fixed trajectory edit JSON parsing error by correcting HTTP method mismatch (PATCH → PUT)
 - June 27, 2025. Added proper error handling for non-JSON responses in trajectory form mutations
 - June 27, 2025. Fixed Select component runtime errors by removing empty string values from trajectory form dropdowns
