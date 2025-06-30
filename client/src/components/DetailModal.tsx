@@ -45,6 +45,7 @@ import {
   getTrajectorySubtitle
 } from "@/lib/trajectory-formatters";
 import ContactForm from "./contact-form";
+import DocumentUpload from "./document-upload";
 import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations, Note, Document, ClientContact } from "@shared/schema";
 
 interface DetailModalProps {
@@ -63,6 +64,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
   const [newNote, setNewNote] = useState("");
   const [showContactForm, setShowContactForm] = useState(false);
   const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   const { data: notes = [] } = useQuery({
     queryKey: [`/api/notes/${entityType}/${entity.id}`],
@@ -135,6 +137,16 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
         });
       }
     }
+  };
+
+  const handleUploadComplete = () => {
+    setShowUploadForm(false);
+    queryClient.invalidateQueries({ queryKey: [`/api/documents/${entityType}/${entity.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/documents', entityType, entity.id] });
+    toast({
+      title: "Upload voltooid",
+      description: "Het document is succesvol geüpload.",
+    });
   };
 
   const getEntityTitle = () => {
@@ -554,20 +566,26 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                 </div>
               </TabsContent>
 
-              <TabsContent value="documents" className="m-0">
-                <div className="flex items-center justify-between mb-6">
+              <TabsContent value="documents" className="m-0 space-y-6">
+                <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">Documenten</h3>
-                  <Button className="bg-primary hover:bg-primary-hover">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Document
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => setShowUploadForm(!showUploadForm)}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Document uploaden
                   </Button>
                 </div>
 
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-2">Sleep bestanden hierheen of klik om te uploaden</p>
-                  <p className="text-sm text-gray-500">PDF, DOC, DOCX, JPG, PNG (max 10MB)</p>
-                </div>
+                {/* Document Upload Component - Show/Hide */}
+                {showUploadForm && (
+                  <DocumentUpload 
+                    entityType={entityType}
+                    entityId={entity.id}
+                    onUploadComplete={handleUploadComplete}
+                  />
+                )}
 
                 <div className="space-y-3">
                   {(documents as any[])?.length === 0 ? (
@@ -587,7 +605,7 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                             <div>
                               <p className="font-medium text-gray-900">{document.filename}</p>
                               <p className="text-sm text-gray-500">
-                                Geüpload op {format(new Date(document.createdAt!), "d MMM yyyy", { locale: nl })}
+                                Geüpload op {format(new Date(document.uploadedAt || document.createdAt!), "d MMM yyyy", { locale: nl })}
                               </p>
                             </div>
                           </div>
