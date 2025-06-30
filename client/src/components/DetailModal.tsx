@@ -76,6 +76,11 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
     enabled: isOpen && activeTab === "documents",
   });
 
+  const { data: candidateTrajectories = [], isLoading: trajectoriesLoading } = useQuery({
+    queryKey: [`/api/trajectories/candidate/${entity.id}`],
+    enabled: isOpen && entityType === "candidate" && activeTab === "trajectories",
+  });
+
   const createNoteMutation = useMutation({
     mutationFn: async (content: string) => {
       const response = await apiRequest("POST", "/api/notes", {
@@ -285,6 +290,20 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                     {(documents as any[])?.length || 0}
                   </Badge>
                 </TabsTrigger>
+                {entityType === "candidate" && (
+                  <TabsTrigger 
+                    value="trajectories" 
+                    className="w-full justify-between text-gray-700 hover:bg-white hover:shadow-sm text-sm py-3 px-4"
+                  >
+                    <div className="flex items-center">
+                      <Route className="h-4 w-4 mr-2" />
+                      <span>Trajecten</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {(candidateTrajectories as any[])?.length || 0}
+                    </Badge>
+                  </TabsTrigger>
+                )}
                 {entityType === "client" && (
                   <TabsTrigger 
                     value="contacts" 
@@ -623,6 +642,71 @@ export default function DetailModal({ entity, entityType, isOpen, onClose, onEdi
                   )}
                 </div>
               </TabsContent>
+
+              {entityType === "candidate" && (
+                <TabsContent value="trajectories" className="m-0 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Trajecten van deze kandidaat</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    {trajectoriesLoading ? (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <p className="text-gray-500">Trajecten laden...</p>
+                        </CardContent>
+                      </Card>
+                    ) : (candidateTrajectories as any[])?.length === 0 ? (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <Route className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500 font-medium">Geen trajecten gevonden</p>
+                          <p className="text-sm text-gray-400 mt-1">Deze kandidaat heeft nog geen trajecten</p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      (candidateTrajectories as any[])?.map((trajectory: any) => (
+                        <Card key={trajectory.id} className="hover:shadow-md transition-shadow cursor-pointer"
+                              onClick={() => window.open(`/trajectories?id=${trajectory.id}`, '_blank')}>
+                          <CardContent className="p-4 md:p-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                              <div className="flex-1 space-y-3">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <h4 className="font-semibold text-gray-900 text-lg">{trajectory.jobTitle || "Onbekende functie"}</h4>
+                                    <div className="flex items-center text-gray-600 mt-1">
+                                      <Users className="h-4 w-4 mr-1" />
+                                      <span className="text-sm">{trajectory.client?.name || "Onbekende opdrachtgever"}</span>
+                                    </div>
+                                  </div>
+                                  <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white`}>
+                                    {formatTrajectoryStatus(trajectory.status)}
+                                  </Badge>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                                  <div className="flex items-center text-gray-600">
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    <span>{formatTrajectoryDate(trajectory.startDate)}</span>
+                                  </div>
+                                  <div className="flex items-center text-gray-600">
+                                    <Briefcase className="h-4 w-4 mr-2" />
+                                    <span>{formatHourlyRate(trajectory.hourlyRate)}</span>
+                                  </div>
+                                  <div className="flex items-center text-gray-600">
+                                    <Route className="h-4 w-4 mr-2" />
+                                    <span>ID: {trajectory.id}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+              )}
 
               {entityType === "client" && (
                 <TabsContent value="contacts" className="m-0">

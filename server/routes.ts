@@ -1180,6 +1180,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get trajectories for a specific candidate
+  app.get("/api/trajectories/candidate/:candidateId", authenticateAny, async (req, res) => {
+    try {
+      const candidateId = parseInt(req.params.candidateId);
+      const filters = { candidateId };
+      const trajectories = await storage.getTrajectories(filters);
+      
+      // Log audit
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.id || 'unknown';
+      await storage.logAudit("candidate", candidateId, "view_trajectories", {}, userId);
+      
+      res.json(trajectories);
+    } catch (error) {
+      console.error("Error fetching candidate trajectories:", error);
+      res.status(500).json({ message: "Failed to fetch candidate trajectories" });
+    }
+  });
+
   app.post("/api/trajectories", authenticateAny, async (req: any, res) => {
     try {
       const trajectoryData = insertTrajectorySchema.parse(req.body);

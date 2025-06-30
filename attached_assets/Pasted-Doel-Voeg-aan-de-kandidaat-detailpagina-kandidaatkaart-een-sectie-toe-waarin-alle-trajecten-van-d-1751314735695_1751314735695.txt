@@ -1,0 +1,60 @@
+Doel: Voeg aan de kandidaat detailpagina (kandidaatkaart) een sectie toe waarin alle trajecten van deze kandidaat overzichtelijk worden weergegeven.
+
+🔧 Functionaliteit:
+Plaats een nieuwe sectie “Trajecten van deze kandidaat” onder de bestaande kandidaat informatieblokken (bijvoorbeeld onder de tabbladen of in een nieuw tabblad, afhankelijk van UI-conventie).
+
+Haal bij het laden van de kandidaatkaart alle trajecten op waarin de huidige kandidaat betrokken is, inclusief de volgende gegevens:
+
+Opdrachtgever naam
+
+Functie
+
+Startdatum
+
+Status
+
+Uurtarief
+
+Toon trajecten als compacte kaarten of lijst-items met duidelijke scheiding (bijv. borders of achtergrondkleur) tussen trajecten.
+
+Toon de trajecten in chronologische volgorde (nieuwste bovenaan).
+
+🖥 UI/UX:
+Gebruik consistent layout- en component-styling met de rest van de app (bijv. zelfde kaartstijl als notities/documenten, subtiele schaduw, rounded-2xl, p-4 md:p-6 met Tailwind CSS).
+
+Voeg subtiele hover-state toe op trajectkaarten.
+
+Gebruik dezelfde icon set (bijv. lucide-react) voor visuele ondersteuning van labels zoals Opdrachtgever en Status.
+
+⚙ Backend:
+Zorg dat de backend API call alle trajecten van een kandidaat kan ophalen op basis van kandidaat ID (indien niet aanwezig, maak een nieuwe route).
+
+Gebruik bestaande authenticatie (JWT) en rolchecks zodat alleen gebruikers met de juiste rechten trajecten kunnen zien.
+
+✅ Extra:
+Maak het mogelijk op een trajectkaart te klikken om naar de traject detailpagina of bewerkmodal te gaan.
+
+Zorg voor loading states en foutmeldingen bij ophalen van trajecten.
+
+Log deze actie in de audit log (bijv. view candidate trajectory list).
+
+❌ Wat niet te doen:
+Voeg geen functionaliteit toe om vanuit deze lijst trajecten te bewerken of verwijderen (tenzij expliciet gevraagd).
+
+Wijzig geen bestaande flow voor aanmaken of bewerken van trajecten.
+
+Pas geen rol/rechtenbeheer of authenticatieconfiguratie aan.
+
+🎨 Design:
+Houd spacing, typografie en kleurconsistentie aan zoals beschreven in eerdere UI prompts (typografie nuance, spacing tussen secties, subtiele kleurgradaties en hover states).
+
+Maak component responsive en mobielvriendelijk (bijv. verticale stack op smalle schermen, grid op desktop).
+
+📝 Testcases:
+Kandidaat met meerdere trajecten → alle trajecten correct getoond.
+
+Kandidaat met 0 trajecten → lege state melding "Geen trajecten gevonden".
+
+Kandidaat met trajecten met incomplete data → fallback of placeholder tonen.
+
+Belangrijk: Houd rekening met de ATS architectuur (React 18 + TypeScript frontend, Node.js backend, PostgreSQL met Drizzle ORM) en bestaande patterns (useQuery via TanStack Query voor data ophalen, audit log voor logging).
