@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import ClientForm from "@/components/client-form";
 import ContactForm from "@/components/contact-form";
 import AgreementForm from "@/components/agreement-form";
 import DocumentUpload from "@/components/document-upload";
+import DocumentViewer from "@/components/document-viewer";
 
 export default function ClientDetail() {
   const { id } = useParams();
@@ -33,6 +34,8 @@ export default function ClientDetail() {
   const [newNote, setNewNote] = useState("");
   const [editingContact, setEditingContact] = useState<any>(null);
   const [editingAgreement, setEditingAgreement] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
 
   // Fetch client data
   const { data: client, isLoading } = useQuery<ClientWithRelations>({
@@ -181,6 +184,11 @@ export default function ClientDetail() {
     if (confirm("Weet je zeker dat je dit document wilt verwijderen?")) {
       deleteDocumentMutation.mutate(documentId);
     }
+  };
+
+  const handleDocumentView = (document: Document) => {
+    setSelectedDocument(document);
+    setIsDocumentViewerOpen(true);
   };
 
   const formatDate = (dateString: string | Date | null) => {
@@ -689,7 +697,16 @@ export default function ClientDetail() {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => handleDocumentView(document)}
+                              title="Document bekijken"
+                            >
+                              <ZoomIn className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => window.open(document.storageUrl, "_blank")}
+                              title="Document downloaden"
                             >
                               <Download className="w-4 h-4" />
                             </Button>
@@ -698,6 +715,7 @@ export default function ClientDetail() {
                               size="sm"
                               onClick={() => deleteDocumentMutation.mutate(document.id)}
                               disabled={deleteDocumentMutation.isPending}
+                              title="Document verwijderen"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -773,6 +791,18 @@ export default function ClientDetail() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Document Viewer Modal */}
+      {selectedDocument && (
+        <DocumentViewer
+          document={selectedDocument}
+          isOpen={isDocumentViewerOpen}
+          onClose={() => {
+            setIsDocumentViewerOpen(false);
+            setSelectedDocument(null);
+          }}
+        />
+      )}
     </div>
   );
 }
