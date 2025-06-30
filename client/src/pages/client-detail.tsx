@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import type { ClientWithRelations, Note, Document, ClientAgreement } from "@shar
 import ClientForm from "@/components/client-form";
 import ContactForm from "@/components/contact-form";
 import AgreementForm from "@/components/agreement-form";
+import DocumentUpload from "@/components/document-upload";
 
 export default function ClientDetail() {
   const { id } = useParams();
@@ -28,6 +29,7 @@ export default function ClientDetail() {
   const [isNewAgreementModalOpen, setIsNewAgreementModalOpen] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [editingContact, setEditingContact] = useState<any>(null);
   const [editingAgreement, setEditingAgreement] = useState<any>(null);
@@ -638,17 +640,33 @@ export default function ClientDetail() {
                 <CardHeader>
                   <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Documenten</CardTitle>
-                    <Button
-                      size="sm"
-                      onClick={() => setIsAddingDocument(true)}
-                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setShowUploadForm(!showUploadForm)}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Document Toevoegen
+                      <Upload className="w-4 h-4 mr-2" />
+                      Document uploaden
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {/* Document Upload Component - Show/Hide */}
+                  {showUploadForm && (
+                    <div className="mb-6">
+                      <DocumentUpload 
+                        entityType="client"
+                        entityId={parseInt(id!)}
+                        onUploadComplete={() => {
+                          setShowUploadForm(false);
+                          queryClient.invalidateQueries({ queryKey: [`/api/documents/client/${id}`] });
+                          toast({
+                            title: "Upload voltooid",
+                            description: "Het document is succesvol geüpload.",
+                          });
+                        }}
+                      />
+                    </div>
+                  )}
                   {documents.length > 0 ? (
                     <div className="space-y-4">
                       {documents.map((document) => (
