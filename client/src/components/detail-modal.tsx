@@ -554,6 +554,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
       {isDocumentViewerOpen && selectedDocument && (
         <DocumentViewer
           document={selectedDocument}
+          isOpen={isDocumentViewerOpen}
           onClose={() => {
             setIsDocumentViewerOpen(false);
             setSelectedDocument(null);
