@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
+import DocumentUpload from "@/components/document-upload";
 
 export default function CandidateDetail() {
   const { id } = useParams();
@@ -23,6 +24,7 @@ export default function CandidateDetail() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   // Fetch candidate data
   const { data: candidate, isLoading } = useQuery<CandidateWithRelations>({
@@ -460,9 +462,34 @@ export default function CandidateDetail() {
                 <CardHeader>
                   <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <CardTitle>Documenten</CardTitle>
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setShowUploadForm(!showUploadForm)}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Document uploaden
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {/* Document Upload Component - Show/Hide */}
+                  {showUploadForm && (
+                    <div className="mb-6">
+                      <DocumentUpload 
+                        entityType="candidate"
+                        entityId={parseInt(id!)}
+                        onUploadComplete={() => {
+                          setShowUploadForm(false);
+                          queryClient.invalidateQueries({ queryKey: [`/api/documents/candidate/${id}`] });
+                          toast({
+                            title: "Upload voltooid",
+                            description: "Het document is succesvol geüpload.",
+                          });
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   <div className="space-y-4">
                     {documents.length > 0 ? (
                       documents.map((document: Document) => (
