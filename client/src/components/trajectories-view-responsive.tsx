@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { Search, Plus, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import type { TrajectoryWithRelations } from "@shared/schema";
-
+import DetailModal from "./DetailModal";
 import NewTrajectoryModal from "./NewTrajectoryModal";
 import TrajectoryForm from "./trajectory-form";
 import { 
@@ -22,7 +21,7 @@ import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
   const [search, setSearch] = useState("");
-
+  const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [isNewTrajectoryModalOpen, setIsNewTrajectoryModalOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
@@ -31,7 +30,6 @@ export default function TrajectoriesView() {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
 
   const { data: trajectories = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/trajectories'],
@@ -87,10 +85,6 @@ export default function TrajectoriesView() {
   const handleNewFormSuccess = () => {
     refetch();
     setIsNewTrajectoryModalOpen(false);
-  };
-
-  const handleTrajectoryView = (trajectory: TrajectoryWithRelations) => {
-    setLocation(`/trajectory/${trajectory.id}`);
   };
 
   return (
@@ -207,14 +201,27 @@ export default function TrajectoriesView() {
           <CompactList
             items={filteredTrajectories}
             type="trajectories"
-            onView={handleTrajectoryView}
+            onView={setSelectedTrajectory}
             onEdit={openEditForm}
             isLoading={isLoading}
           />
         </div>
       </div>
 
-
+      {/* Detail Modal */}
+      {selectedTrajectory && (
+        <DetailModal
+          entity={selectedTrajectory}
+          entityType="trajectory"
+          isOpen={!!selectedTrajectory}
+          onClose={() => setSelectedTrajectory(null)}
+          onEdit={(trajectory) => {
+            setEditingTrajectory(trajectory);
+            setIsEditFormOpen(true);
+            setSelectedTrajectory(null);
+          }}
+        />
+      )}
 
       {/* New Trajectory Modal */}
       <NewTrajectoryModal

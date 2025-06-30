@@ -4,13 +4,12 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useCombinedAuth } from "@/hooks/useCombinedAuth";
-import Landing from "@/pages/Landing";
-import Dashboard from "@/pages/Dashboard";
+import Landing from "@/pages/landing";
+import Dashboard from "@/pages/dashboard";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import CandidateDetail from "@/pages/candidate-detail";
 import ClientDetail from "@/pages/client-detail";
-import TrajectoryDetail from "@/pages/trajectory-detail";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 
@@ -37,7 +36,6 @@ function Router() {
           <Route path="/candidates" component={Dashboard} />
           <Route path="/candidate/:id" component={CandidateDetail} />
           <Route path="/client/:id" component={ClientDetail} />
-          <Route path="/trajectory/:id" component={TrajectoryDetail} />
           <Route path="/trajectories" component={Dashboard} />
           <Route path="/clients" component={Dashboard} />
         </>
