@@ -9,7 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import type { TrajectoryWithRelations } from "@shared/schema";
-import DetailModal from "./DetailModal";
+
 import NewTrajectoryModal from "./NewTrajectoryModal";
 import TrajectoryForm from "./trajectory-form";
 import { 
@@ -22,7 +22,7 @@ import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
   const [search, setSearch] = useState("");
-  const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
+
   const [isNewTrajectoryModalOpen, setIsNewTrajectoryModalOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
@@ -214,20 +214,7 @@ export default function TrajectoriesView() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedTrajectory && (
-        <DetailModal
-          entity={selectedTrajectory}
-          entityType="trajectory"
-          isOpen={!!selectedTrajectory}
-          onClose={() => setSelectedTrajectory(null)}
-          onEdit={(trajectory) => {
-            setEditingTrajectory(trajectory);
-            setIsEditFormOpen(true);
-            setSelectedTrajectory(null);
-          }}
-        />
-      )}
+
 
       {/* New Trajectory Modal */}
       <NewTrajectoryModal

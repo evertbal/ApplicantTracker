@@ -443,7 +443,9 @@ export default function TrajectoryDetail() {
       {/* Edit Form Modal */}
       {showEditForm && (
         <TrajectoryForm
+          isOpen={showEditForm}
           trajectory={trajectory}
+          mode="edit"
           onClose={() => setShowEditForm(false)}
         />
       )}
