@@ -588,7 +588,7 @@ export default function CandidateDetail() {
                     </CardContent>
                   </Card>
                 ) : (
-                  candidateTrajectories.map((trajectory: any) => (
+                  (candidateTrajectories as any[]).map((trajectory: any) => (
                     <Card key={trajectory.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500"
                           onClick={() => window.open(`/trajectories?id=${trajectory.id}`, '_blank')}>
                       <CardContent className="p-6">
