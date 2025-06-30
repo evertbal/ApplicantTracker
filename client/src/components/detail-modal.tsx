@@ -333,28 +333,31 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
           <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row">
               {/* Tab Navigation */}
-              <div className="w-full sm:w-64 bg-gray-50 dark:bg-gray-900 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 p-2 sm:p-4 overflow-x-auto sm:overflow-x-visible">
-                <TabsList className="flex sm:flex-col h-auto space-x-1 sm:space-x-0 sm:space-y-1 bg-transparent w-full overflow-x-auto">
+              <div className="w-full sm:w-72 bg-gray-50 dark:bg-gray-900 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 p-2 sm:p-4 overflow-x-auto sm:overflow-x-visible">
+                <TabsList className="flex sm:flex-col h-auto space-x-1 sm:space-x-0 sm:space-y-2 bg-transparent w-full overflow-x-auto">
                   <TabsTrigger 
                     value="information" 
-                    className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
+                    className="w-full justify-center sm:justify-start data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4"
                   >
-                    Info
+                    <span className="sm:hidden">Info</span>
+                    <span className="hidden sm:inline">Informatie</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="notes" 
-                    className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
+                    className="w-full justify-center sm:justify-between data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4"
                   >
-                    Notities
+                    <span className="sm:hidden">Notities</span>
+                    <span className="hidden sm:inline">Notities</span>
                     <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
                       {notes.length}
                     </Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="documents" 
-                    className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
+                    className="w-full justify-center sm:justify-between data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4"
                   >
-                    Docs
+                    <span className="sm:hidden">Docs</span>
+                    <span className="hidden sm:inline">Documenten</span>
                     <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
                       {documents.length}
                     </Badge>
@@ -362,9 +365,10 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                   {entityType === 'candidate' && (
                     <TabsTrigger 
                       value="trajectories" 
-                      className="w-full sm:justify-start justify-center data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0"
+                      className="w-full justify-center sm:justify-between data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4"
                     >
-                      Trajec
+                      <span className="sm:hidden">Trajec</span>
+                      <span className="hidden sm:inline">Trajecten</span>
                       <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
                         {(entity as CandidateWithRelations).trajectories?.length || 0}
                       </Badge>
