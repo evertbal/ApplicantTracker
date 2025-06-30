@@ -452,11 +452,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
-    // Method 2: Try session-based user authentication
+    // Method 2: Try Replit authentication first (most common case)
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      // Ensure we have a user object from Replit auth
+      if (req.user) {
+        return next();
+      }
+    }
+
+    // Method 3: Try session-based user authentication
     if (req.session?.userId) {
       try {
         const user = await storage.getUser(req.session.userId);
-        if (user && user.isActive) {
+        if (user && user.isActive) {  
           req.user = user;
           return next();
         }
@@ -465,13 +473,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
-    // Method 3: Try Replit authentication (check if user is authenticated via Replit)
-    if (req.isAuthenticated && req.isAuthenticated()) {
-      req.user = req.user || { id: 'replit-user', email: 'unknown' };
-      return next();
-    }
-
     // No valid authentication found
+    console.log('Authentication failed - no valid method found');
     return res.status(401).json({ message: "Unauthorized" });
   };
 
@@ -1261,7 +1264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Documents routes
-  app.get("/api/documents/:entityType/:entityId", authenticateAny, async (req, res) => {
+  app.get("/api/documents/:entityType/:entityId", isAuthenticated, async (req, res) => {
     try {
       const { entityType, entityId } = req.params;
       const documents = await storage.getDocuments(entityType, parseInt(entityId));
@@ -1273,7 +1276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document upload endpoint
-  app.post("/api/documents/upload", authenticateAny, documentUpload.single('file'), async (req: any, res) => {
+  app.post("/api/documents/upload", isAuthenticated, documentUpload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Geen bestand geüpload" });
@@ -1346,7 +1349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve uploaded files
-  app.get("/uploads/:filename", authenticateAny, async (req, res) => {
+  app.get("/uploads/:filename", isAuthenticated, async (req, res) => {
     try {
       const { filename } = req.params;
       const path = require('path');
