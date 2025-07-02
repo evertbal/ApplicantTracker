@@ -346,6 +346,17 @@ export default function CandidateDetail() {
                     {candidate.dateAdded ? formatDate(candidate.dateAdded) : "-"}
                   </p>
                 </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Toegevoegd door
+                  </Label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {candidate.addedByUser 
+                      ? `${candidate.addedByUser.firstName || ''} ${candidate.addedByUser.lastName || ''}`.trim() || candidate.addedByUser.email || candidate.addedByUser.id
+                      : "Onbekend"
+                    }
+                  </p>
+                </div>
               </CardContent>
             </Card>
 

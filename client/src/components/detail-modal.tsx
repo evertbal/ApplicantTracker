@@ -197,10 +197,19 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                 )}
               </div>
             </div>
-            <div className="sm:col-span-2">
+            <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Datum toegevoegd</Label>
               <p className="text-base text-gray-900 dark:text-white mt-1">
                 {candidate.dateAdded ? format(new Date(candidate.dateAdded), 'dd MMMM yyyy', { locale: nl }) : 'Onbekend'}
+              </p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Toegevoegd door</Label>
+              <p className="text-base text-gray-900 dark:text-white mt-1">
+                {candidate.addedByUser 
+                  ? `${candidate.addedByUser.firstName || ''} ${candidate.addedByUser.lastName || ''}`.trim() || candidate.addedByUser.email || candidate.addedByUser.id
+                  : 'Onbekend'
+                }
               </p>
             </div>
           </div>

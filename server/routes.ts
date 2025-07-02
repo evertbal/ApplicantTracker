@@ -716,11 +716,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           // Validate and create candidate
           const validatedData = insertCandidateSchema.parse(candidateData);
-          await storage.createCandidate(validatedData);
+          
+          // Add the current user as the one who imported the candidate
+          const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+          validatedData.addedBy = userId;
+          
+          const candidate = await storage.createCandidate(validatedData);
           
           // Log audit
-          const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
-          await storage.logAudit("candidate", 0, "import", candidateData, userId);
+          await storage.logAudit("candidate", candidate.id, "import", candidateData, userId);
           
           importedCount++;
         } catch (error) {
