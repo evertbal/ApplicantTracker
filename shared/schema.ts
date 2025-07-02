@@ -71,6 +71,7 @@ export const candidates = pgTable("candidates", {
   email: text("email"),
   status: text("status").default("active"), // active, placed, inactive
   phase: text("phase").default("intake"), // intake, matching, placed
+  addedBy: varchar("added_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -375,6 +376,12 @@ export type CandidateWithRelations = Candidate & {
   trajectories?: Trajectory[];
   notes?: Note[];
   documents?: Document[];
+  addedByUser?: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+  } | null;
 };
 
 export type TrajectoryWithRelations = Trajectory & {

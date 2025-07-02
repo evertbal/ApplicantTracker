@@ -530,8 +530,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedCandidateData.drivingLicenses = normalized.licenses;
       }
       
-      const candidate = await storage.createCandidate(validatedCandidateData);
+      // Voeg de huidige gebruiker toe als degene die de kandidaat heeft toegevoegd
       const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      validatedCandidateData.addedBy = userId;
+      
+      const candidate = await storage.createCandidate(validatedCandidateData);
       
       // Log audit voor kandidaat
       await storage.logAudit("candidate", candidate.id, "create", validatedCandidateData, userId);

@@ -254,7 +254,19 @@ export class DatabaseStorage implements IStorage {
     dateFrom?: Date;
     dateTo?: Date;
   }): Promise<CandidateWithRelations[]> {
-    let query = db.select().from(candidates);
+    let query = db
+      .select({
+        candidates,
+        addedByUser: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        }
+      })
+      .from(candidates)
+      .leftJoin(users, eq(candidates.addedBy, users.id));
+    
     const conditions = [];
 
     if (filters?.search) {
@@ -287,8 +299,9 @@ export class DatabaseStorage implements IStorage {
     const candidateResults = await query.orderBy(desc(candidates.createdAt));
     
     // Return candidates without relations for performance - relations can be loaded on detail page
-    return candidateResults.map(candidate => ({
-      ...candidate,
+    return candidateResults.map(result => ({
+      ...result.candidates,
+      addedByUser: result.addedByUser,
       trajectories: [],
       notes: [],
       documents: []
@@ -296,8 +309,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCandidate(id: number): Promise<CandidateWithRelations | undefined> {
-    const [candidate] = await db.select().from(candidates).where(eq(candidates.id, id));
-    if (!candidate) return undefined;
+    const [result] = await db
+      .select({
+        candidates,
+        addedByUser: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        }
+      })
+      .from(candidates)
+      .leftJoin(users, eq(candidates.addedBy, users.id))
+      .where(eq(candidates.id, id));
+      
+    if (!result) return undefined;
+    
+    const candidate = { ...result.candidates, addedByUser: result.addedByUser };
 
     const candidateTrajectories = await db
       .select()
