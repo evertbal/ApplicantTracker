@@ -88,7 +88,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
 
   const renderCandidateItem = (candidate: any) => (
     <Card key={candidate.id} className="list-item-enhanced cursor-pointer group" onClick={() => onView(candidate)}>
-      <CardContent className="p-3 sm:p-4">
+      <CardContent className="p-3 sm:p-4 pt-[0px] pb-[0px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-gray-100 dark:border-gray-700 group-hover:border-primary/20 transition-colors">
