@@ -68,24 +68,21 @@ export const validateTrajectoryData = (trajectory: TrajectoryWithRelations | nul
     return { isValid: false, errors };
   }
   
-  // For form validation, we're being very lenient - just check that we have a trajectory object
-  // All other validation will be handled by the form schema and server-side validation
-  
-  // Only log warnings for debugging, don't treat as validation errors
   if (!trajectory.id) {
-    console.warn("Trajectory has no ID:", trajectory);
+    errors.push("Traject ID ontbreekt");
   }
   
-  if (!trajectory.candidateId && trajectory.candidateId !== 0) {
-    console.warn("Trajectory has no candidate ID:", trajectory.id);
+  // For editing, we don't require jobTitle to be present - it can be empty and filled in the form
+  // Only check for critical missing data that would prevent loading
+  if (!trajectory.candidateId) {
+    errors.push("Kandidaat ID ontbreekt");
   }
   
-  if (!trajectory.clientId && trajectory.clientId !== 0) {
-    console.warn("Trajectory has no client ID:", trajectory.id);
+  if (!trajectory.clientId) {
+    errors.push("Opdrachtgever ID ontbreekt");
   }
   
-  // Always return valid for now - let the form handle the validation
-  return { isValid: true, errors };
+  return { isValid: errors.length === 0, errors };
 };
 
 // Helper function to get consistent trajectory subtitle for display

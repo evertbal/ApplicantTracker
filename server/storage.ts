@@ -124,15 +124,6 @@ export interface IStorage {
 
   // Audit operations
   logAudit(entityType: string, entityId: number, action: string, changes: any, userId: string): Promise<void>;
-  
-  // Transactional updates
-  updateTrajectoryWithCandidateStatus(
-    trajectoryId: number,
-    trajectoryData: Partial<InsertTrajectory>,
-    candidateId: number,
-    candidateData: Partial<InsertCandidate>,
-    userId: string
-  ): Promise<{ trajectory: Trajectory; candidate: Candidate }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -677,63 +668,6 @@ export class DatabaseStorage implements IStorage {
       action,
       changes,
       userId,
-    });
-  }
-
-  // Transactional update of trajectory and candidate
-  async updateTrajectoryWithCandidateStatus(
-    trajectoryId: number,
-    trajectoryData: Partial<InsertTrajectory>,
-    candidateId: number,
-    candidateData: Partial<InsertCandidate>,
-    userId: string
-  ): Promise<{ trajectory: Trajectory; candidate: Candidate }> {
-    return await db.transaction(async (tx) => {
-      // Update trajectory
-      const [updatedTrajectory] = await tx
-        .update(trajectories)
-        .set({ ...trajectoryData, updatedAt: new Date() })
-        .where(eq(trajectories.id, trajectoryId))
-        .returning();
-
-      // Update candidate
-      const [updatedCandidate] = await tx
-        .update(candidates)
-        .set({ ...candidateData, updatedAt: new Date() })
-        .where(eq(candidates.id, candidateId))
-        .returning();
-
-      // Log audit for trajectory
-      await tx.insert(auditLog).values({
-        entityType: "trajectory",
-        entityId: trajectoryId,
-        action: "update",
-        changes: trajectoryData,
-        userId,
-      });
-
-      // Log audit for candidate
-      await tx.insert(auditLog).values({
-        entityType: "candidate",
-        entityId: candidateId,
-        action: "update",
-        changes: candidateData,
-        userId,
-      });
-
-      // Log combined audit for the status sync
-      await tx.insert(auditLog).values({
-        entityType: "trajectory",
-        entityId: trajectoryId,
-        action: "candidate_status_sync",
-        changes: {
-          trajectoryChanges: trajectoryData,
-          candidateChanges: candidateData,
-        },
-        userId,
-      });
-
-      return { trajectory: updatedTrajectory, candidate: updatedCandidate };
     });
   }
 }
