@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn, Calendar, Users, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import type { ClientWithRelations, Note, Document, ClientAgreement } from "@shared/schema";
+import type { ClientWithRelations, Note, Document } from "@shared/schema";
 import ClientForm from "@/components/client-form";
 import ContactForm from "@/components/contact-form";
-import AgreementForm from "@/components/agreement-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
 
@@ -27,13 +29,11 @@ export default function ClientDetail() {
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isNewContactModalOpen, setIsNewContactModalOpen] = useState(false);
-  const [isNewAgreementModalOpen, setIsNewAgreementModalOpen] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [editingContact, setEditingContact] = useState<any>(null);
-  const [editingAgreement, setEditingAgreement] = useState<any>(null);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
 
@@ -61,9 +61,32 @@ export default function ClientDetail() {
     enabled: !!id,
   });
 
-  // Fetch agreements
-  const { data: agreements = [] } = useQuery<ClientAgreement[]>({
-    queryKey: [`/api/clients/${id}/agreements`],
+  // Trajectory filters state
+  const [trajectoryFilters, setTrajectoryFilters] = useState({
+    status: '',
+    dateType: 'created',
+    dateFrom: '',
+    dateTo: ''
+  });
+
+  // Fetch client trajectories
+  const { data: trajectories = [], isLoading: trajectoriesLoading } = useQuery({
+    queryKey: [`/api/trajectories/client/${id}`, trajectoryFilters],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (trajectoryFilters.status) params.append('status', trajectoryFilters.status);
+      if (trajectoryFilters.dateFrom) params.append('dateFrom', trajectoryFilters.dateFrom);
+      if (trajectoryFilters.dateTo) params.append('dateTo', trajectoryFilters.dateTo);
+      params.append('dateType', trajectoryFilters.dateType);
+      
+      const response = await fetch(`/api/trajectories?clientId=${id}&${params.toString()}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch trajectories');
+      }
+      return response.json();
+    },
     enabled: !!id,
   });
 
@@ -116,26 +139,7 @@ export default function ClientDetail() {
     },
   });
 
-  // Delete agreement mutation
-  const deleteAgreementMutation = useMutation({
-    mutationFn: async (agreementId: number) => {
-      await apiRequest("DELETE", `/api/clients/${id}/agreements/${agreementId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${id}/agreements`] });
-      toast({
-        title: "Afspraak verwijderd",
-        description: "De afspraak is succesvol verwijderd.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Fout",
-        description: "Er is een fout opgetreden bij het verwijderen van de afspraak.",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   // Delete document mutation
   const deleteDocumentMutation = useMutation({
@@ -174,11 +178,7 @@ export default function ClientDetail() {
     }
   };
 
-  const handleDeleteAgreement = (agreementId: number) => {
-    if (confirm("Weet je zeker dat je deze afspraak wilt verwijderen?")) {
-      deleteAgreementMutation.mutate(agreementId);
-    }
-  };
+
 
   const handleDeleteDocument = (documentId: number) => {
     if (confirm("Weet je zeker dat je dit document wilt verwijderen?")) {
@@ -367,10 +367,10 @@ export default function ClientDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Aantal afspraken
+                    Aantal trajecten
                   </label>
                   <p className="text-sm text-gray-900 dark:text-white">
-                    {agreements.length}
+                    {trajectories.length}
                   </p>
                 </div>
               </CardContent>
@@ -390,8 +390,8 @@ export default function ClientDetail() {
                   <TabsTrigger value="notes" className="whitespace-nowrap flex-shrink-0">
                     Notities ({notes.length})
                   </TabsTrigger>
-                  <TabsTrigger value="agreements" className="whitespace-nowrap flex-shrink-0">
-                    Specifieke Afspraken ({agreements.length})
+                  <TabsTrigger value="trajectories" className="whitespace-nowrap flex-shrink-0">
+                    Trajecten ({trajectories.length})
                   </TabsTrigger>
                   <TabsTrigger value="documents" className="whitespace-nowrap flex-shrink-0">
                     Documenten ({documents.length})
@@ -571,73 +571,140 @@ export default function ClientDetail() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="agreements" className="mt-6">
+            <TabsContent value="trajectories" className="mt-6">
               <Card>
                 <CardHeader>
                   <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
-                    <CardTitle>Specifieke Afspraken</CardTitle>
-                    <Button
-                      onClick={() => setIsNewAgreementModalOpen(true)}
-                      size="sm"
-                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Nieuwe Afspraak
-                    </Button>
+                    <CardTitle>Trajecten</CardTitle>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="outline">
+                        {trajectories.length} {trajectories.length === 1 ? 'traject' : 'trajecten'}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {agreements.length > 0 ? (
-                    <div className="space-y-4">
-                      {agreements.map((agreement) => (
-                        <div key={agreement.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
+                  {/* Trajectory Filters */}
+                  <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div>
+                        <Label htmlFor="status-filter">Status</Label>
+                        <Select
+                          value={trajectoryFilters.status}
+                          onValueChange={(value) => setTrajectoryFilters(prev => ({...prev, status: value}))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Alle statussen" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Alle statussen</SelectItem>
+                            <SelectItem value="interview">In Gesprek</SelectItem>
+                            <SelectItem value="proposed">Voorgesteld</SelectItem>
+                            <SelectItem value="placed">Geplaatst</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="date-type-filter">Datum Type</Label>
+                        <Select
+                          value={trajectoryFilters.dateType}
+                          onValueChange={(value) => setTrajectoryFilters(prev => ({...prev, dateType: value}))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="created">Aangemaakt</SelectItem>
+                            <SelectItem value="updated">Bijgewerkt</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="date-from">Van Datum</Label>
+                        <Input
+                          id="date-from"
+                          type="date"
+                          value={trajectoryFilters.dateFrom}
+                          onChange={(e) => setTrajectoryFilters(prev => ({...prev, dateFrom: e.target.value}))}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="date-to">Tot Datum</Label>
+                        <Input
+                          id="date-to"
+                          type="date"
+                          value={trajectoryFilters.dateTo}
+                          onChange={(e) => setTrajectoryFilters(prev => ({...prev, dateTo: e.target.value}))}
+                        />
+                      </div>
+                    </div>
+                    {(trajectoryFilters.status || trajectoryFilters.dateFrom || trajectoryFilters.dateTo) && (
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Actieve filters:</span>
+                          {trajectoryFilters.status && <Badge variant="secondary">{trajectoryFilters.status}</Badge>}
+                          {trajectoryFilters.dateFrom && <Badge variant="secondary">Van: {trajectoryFilters.dateFrom}</Badge>}
+                          {trajectoryFilters.dateTo && <Badge variant="secondary">Tot: {trajectoryFilters.dateTo}</Badge>}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTrajectoryFilters({status: '', dateType: 'created', dateFrom: '', dateTo: ''})}
+                        >
+                          Filters wissen
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Trajectory List */}
+                  {trajectoriesLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Trajecten laden...</p>
+                    </div>
+                  ) : trajectories.length > 0 ? (
+                    <div className="space-y-3">
+                      {trajectories.map((trajectory: any) => (
+                        <div key={trajectory.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <div className="mb-2">
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                  {agreement.title}
-                                </p>
+                              <div className="flex items-center space-x-3 mb-2">
+                                <Briefcase className="w-4 h-4 text-gray-400" />
+                                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {trajectory.position} – {trajectory.candidate?.name} bij {trajectory.client?.name}
+                                </h3>
                               </div>
-                              <div className="mb-2">
-                                <p className="text-sm text-gray-900 dark:text-white">
-                                  {agreement.description}
-                                </p>
-                              </div>
-                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium mr-2">
-                                  {getUserInitials(agreement.authorId)}
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center space-x-1">
+                                  <Users className="w-3 h-3" />
+                                  <span>{trajectory.candidate?.name}</span>
                                 </div>
-                                {formatDate(agreement.createdAt)}
+                                <div className="flex items-center space-x-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>{trajectory.createdAt ? format(new Date(trajectory.createdAt), "d MMM yyyy", { locale: nl }) : "-"}</span>
+                                </div>
+                                <Badge 
+                                  variant={trajectory.status === 'placed' ? 'default' : 'secondary'}
+                                  className="text-xs"
+                                >
+                                  {trajectory.status === 'interview' ? 'In Gesprek' : 
+                                   trajectory.status === 'proposed' ? 'Voorgesteld' : 
+                                   trajectory.status === 'placed' ? 'Geplaatst' : trajectory.status}
+                                </Badge>
                               </div>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingAgreement(agreement);
-                                  setIsNewAgreementModalOpen(true);
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteAgreement(agreement.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Geen specifieke afspraken gevonden.
-                    </p>
+                    <div className="text-center py-8">
+                      <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Geen trajecten gevonden voor deze opdrachtgever.
+                      </p>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -772,25 +839,7 @@ export default function ClientDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* Agreement Modal */}
-      <Dialog open={isNewAgreementModalOpen} onOpenChange={setIsNewAgreementModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {editingAgreement ? "Afspraak Bewerken" : "Nieuwe Afspraak"}
-            </DialogTitle>
-          </DialogHeader>
-          <AgreementForm
-            isOpen={isNewAgreementModalOpen}
-            onClose={() => {
-              setIsNewAgreementModalOpen(false);
-              setEditingAgreement(null);
-            }}
-            clientId={client.id}
-            agreement={editingAgreement}
-          />
-        </DialogContent>
-      </Dialog>
+
 
       {/* Document Viewer Modal */}
       {selectedDocument && (

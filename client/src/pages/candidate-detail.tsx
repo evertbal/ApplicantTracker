@@ -15,7 +15,7 @@ import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
-import DetailModal from "@/components/DetailModal";
+
 import { 
   formatTrajectoryTitle, 
   formatTrajectoryDate, 

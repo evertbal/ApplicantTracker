@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import type { TrajectoryWithRelations } from "@shared/schema";
-import DetailModal from "./detail-modal";
+
 import TrajectoryForm from "./trajectory-form";
 
 export default function TrajectoriesView() {

@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import type { ClientWithRelations } from "@shared/schema";
-import DetailModal from "./detail-modal";
+
 import ClientForm from "./client-form";
 
 export default function ClientsView() {

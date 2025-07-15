@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import type { CandidateWithRelations } from "@shared/schema";
-import DetailModal from "./detail-modal";
+
 import CandidateForm from "./candidate-form";
 import CollapsibleFilters from "./collapsible-filters";
 import CompactList from "./compact-list";
