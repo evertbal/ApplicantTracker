@@ -36,7 +36,7 @@ export default function CollapsibleFilters({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 mb-6">
       {/* Filter Toggle Button */}
       <Button
         variant="outline"
