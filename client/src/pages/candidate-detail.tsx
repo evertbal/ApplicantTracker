@@ -693,18 +693,7 @@ export default function CandidateDetail() {
         />
       )}
 
-      {/* Trajectory Detail Modal */}
-      {selectedTrajectory && (
-        <DetailModal
-          entity={selectedTrajectory}
-          entityType="trajectory"
-          isOpen={isTrajectoryModalOpen}
-          onClose={() => {
-            setIsTrajectoryModalOpen(false);
-            setSelectedTrajectory(null);
-          }}
-        />
-      )}
+      {/* Trajectory Detail Modal - TODO: Implement trajectory detail modal */}
     </div>
   );
 }
