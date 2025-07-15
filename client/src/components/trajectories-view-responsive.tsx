@@ -277,20 +277,7 @@ export default function TrajectoriesView() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedTrajectory && (
-        <DetailModal
-          entity={selectedTrajectory}
-          entityType="trajectory"
-          isOpen={!!selectedTrajectory}
-          onClose={() => setSelectedTrajectory(null)}
-          onEdit={(trajectory) => {
-            setEditingTrajectory(trajectory);
-            setIsEditFormOpen(true);
-            setSelectedTrajectory(null);
-          }}
-        />
-      )}
+
 
       {/* New Trajectory Modal */}
       <NewTrajectoryModal
