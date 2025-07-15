@@ -36,8 +36,7 @@ export default function CandidateDetail() {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
-  const [selectedTrajectory, setSelectedTrajectory] = useState<any>(null);
-  const [isTrajectoryModalOpen, setIsTrajectoryModalOpen] = useState(false);
+
 
   // Fetch candidate data
   const { data: candidate, isLoading } = useQuery<CandidateWithRelations>({
@@ -604,10 +603,7 @@ export default function CandidateDetail() {
                 ) : (
                   (candidateTrajectories as any[]).map((trajectory: any) => (
                     <Card key={trajectory.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500"
-                          onClick={() => {
-                            setSelectedTrajectory(trajectory);
-                            setIsTrajectoryModalOpen(true);
-                          }}>
+                          onClick={() => setLocation(`/trajectory/${trajectory.id}`)}>
                       <CardContent className="p-6">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                           <div className="flex-1 space-y-4">

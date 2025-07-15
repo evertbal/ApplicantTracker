@@ -20,7 +20,6 @@ export default function TrajectoriesView() {
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["geaccepteerd", "voorgesteld_aan_klant"]);
-  const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [sortBy, setSortBy] = useState<'created' | 'updated'>('created');
@@ -357,18 +356,7 @@ export default function TrajectoriesView() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedTrajectory && (
-        <DetailModal
-          entity={selectedTrajectory}
-          entityType="trajectory"
-          onClose={() => setSelectedTrajectory(null)}
-          onEdit={() => {
-            openEditForm(selectedTrajectory);
-            setSelectedTrajectory(null);
-          }}
-        />
-      )}
+
 
       {/* Form Modal */}
       {showForm && (

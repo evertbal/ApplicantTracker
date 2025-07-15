@@ -666,7 +666,8 @@ export default function ClientDetail() {
                   ) : trajectories.length > 0 ? (
                     <div className="space-y-3">
                       {trajectories.map((trajectory: any) => (
-                        <div key={trajectory.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
+                        <div key={trajectory.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow cursor-pointer"
+                             onClick={() => setLocation(`/trajectory/${trajectory.id}`)}>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center space-x-3 mb-2">
