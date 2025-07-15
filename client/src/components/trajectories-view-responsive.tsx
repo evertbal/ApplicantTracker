@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Search, Plus, Filter, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import {
 import CompactList from "./compact-list";
 
 export default function TrajectoriesView() {
+  const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [isNewTrajectoryModalOpen, setIsNewTrajectoryModalOpen] = useState(false);
@@ -270,7 +272,7 @@ export default function TrajectoriesView() {
           <CompactList
             items={filteredAndSortedTrajectories}
             type="trajectories"
-            onView={setSelectedTrajectory}
+            onView={(trajectory) => setLocation(`/trajectory/${trajectory.id}`)}
             onEdit={openEditForm}
             isLoading={isLoading}
           />

@@ -10,6 +10,7 @@ import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import CandidateDetail from "@/pages/candidate-detail";
 import ClientDetail from "@/pages/client-detail";
+import TrajectoryDetail from "@/pages/trajectory-detail";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 
@@ -37,6 +38,7 @@ function Router() {
           <Route path="/candidates" component={Dashboard} />
           <Route path="/candidate/:id" component={CandidateDetail} />
           <Route path="/client/:id" component={ClientDetail} />
+          <Route path="/trajectory/:id" component={TrajectoryDetail} />
           <Route path="/trajectories" component={Dashboard} />
           <Route path="/clients" component={Dashboard} />
         </>

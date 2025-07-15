@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Search, Plus, Filter, Download, MoreHorizontal, Edit, Users, Building, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import type { TrajectoryWithRelations } from "@shared/schema";
 import TrajectoryForm from "./trajectory-form";
 
 export default function TrajectoriesView() {
+  const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["interview", "proposed"]);
   const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
@@ -280,7 +282,7 @@ export default function TrajectoriesView() {
                   <Card
                     key={trajectory.id}
                     className="hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => setSelectedTrajectory(trajectory)}
+                    onClick={() => setLocation(`/trajectory/${trajectory.id}`)}
                   >
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
