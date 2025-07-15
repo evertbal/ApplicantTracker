@@ -69,7 +69,7 @@ export const candidates = pgTable("candidates", {
   marketing: text("marketing"),
   phone: text("phone"),
   email: text("email"),
-  status: text("status").default("active"), // active, placed, inactive
+  status: text("status").default("nieuw"), // nieuw, beschikbaar, in_bemiddeling, werkend, nu_niet_beschikbaar, inactief
   phase: text("phase").default("intake"), // intake, matching, placed
   addedBy: varchar("added_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
@@ -124,7 +124,7 @@ export const trajectories = pgTable("trajectories", {
   candidateId: integer("candidate_id").references(() => candidates.id),
   clientId: integer("client_id").references(() => clients.id),
   startDate: date("start_date"),
-  status: text("status").default("interview"), // interview, proposed, placed
+  status: text("status").default("geaccepteerd"), // geaccepteerd, voorgesteld_aan_klant, gesprek_met_klant, geplaatst, niet_geplaatst, gestopt
   jobTitle: text("job_title"),
   hourlyRate: text("hourly_rate"),
   createdAt: timestamp("created_at").defaultNow(),

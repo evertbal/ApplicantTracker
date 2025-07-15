@@ -42,9 +42,12 @@ export default function TrajectoriesView() {
 
   // Status options
   const statusOptions = [
-    { value: "interview", label: "In Gesprek" },
-    { value: "proposed", label: "Voorgesteld" },
-    { value: "placed", label: "Geplaatst" }
+    { value: "geaccepteerd", label: "Geaccepteerd" },
+    { value: "voorgesteld_aan_klant", label: "Voorgesteld aan klant" },
+    { value: "gesprek_met_klant", label: "Gesprek met klant" },
+    { value: "geplaatst", label: "Geplaatst" },
+    { value: "niet_geplaatst", label: "Niet geplaatst" },
+    { value: "gestopt", label: "Gestopt" }
   ];
 
   // Filter and sort trajectories

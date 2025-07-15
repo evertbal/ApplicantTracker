@@ -19,7 +19,7 @@ import TrajectoryForm from "./trajectory-form";
 export default function TrajectoriesView() {
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["interview", "proposed"]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["geaccepteerd", "voorgesteld_aan_klant"]);
   const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
@@ -173,9 +173,12 @@ export default function TrajectoriesView() {
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
             <div className="space-y-2">
               {[
-                { value: 'interview', label: 'In Gesprek', count: trajectories.filter(t => t.status === 'interview').length },
-                { value: 'proposed', label: 'Voorgesteld', count: trajectories.filter(t => t.status === 'proposed').length },
-                { value: 'placed', label: 'Geplaatst', count: trajectories.filter(t => t.status === 'placed').length },
+                { value: 'geaccepteerd', label: 'Geaccepteerd', count: trajectories.filter(t => t.status === 'geaccepteerd').length },
+                { value: 'voorgesteld_aan_klant', label: 'Voorgesteld aan klant', count: trajectories.filter(t => t.status === 'voorgesteld_aan_klant').length },
+                { value: 'gesprek_met_klant', label: 'Gesprek met klant', count: trajectories.filter(t => t.status === 'gesprek_met_klant').length },
+                { value: 'geplaatst', label: 'Geplaatst', count: trajectories.filter(t => t.status === 'geplaatst').length },
+                { value: 'niet_geplaatst', label: 'Niet geplaatst', count: trajectories.filter(t => t.status === 'niet_geplaatst').length },
+                { value: 'gestopt', label: 'Gestopt', count: trajectories.filter(t => t.status === 'gestopt').length },
               ].map((status) => (
                 <div key={status.value} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">

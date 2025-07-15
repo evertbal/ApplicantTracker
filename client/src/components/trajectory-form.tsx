@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,12 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   formatTrajectoryDate,
-  validateTrajectoryData 
+  validateTrajectoryData,
+  getTrajectoryStatusOptions,
+  getCandidateStatusOptions,
+  getSuggestedCandidateStatus,
+  formatCandidateStatus
 } from "@/lib/trajectory-formatters";
 import type { TrajectoryWithRelations, Candidate, Client } from "@shared/schema";
 
@@ -24,6 +30,7 @@ const trajectoryFormSchema = z.object({
   status: z.string().optional(),
   startDate: z.string().optional(),
   hourlyRate: z.string().optional(),
+  candidateStatus: z.string().optional(),
 });
 
 type TrajectoryFormData = z.infer<typeof trajectoryFormSchema>;
@@ -38,6 +45,8 @@ interface TrajectoryFormProps {
 export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: TrajectoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showCandidateStatus, setShowCandidateStatus] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   // Validate trajectory data when editing
   const validation = validateTrajectoryData(trajectory || null);
@@ -47,9 +56,10 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
     candidateId: trajectory?.candidateId || 0,
     clientId: trajectory?.clientId || 0,
     jobTitle: trajectory?.jobTitle || "",
-    status: trajectory?.status || "interview",
+    status: trajectory?.status || "geaccepteerd",
     startDate: trajectory?.startDate || "",
     hourlyRate: trajectory?.hourlyRate || "",
+    candidateStatus: "",
   };
 
   const form = useForm<TrajectoryFormData>({
@@ -74,18 +84,20 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         candidateId: trajectory.candidateId || 0,
         clientId: trajectory.clientId || 0,
         jobTitle: trajectory.jobTitle || "",
-        status: trajectory.status || "interview",
+        status: trajectory.status || "geaccepteerd",
         startDate: trajectory.startDate || "",
         hourlyRate: trajectory.hourlyRate || "",
+        candidateStatus: "",
       });
     } else if (mode === "create") {
       form.reset({
         candidateId: 0,
         clientId: 0,
         jobTitle: "",
-        status: "interview",
+        status: "geaccepteerd",
         startDate: "",
         hourlyRate: "",
+        candidateStatus: "",
       });
     }
   }, [trajectory, mode, form, toast]);
@@ -111,7 +123,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         candidateId: data.candidateId,
         clientId: data.clientId,
         jobTitle: data.jobTitle,
-        status: data.status || "interview",
+        status: data.status || "geaccepteerd",
         startDate: data.startDate || null,
         hourlyRate: data.hourlyRate || null,
       });
@@ -127,7 +139,21 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         throw new Error("Server returned non-JSON response");
       }
       
-      return response.json();
+      const result = await response.json();
+      
+      // Update candidate status if provided
+      if (data.candidateStatus && data.candidateId) {
+        try {
+          await apiRequest("PUT", `/api/candidates/${data.candidateId}`, {
+            status: data.candidateStatus
+          });
+        } catch (error) {
+          console.error("Failed to update candidate status:", error);
+          // Don't fail the trajectory update if candidate status update fails
+        }
+      }
+      
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/trajectories"] });
@@ -142,6 +168,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
       });
       
       form.reset();
+      setShowCandidateStatus(false);
       onClose();
     },
     onError: (error: Error) => {
@@ -241,19 +268,29 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select value={field.value || ""} onValueChange={field.onChange}>
+                  <Select 
+                    value={field.value || ""} 
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      // Show candidate status selection when trajectory status changes
+                      if (value && form.watch('candidateId')) {
+                        setShowCandidateStatus(true);
+                        const suggestedStatus = getSuggestedCandidateStatus(value);
+                        form.setValue('candidateStatus', suggestedStatus);
+                      }
+                    }}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecteer status" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="interview">Interview</SelectItem>
-                      <SelectItem value="proposed">Voorgesteld</SelectItem>
-                      <SelectItem value="placed">Geplaatst</SelectItem>
-                      <SelectItem value="active">Actief</SelectItem>
-                      <SelectItem value="completed">Afgerond</SelectItem>
-                      <SelectItem value="cancelled">Geannuleerd</SelectItem>
+                      {getTrajectoryStatusOptions().map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -270,7 +307,20 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                   <FormLabel>Kandidaat *</FormLabel>
                   <Select 
                     value={field.value ? field.value.toString() : ""} 
-                    onValueChange={(value) => field.onChange(value ? parseInt(value, 10) : 0)}
+                    onValueChange={(value) => {
+                      const candidateId = value ? parseInt(value, 10) : 0;
+                      field.onChange(candidateId);
+                      
+                      // Find selected candidate and show status selection if trajectory status is set
+                      const candidate = candidates.find((c: Candidate) => c.id === candidateId);
+                      setSelectedCandidate(candidate || null);
+                      
+                      if (candidateId && form.watch('status')) {
+                        setShowCandidateStatus(true);
+                        const suggestedStatus = getSuggestedCandidateStatus(form.watch('status'));
+                        form.setValue('candidateStatus', suggestedStatus);
+                      }
+                    }}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -289,6 +339,44 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                 </FormItem>
               )}
             />
+
+            {/* Candidate Status Selection - shows when trajectory status changes */}
+            {showCandidateStatus && selectedCandidate && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-3">
+                <Label className="text-sm font-medium">
+                  Wijzig status van kandidaat: {selectedCandidate.name}
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Huidige status: {formatCandidateStatus(selectedCandidate.status)}
+                </p>
+                
+                <FormField
+                  control={form.control}
+                  name="candidateStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <RadioGroup
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                          className="grid grid-cols-1 gap-2"
+                        >
+                          {getCandidateStatusOptions().map((option) => (
+                            <div key={option.value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={option.value} id={option.value} />
+                              <Label htmlFor={option.value} className="text-sm cursor-pointer">
+                                {option.label}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
             {/* Client Selection */}
             <FormField
