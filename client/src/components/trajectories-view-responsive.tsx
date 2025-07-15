@@ -11,6 +11,7 @@ import type { TrajectoryWithRelations } from "@shared/schema";
 
 import NewTrajectoryModal from "./NewTrajectoryModal";
 import TrajectoryForm from "./trajectory-form";
+import DetailModal from "./DetailModal";
 import { 
   formatTrajectoryTitle, 
   formatTrajectoryDate, 
