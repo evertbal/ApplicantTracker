@@ -33,6 +33,12 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [trajectoryFilters, setTrajectoryFilters] = useState({
+    status: '',
+    dateType: 'created',
+    dateFrom: '',
+    dateTo: ''
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -46,6 +52,27 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
     queryFn: () => documentsApi.getByEntity(entityType, entity.id),
     retry: 1,
     retryOnMount: false,
+  });
+
+  // Query for client trajectories when viewing client details
+  const { data: clientTrajectories = [], isLoading: trajectoriesLoading } = useQuery({
+    queryKey: [`/api/trajectories/client/${entity.id}`, trajectoryFilters],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (trajectoryFilters.status) params.append('status', trajectoryFilters.status);
+      if (trajectoryFilters.dateFrom) params.append('dateFrom', trajectoryFilters.dateFrom);
+      if (trajectoryFilters.dateTo) params.append('dateTo', trajectoryFilters.dateTo);
+      params.append('dateType', trajectoryFilters.dateType);
+      
+      const response = await fetch(`/api/trajectories?clientId=${entity.id}&${params.toString()}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch trajectories');
+      }
+      return response.json();
+    },
+    enabled: entityType === 'client' && activeTab === 'trajectories',
   });
 
   const createNoteMutation = useMutation({
@@ -371,7 +398,7 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                       {documents.length}
                     </Badge>
                   </TabsTrigger>
-                  {entityType === 'candidate' && (
+                  {(entityType === 'candidate' || entityType === 'client') && (
                     <TabsTrigger 
                       value="trajectories" 
                       className="w-full justify-center sm:justify-between data-[state=active]:bg-white data-[state=active]:shadow-sm text-xs sm:text-sm flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4"
@@ -379,7 +406,10 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                       <span className="sm:hidden">Trajec</span>
                       <span className="hidden sm:inline">Trajecten</span>
                       <Badge variant="secondary" className="ml-1 sm:ml-auto text-xs">
-                        {(entity as CandidateWithRelations).trajectories?.length || 0}
+                        {entityType === 'candidate' ? 
+                          (entity as CandidateWithRelations).trajectories?.length || 0 :
+                          clientTrajectories?.length || 0
+                        }
                       </Badge>
                     </TabsTrigger>
                   )}
@@ -529,37 +559,145 @@ export default function DetailModal({ entity, entityType, onClose, onEdit }: Det
                   </div>
                 </TabsContent>
 
-                {entityType === 'candidate' && (
+                {(entityType === 'candidate' || entityType === 'client') && (
                   <TabsContent value="trajectories" className="mt-0 space-y-6">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Trajecten</h3>
                     </div>
 
+                    {/* Client trajectory filters */}
+                    {entityType === 'client' && (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</Label>
+                              <Select
+                                value={trajectoryFilters.status}
+                                onValueChange={(value) => setTrajectoryFilters(prev => ({ ...prev, status: value }))}
+                              >
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue placeholder="Alle statussen" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="">Alle statussen</SelectItem>
+                                  <SelectItem value="interview">Interview</SelectItem>
+                                  <SelectItem value="selected">Geselecteerd</SelectItem>
+                                  <SelectItem value="placed">Geplaatst</SelectItem>
+                                  <SelectItem value="rejected">Afgewezen</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Datumtype</Label>
+                              <Select
+                                value={trajectoryFilters.dateType}
+                                onValueChange={(value) => setTrajectoryFilters(prev => ({ ...prev, dateType: value }))}
+                              >
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="created">Aangemaakt</SelectItem>
+                                  <SelectItem value="updated">Bijgewerkt</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Van datum</Label>
+                              <Input
+                                type="date"
+                                value={trajectoryFilters.dateFrom}
+                                onChange={(e) => setTrajectoryFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tot datum</Label>
+                              <Input
+                                type="date"
+                                value={trajectoryFilters.dateTo}
+                                onChange={(e) => setTrajectoryFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-4 flex justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setTrajectoryFilters({ status: '', dateType: 'created', dateFrom: '', dateTo: '' })}
+                            >
+                              Filters wissen
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
                     <div className="space-y-3">
-                      {(entity as CandidateWithRelations).trajectories?.length === 0 || !(entity as CandidateWithRelations).trajectories ? (
+                      {trajectoriesLoading ? (
                         <Card>
                           <CardContent className="p-8 text-center">
-                            <p className="text-gray-500 dark:text-gray-400">Nog geen trajecten toegevoegd.</p>
+                            <p className="text-gray-500 dark:text-gray-400">Trajecten laden...</p>
                           </CardContent>
                         </Card>
-                      ) : (
-                        (entity as CandidateWithRelations).trajectories?.map((trajectory: any) => (
-                          <Card key={trajectory.id} className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                  <p className="font-medium text-gray-900 dark:text-white">{trajectory.jobTitle}</p>
-                                  <p className="text-sm text-gray-500">
-                                    {trajectory.client?.name} • {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl }) : 'Geen datum'}
-                                  </p>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
-                                </div>
-                              </div>
+                      ) : entityType === 'candidate' ? (
+                        (entity as CandidateWithRelations).trajectories?.length === 0 || !(entity as CandidateWithRelations).trajectories ? (
+                          <Card>
+                            <CardContent className="p-8 text-center">
+                              <p className="text-gray-500 dark:text-gray-400">Nog geen trajecten toegevoegd.</p>
                             </CardContent>
                           </Card>
-                        ))
+                        ) : (
+                          (entity as CandidateWithRelations).trajectories?.map((trajectory: any) => (
+                            <Card key={trajectory.id} className="hover:shadow-md transition-shadow">
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-gray-900 dark:text-white">{trajectory.jobTitle}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {trajectory.client?.name} • {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl }) : 'Geen datum'}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))
+                        )
+                      ) : (
+                        clientTrajectories?.length === 0 ? (
+                          <Card>
+                            <CardContent className="p-8 text-center">
+                              <p className="text-gray-500 dark:text-gray-400">Geen trajecten gevonden.</p>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          clientTrajectories?.map((trajectory: any) => (
+                            <Card key={trajectory.id} className="hover:shadow-md transition-shadow">
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-gray-900 dark:text-white">{trajectory.jobTitle}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {trajectory.candidate?.name} • {trajectory.startDate ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl }) : 'Geen datum'}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                      {trajectory.hourlyRate ? `€${trajectory.hourlyRate}/uur` : ''} 
+                                      {trajectory.createdAt ? ` • Aangemaakt: ${format(new Date(trajectory.createdAt), 'dd MMM yyyy', { locale: nl })}` : ''}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    {getStatusBadge(trajectory.status || 'interview', 'trajectory')}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))
+                        )
                       )}
                     </div>
                   </TabsContent>

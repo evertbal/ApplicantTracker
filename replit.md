@@ -133,7 +133,10 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
-- June 30, 2025 (Latest). Added zoom/view functionality to all document locations with ZoomIn icon buttons
+- July 14, 2025 (Latest). Added trajectory viewing functionality to client detail modal with filtering options for status and date (created/updated)
+- July 14, 2025. Reduced card height across all entity types by standardizing padding and spacing to match trajectory cards
+- July 14, 2025. Made candidate and client cards more compact with consistent styling aligned with trajectory overview items
+- June 30, 2025. Added zoom/view functionality to all document locations with ZoomIn icon buttons
 - June 30, 2025. Integrated DocumentViewer component across all three entity types (candidates, clients, trajectories)
 - June 30, 2025. Enhanced document upload with comprehensive debugging and multiple query invalidation patterns
 - June 30, 2025. Standardized document viewing patterns with consistent button layout: Zoom/View, Download, Delete
