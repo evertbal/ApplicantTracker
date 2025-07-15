@@ -133,7 +133,11 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
-- July 14, 2025 (Latest). Added trajectory viewing functionality to client detail modal with filtering options for status and date (created/updated)
+- July 15, 2025 (Latest). Updated trajectory status options to Dutch terms: geaccepteerd, voorgesteld aan klant, gesprek met klant, geplaatst, niet geplaatst, gestopt
+- July 15, 2025. Updated candidate status options to specific Dutch terms: Nieuw, Beschikbaar, In bemiddeling, Werkend, Nu niet beschikbaar, Inactief
+- July 15, 2025. Added automatic candidate status suggestion system with radio buttons that appear when trajectory status changes
+- July 15, 2025. Updated database records to use new status values and synchronized filter panels across all trajectory views
+- July 14, 2025. Added trajectory viewing functionality to client detail modal with filtering options for status and date (created/updated)
 - July 14, 2025. Reduced card height across all entity types by standardizing padding and spacing to match trajectory cards
 - July 14, 2025. Made candidate and client cards more compact with consistent styling aligned with trajectory overview items
 - June 30, 2025. Added zoom/view functionality to all document locations with ZoomIn icon buttons

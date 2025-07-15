@@ -89,6 +89,12 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         hourlyRate: trajectory.hourlyRate || "",
         candidateStatus: "",
       });
+      
+      // Set the selected candidate for edit mode
+      if (trajectory.candidateId && candidates.length > 0) {
+        const candidate = candidates.find((c: Candidate) => c.id === trajectory.candidateId);
+        setSelectedCandidate(candidate || null);
+      }
     } else if (mode === "create") {
       form.reset({
         candidateId: 0,
@@ -99,8 +105,10 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         hourlyRate: "",
         candidateStatus: "",
       });
+      setSelectedCandidate(null);
+      setShowCandidateStatus(false);
     }
-  }, [trajectory, mode, form, toast]);
+  }, [trajectory, mode, form, toast, candidates]);
 
   // Fetch candidates and clients
   const { data: candidates = [] } = useQuery({
@@ -273,10 +281,15 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                     onValueChange={(value) => {
                       field.onChange(value);
                       // Show candidate status selection when trajectory status changes
-                      if (value && form.watch('candidateId')) {
-                        setShowCandidateStatus(true);
-                        const suggestedStatus = getSuggestedCandidateStatus(value);
-                        form.setValue('candidateStatus', suggestedStatus);
+                      const candidateId = form.watch('candidateId');
+                      if (value && candidateId && candidates.length > 0) {
+                        const candidate = candidates.find((c: Candidate) => c.id === candidateId);
+                        if (candidate) {
+                          setSelectedCandidate(candidate);
+                          setShowCandidateStatus(true);
+                          const suggestedStatus = getSuggestedCandidateStatus(value);
+                          form.setValue('candidateStatus', suggestedStatus);
+                        }
                       }
                     }}
                   >
