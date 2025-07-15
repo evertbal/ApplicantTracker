@@ -166,7 +166,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   );
 
   const renderClientItem = (client: any) => (
-    <Card key={client.id} className="list-item-enhanced cursor-pointer group" onClick={() => onView(client)}>
+    <Card key={client.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(client)}>
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -184,7 +184,8 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                   {client.workType}
                 </Badge>
               </div>
-              <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              
+              <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 <span className="truncate">{client.contactPerson}</span>
                 <span className="hidden sm:inline">{client.location}</span>
               </div>
@@ -192,15 +193,6 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
           </div>
           
           <div className="flex items-center space-x-2 ml-2">
-            <div className="hidden sm:flex items-center space-x-2">
-              {client.trajectories?.length > 0 && (
-                <Badge variant="outline" className="text-xs">
-                  <Route className="w-3 h-3 mr-1" />
-                  {client.trajectories.length}
-                </Badge>
-              )}
-            </div>
-            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
