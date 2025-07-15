@@ -1228,10 +1228,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const trajectoryData = insertTrajectorySchema.partial().parse(req.body);
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      
+      // Get the current trajectory to check if status is changing
+      const currentTrajectory = await storage.getTrajectory(id);
+      if (!currentTrajectory) {
+        return res.status(404).json({ message: "Trajectory not found" });
+      }
+      
+      // Check if the trajectory status is changing and has an associated candidate
+      const oldStatus = currentTrajectory.status;
+      const newStatus = trajectoryData.status;
+      
+      if (
+        newStatus && 
+        newStatus !== oldStatus && 
+        currentTrajectory.candidateId
+      ) {
+        // Import the mapping utilities
+        const { 
+          requiresCandidateUpdate, 
+          getSuggestedCandidateUpdate 
+        } = await import('./utils/mapTrajectoryToCandidateStatus.js');
+        
+        // Check if this status change requires candidate update
+        if (requiresCandidateUpdate(oldStatus, newStatus)) {
+          const candidateUpdate = getSuggestedCandidateUpdate(newStatus);
+          
+          if (candidateUpdate) {
+            // Use transactional update to maintain data consistency
+            const result = await storage.updateTrajectoryWithCandidateStatus(
+              id,
+              trajectoryData,
+              currentTrajectory.candidateId,
+              {
+                status: candidateUpdate.status,
+                ...(candidateUpdate.phase && { phase: candidateUpdate.phase })
+              },
+              userId
+            );
+            
+            // Return the updated trajectory with success message
+            return res.json({
+              ...result.trajectory,
+              message: `Trajectory updated and candidate status automatically updated to '${candidateUpdate.status}'${candidateUpdate.phase ? ` (${candidateUpdate.phase})` : ''}`
+            });
+          }
+        }
+      }
+      
+      // Default update without candidate status change
       const trajectory = await storage.updateTrajectory(id, trajectoryData);
       
       // Log audit
-      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
       await storage.logAudit("trajectory", id, "update", trajectoryData, userId);
       
       res.json(trajectory);

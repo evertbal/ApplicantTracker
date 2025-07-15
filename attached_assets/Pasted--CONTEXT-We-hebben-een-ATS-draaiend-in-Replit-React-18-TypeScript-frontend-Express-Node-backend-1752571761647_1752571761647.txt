@@ -1,0 +1,51 @@
+# CONTEXT
+We hebben een ATS draaiend in Replit (React 18 + TypeScript frontend, Express/Node backend, Drizzle ORM + PostgreSQL).  
+Tabellen en velden bestaan al:
+
+- candidate.status & candidate.phase  
+- trajectory.status
+
+📄 Mapping traject → kandidaat-status  
+| Trajectstatus           | Kandidaten-ATS-status              |
+|-------------------------|------------------------------------|
+| Geaccepteerd            | Beschikbaar  |
+| Voorgesteld aan klant   | In bemiddeling                     |
+| Gesprek met klant       | In bemiddeling                     |
+| Geplaatst               | Werkend                            |
+| Niet geplaatst          | Nu niet beschikbaar                |
+| Gestopt                 | Inactief                           |
+
+# OPDRACHT
+1. **Backend**
+   - Maak `utils/mapTrajectoryToCandidateStatus.ts` met bovenstaande mapping + unit-tests.  
+   - Breid `PATCH /traject/:id` uit:  
+     • Detecteer wijziging van `status` of `phase`.  
+     • Vraag (of verwacht uit frontend) nieuwe `candidate.status`.  
+     • Valideer m.b.v. mapping en voer een transactionele update uit op zowel trajectory als candidate.  
+     • Log wijziging in bestaande `audit_log`.
+
+2. **Frontend**
+   - In de Traject-editmodal:  
+     • Toon bij fase-wijziging een dropdown met de voorgestelde kandidaat-status.  
+     • Voeg een bevestigings-banner toe: “Wil je ook de status van de kandidaat aanpassen naar ‘X’?” (gebruikers mogen afwijken).  
+   - Gebruik TanStack Query-mutations met optimistic updates zoals elders in de app.
+
+3. **Tests**
+   - Jest + React Testing Library voor de modal (happy & edge cases).  
+   - Supertest integratietests voor het nieuwe PATCH-pad.
+
+4. **Done-when**
+   - Alle tests groen  
+   - Dev-server herstart na wijzigingen  
+   - Audit-log toont gecombineerde update  
+   - UX: geen onbevestigde status-switches
+
+# RULES (uit het Vibe Coding Playbook)
+- Bewerk bestaande code; dupliceer niets.  
+- Houd bestanden < 300 LOC, schrijf modulair.  
+- Na code-changes altijd dev-server herstarten.  
+- Als iets onduidelijk is: stel eerst vragen voordat je code schrijft.
+
+# ACTION
+Vraag eerst om verduidelijking waar nodig (Plan-Before-You-Prompt).  
+Implementeer daarna stap-voor-stap, laat test-/build-output zien en commit na elke werkende feature.
