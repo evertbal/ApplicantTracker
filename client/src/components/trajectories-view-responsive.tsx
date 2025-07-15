@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Filter } from "lucide-react";
+import { Search, Plus, Filter, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,8 @@ export default function TrajectoriesView() {
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'created' | 'updated'>('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -43,20 +45,52 @@ export default function TrajectoriesView() {
     { value: "placed", label: "Geplaatst" }
   ];
 
-  // Filter trajectories
-  const filteredTrajectories = Array.isArray(trajectories) ? trajectories.filter((trajectory: any) => {
-    const matchesSearch = !search || 
-      trajectory.position?.toLowerCase().includes(search.toLowerCase()) ||
-      trajectory.candidate?.name?.toLowerCase().includes(search.toLowerCase()) ||
-      trajectory.client?.name?.toLowerCase().includes(search.toLowerCase());
-    
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(trajectory.status);
-    
-    return matchesSearch && matchesStatus;
-  }) : [];
+  // Filter and sort trajectories
+  const filteredAndSortedTrajectories = (() => {
+    let filtered = Array.isArray(trajectories) ? trajectories.filter((trajectory: any) => {
+      const matchesSearch = !search || 
+        trajectory.position?.toLowerCase().includes(search.toLowerCase()) ||
+        trajectory.candidate?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        trajectory.client?.name?.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(trajectory.status);
+      
+      return matchesSearch && matchesStatus;
+    }) : [];
+
+    // Sort trajectories
+    filtered.sort((a: any, b: any) => {
+      let aValue, bValue;
+      
+      if (sortBy === 'created') {
+        aValue = new Date(a.createdAt || 0).getTime();
+        bValue = new Date(b.createdAt || 0).getTime();
+      } else if (sortBy === 'updated') {
+        aValue = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        bValue = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      }
+      
+      if (sortOrder === 'desc') {
+        return bValue - aValue;
+      } else {
+        return aValue - bValue;
+      }
+    });
+
+    return filtered;
+  })();
 
   // Count active filters
   const activeFiltersCount = selectedStatuses.length;
+
+  const handleSort = (field: 'created' | 'updated') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
 
   const openEditForm = (trajectory: TrajectoryWithRelations) => {
     if (!trajectory || !trajectory.id) {
@@ -161,6 +195,41 @@ export default function TrajectoriesView() {
                 </Select>
               </div>
             </div>
+            
+            {/* Sort Section */}
+            <div className="border-t pt-4">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Sorteren</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button
+                  variant={sortBy === 'created' ? 'default' : 'outline'}
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => handleSort('created')}
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  Datum aangemaakt
+                  {sortBy === 'created' && (
+                    <span className="ml-auto text-xs">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  variant={sortBy === 'updated' ? 'default' : 'outline'}
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => handleSort('updated')}
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  Datum gewijzigd
+                  {sortBy === 'updated' && (
+                    <span className="ml-auto text-xs">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
           </CollapsibleContent>
         </Collapsible>
 
@@ -171,7 +240,7 @@ export default function TrajectoriesView() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="text-lg font-semibold text-green-900 dark:text-green-100">
-                    {filteredTrajectories.length} {filteredTrajectories.length === 1 ? 'traject' : 'trajecten'} gevonden
+                    {filteredAndSortedTrajectories.length} {filteredAndSortedTrajectories.length === 1 ? 'traject' : 'trajecten'} gevonden
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-green-700 dark:text-green-300">met</span>
@@ -199,7 +268,7 @@ export default function TrajectoriesView() {
         {/* Compact List */}
         <div className="mt-4">
           <CompactList
-            items={filteredTrajectories}
+            items={filteredAndSortedTrajectories}
             type="trajectories"
             onView={setSelectedTrajectory}
             onEdit={openEditForm}

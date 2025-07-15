@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Plus, Filter, Download, MoreHorizontal, Edit, Users, Building } from "lucide-react";
+import { Search, Plus, Filter, Download, MoreHorizontal, Edit, Users, Building, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,11 +21,51 @@ export default function TrajectoriesView() {
   const [selectedTrajectory, setSelectedTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
+  const [sortBy, setSortBy] = useState<'created' | 'updated'>('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data: trajectories = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/trajectories', search, selectedStatuses],
     enabled: true,
   });
+
+  // Filter and sort trajectories
+  const filteredAndSortedTrajectories = (() => {
+    let filtered = Array.isArray(trajectories) ? trajectories.filter((trajectory: any) => {
+      // Search filter
+      const matchesSearch = !search || 
+        trajectory.position?.toLowerCase().includes(search.toLowerCase()) ||
+        trajectory.jobTitle?.toLowerCase().includes(search.toLowerCase()) ||
+        trajectory.candidate?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        trajectory.client?.name?.toLowerCase().includes(search.toLowerCase());
+      
+      // Status filter
+      const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(trajectory.status);
+      
+      return matchesSearch && matchesStatus;
+    }) : [];
+
+    // Sort trajectories
+    filtered.sort((a: any, b: any) => {
+      let aValue, bValue;
+      
+      if (sortBy === 'created') {
+        aValue = new Date(a.createdAt || 0).getTime();
+        bValue = new Date(b.createdAt || 0).getTime();
+      } else if (sortBy === 'updated') {
+        aValue = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        bValue = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      }
+      
+      if (sortOrder === 'desc') {
+        return bValue - aValue;
+      } else {
+        return aValue - bValue;
+      }
+    });
+
+    return filtered;
+  })();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -43,6 +83,15 @@ export default function TrajectoriesView() {
   const clearFilters = () => {
     setSearch("");
     setSelectedStatuses(["interview", "proposed"]);
+  };
+
+  const handleSort = (field: 'created' | 'updated') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
   };
 
   const handleStatusChange = (status: string, checked: boolean) => {
@@ -143,14 +192,51 @@ export default function TrajectoriesView() {
             </div>
           </div>
 
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={clearFilters}
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filters Wissen
-          </Button>
+          <div className="space-y-3">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={clearFilters}
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filters Wissen
+            </Button>
+            
+            {/* Sort Button */}
+            <div className="border-t pt-3">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Sorteren</h4>
+              <div className="space-y-2">
+                <Button
+                  variant={sortBy === 'created' ? 'default' : 'outline'}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => handleSort('created')}
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  Datum aangemaakt
+                  {sortBy === 'created' && (
+                    <span className="ml-auto text-xs">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  variant={sortBy === 'updated' ? 'default' : 'outline'}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => handleSort('updated')}
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  Datum gewijzigd
+                  {sortBy === 'updated' && (
+                    <span className="ml-auto text-xs">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Data View */}
@@ -160,20 +246,10 @@ export default function TrajectoriesView() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {trajectories.length} trajecten gevonden
+                  {filteredAndSortedTrajectories.length} trajecten gevonden
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <Select defaultValue="date">
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date">Sorteer op datum</SelectItem>
-                    <SelectItem value="status">Sorteer op status</SelectItem>
-                    <SelectItem value="candidate">Sorteer op kandidaat</SelectItem>
-                  </SelectContent>
-                </Select>
                 <Button variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-1" />
                   Export
@@ -183,7 +259,7 @@ export default function TrajectoriesView() {
 
             {/* Trajectories List */}
             <div className="space-y-4">
-              {trajectories.length === 0 ? (
+              {filteredAndSortedTrajectories.length === 0 ? (
                 <Card>
                   <CardContent className="p-8 text-center">
                     <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -200,7 +276,7 @@ export default function TrajectoriesView() {
                   </CardContent>
                 </Card>
               ) : (
-                trajectories.map((trajectory) => (
+                filteredAndSortedTrajectories.map((trajectory) => (
                   <Card
                     key={trajectory.id}
                     className="hover:shadow-md transition-shadow cursor-pointer"
