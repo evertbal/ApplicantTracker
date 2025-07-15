@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn, Calendar, Users, Briefcase, Building } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn, Users, Briefcase, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,10 +20,8 @@ import DocumentViewer from "@/components/document-viewer";
 
 import { 
   formatTrajectoryTitle, 
-  formatTrajectoryDate, 
   formatTrajectoryStatus, 
-  getTrajectoryStatusColor,
-  formatHourlyRate 
+  getTrajectoryStatusColor
 } from "@/lib/trajectory-formatters";
 
 export default function TrajectoryDetail() {
@@ -242,25 +240,9 @@ export default function TrajectoryDetail() {
                         </div>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-500">Startdatum</Label>
+                        <Label className="text-sm font-medium text-gray-500">Traject ID</Label>
                         <p className="text-sm text-gray-900 dark:text-white mt-1">
-                          {trajectory.startDate 
-                            ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })
-                            : 'Niet opgegeven'}
-                        </p>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-500">Einddatum</Label>
-                        <p className="text-sm text-gray-900 dark:text-white mt-1">
-                          {trajectory.endDate 
-                            ? format(new Date(trajectory.endDate), 'dd MMM yyyy', { locale: nl })
-                            : 'Niet opgegeven'}
-                        </p>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-500">Uurtarief</Label>
-                        <p className="text-sm text-gray-900 dark:text-white mt-1">
-                          {formatHourlyRate(trajectory.hourlyRate)}
+                          #{trajectory.id}
                         </p>
                       </div>
                       <div>

@@ -293,9 +293,7 @@ export default function TrajectoriesView() {
                             {trajectory.jobTitle || 'Onbekende functie'} - {trajectory.client?.name || 'Onbekende opdrachtgever'}
                           </h4>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Gestart op {trajectory.startDate 
-                              ? format(new Date(trajectory.startDate), 'dd MMM yyyy', { locale: nl })
-                              : 'Onbekende datum'}
+                            Traject #{trajectory.id}
                           </p>
                         </div>
                         <div className="flex items-center space-x-3">
@@ -328,9 +326,9 @@ export default function TrajectoriesView() {
                           </p>
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">TARIEF</label>
+                          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">OPDRACHTGEVER</label>
                           <p className="text-sm text-gray-900 dark:text-white">
-                            {trajectory.hourlyRate || 'Niet opgegeven'}
+                            {trajectory.client?.name || 'Onbekend'}
                           </p>
                         </div>
                         <div>

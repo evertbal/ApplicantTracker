@@ -123,10 +123,8 @@ export const trajectories = pgTable("trajectories", {
   id: serial("id").primaryKey(),
   candidateId: integer("candidate_id").references(() => candidates.id),
   clientId: integer("client_id").references(() => clients.id),
-  startDate: date("start_date"),
   status: text("status").default("geaccepteerd"), // geaccepteerd, voorgesteld_aan_klant, gesprek_met_klant, geplaatst, niet_geplaatst, gestopt
   jobTitle: text("job_title"),
-  hourlyRate: text("hourly_rate"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -316,10 +314,8 @@ export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
 }).extend({
   candidateId: z.number().min(1, "Kandidaat is verplicht"),
   clientId: z.number().min(1, "Opdrachtgever is verplicht"),
-  startDate: z.string().optional().nullable(),
   status: z.string().optional().nullable(),
   jobTitle: z.string().optional().nullable(),
-  hourlyRate: z.string().optional().nullable(),
 });
 
 export const insertNoteSchema = createInsertSchema(notes).omit({

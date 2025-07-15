@@ -26,10 +26,8 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
   const form = useForm<InsertTrajectory>({
     resolver: zodResolver(insertTrajectorySchema),
     defaultValues: {
-      status: "interview",
-      startDate: new Date().toISOString().split('T')[0],
+      status: "geaccepteerd",
       jobTitle: "",
-      hourlyRate: "",
     },
   });
 
@@ -129,36 +127,18 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
               )}
             </div>
             <div>
-              <Label htmlFor="hourlyRate">Tarief</Label>
-              <Input
-                id="hourlyRate"
-                {...form.register("hourlyRate")}
-                placeholder="€18,50 per uur"
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startDate">Startdatum</Label>
-              <Input
-                id="startDate"
-                type="date"
-                {...form.register("startDate")}
-                className="mt-1"
-              />
-            </div>
-            <div>
               <Label htmlFor="status">Status</Label>
               <Select onValueChange={(value) => form.setValue("status", value)}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Selecteer status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="interview">In Gesprek</SelectItem>
-                  <SelectItem value="proposed">Voorgesteld</SelectItem>
-                  <SelectItem value="placed">Geplaatst</SelectItem>
+                  <SelectItem value="geaccepteerd">Geaccepteerd</SelectItem>
+                  <SelectItem value="voorgesteld_aan_klant">Voorgesteld aan klant</SelectItem>
+                  <SelectItem value="gesprek_met_klant">Gesprek met klant</SelectItem>
+                  <SelectItem value="geplaatst">Geplaatst</SelectItem>
+                  <SelectItem value="niet_geplaatst">Niet geplaatst</SelectItem>
+                  <SelectItem value="gestopt">Gestopt</SelectItem>
                 </SelectContent>
               </Select>
             </div>

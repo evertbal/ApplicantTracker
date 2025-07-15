@@ -39,9 +39,7 @@ interface CandidateFormProps {
 const trajectoryFormSchema = insertTrajectorySchema.omit({ candidateId: true }).extend({
   clientId: z.number().min(1, "Opdrachtgever is verplicht"),
   jobTitle: z.string().min(1, "Functietitel is verplicht"),
-  status: z.string().default("interview"),
-  startDate: z.string().optional().nullable(),
-  hourlyRate: z.string().optional().nullable(),
+  status: z.string().default("geaccepteerd"),
 });
 
 type TrajectoryFormData = z.infer<typeof trajectoryFormSchema>;
@@ -181,9 +179,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
     setTrajectories([...trajectories, {
       clientId: 0,
       jobTitle: "",
-      status: "interview",
-      startDate: "",
-      hourlyRate: "",
+      status: "geaccepteerd",
     }]);
   };
 
@@ -634,27 +630,13 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                                 </Select>
                               </div>
 
-                              {/* Startdatum */}
+                              {/* Location */}
                               <div className="space-y-2">
-                                <Label className="label-enhanced flex items-center space-x-2">
-                                  <Calendar className="w-4 h-4 text-primary" />
-                                  <span>Startdatum</span>
-                                </Label>
+                                <Label className="label-enhanced">Locatie</Label>
                                 <Input
-                                  type="date"
-                                  value={trajectory.startDate || ""}
-                                  onChange={(e) => updateTrajectory(index, 'startDate', e.target.value)}
-                                  className="rounded-xl"
-                                />
-                              </div>
-
-                              {/* Uurtarief */}
-                              <div className="space-y-2 md:col-span-2">
-                                <Label className="label-enhanced">Uurtarief</Label>
-                                <Input
-                                  value={trajectory.hourlyRate || ""}
-                                  onChange={(e) => updateTrajectory(index, 'hourlyRate', e.target.value)}
-                                  placeholder="Bijvoorbeeld: €75 per uur"
+                                  value={trajectory.location || ""}
+                                  onChange={(e) => updateTrajectory(index, 'location', e.target.value)}
+                                  placeholder="Bijvoorbeeld: Amsterdam, Rotterdam"
                                   className="rounded-xl"
                                 />
                               </div>

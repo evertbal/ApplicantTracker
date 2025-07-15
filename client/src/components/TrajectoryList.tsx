@@ -137,7 +137,7 @@ export default function TrajectoryList() {
                         Kandidaat: {trajectory.candidate?.name}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Gestart op {trajectory.startDate ? format(new Date(trajectory.startDate), "d MMM yyyy", { locale: nl }) : "Onbekend"}
+                        Traject #{trajectory.id}
                       </p>
                     </div>
                     <Badge className={getStatusColor(trajectory.status)}>

@@ -14,7 +14,6 @@ import NewTrajectoryModal from "./NewTrajectoryModal";
 import TrajectoryForm from "./trajectory-form";
 import { 
   formatTrajectoryTitle, 
-  formatTrajectoryDate, 
   formatTrajectoryStatus, 
   getTrajectoryStatusColor 
 } from "@/lib/trajectory-formatters";

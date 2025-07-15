@@ -14,7 +14,6 @@ import { X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  formatTrajectoryDate,
   validateTrajectoryData,
   getTrajectoryStatusOptions,
   getCandidateStatusOptions,
@@ -28,8 +27,6 @@ const trajectoryFormSchema = z.object({
   clientId: z.number().min(1, "Selecteer een opdrachtgever"),
   jobTitle: z.string().min(1, "Functietitel is verplicht"),
   status: z.string().optional(),
-  startDate: z.string().optional(),
-  hourlyRate: z.string().optional(),
   candidateStatus: z.string().optional(),
 });
 
@@ -57,8 +54,6 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
     clientId: trajectory?.clientId || 0,
     jobTitle: trajectory?.jobTitle || "",
     status: trajectory?.status || "geaccepteerd",
-    startDate: trajectory?.startDate || "",
-    hourlyRate: trajectory?.hourlyRate || "",
     candidateStatus: "",
   };
 
@@ -132,8 +127,6 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         clientId: data.clientId,
         jobTitle: data.jobTitle,
         status: data.status || "geaccepteerd",
-        startDate: data.startDate || null,
-        hourlyRate: data.hourlyRate || null,
       });
       
       if (!response.ok) {
@@ -420,44 +413,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
               )}
             />
 
-            {/* Start Date */}
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Startdatum</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date"
-                      placeholder="Selecteer startdatum"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            {/* Hourly Rate */}
-            <FormField
-              control={form.control}
-              name="hourlyRate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Uurtarief</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Bijv. €75 per uur"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             {/* Form Actions */}
             <div className="flex justify-end space-x-3 pt-6">

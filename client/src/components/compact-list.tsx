@@ -8,10 +8,8 @@ import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { 
   formatTrajectoryTitle, 
-  formatTrajectoryDate, 
   formatTrajectoryStatus, 
   getTrajectoryStatusColor,
-  formatHourlyRate,
   validateTrajectoryData 
 } from "@/lib/trajectory-formatters";
 import type { CandidateWithRelations, ClientWithRelations, TrajectoryWithRelations } from "@shared/schema";
@@ -234,19 +232,11 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                 </h3>
               </div>
               
-              {/* Status and date in subtle style */}
+              {/* Status in subtle style */}
               <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 <Badge variant="outline" className={`text-xs ${getTrajectoryStatusColor(trajectory.status)}`}>
                   {formatTrajectoryStatus(trajectory.status)}
                 </Badge>
-                <span>
-                  Start: {formatTrajectoryDate(trajectory.startDate)}
-                </span>
-                {trajectory.hourlyRate && (
-                  <span className="hidden sm:inline">
-                    {formatHourlyRate(trajectory.hourlyRate)}
-                  </span>
-                )}
               </div>
             </div>
           </div>

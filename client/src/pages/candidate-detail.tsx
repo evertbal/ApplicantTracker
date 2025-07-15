@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn, Route, Users, Calendar, Briefcase } from "lucide-react";
+import { ArrowLeft, Edit, Plus, FileText, Trash2, Download, Upload, ZoomIn, Route, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,10 +18,8 @@ import DocumentViewer from "@/components/document-viewer";
 
 import { 
   formatTrajectoryTitle, 
-  formatTrajectoryDate, 
   formatTrajectoryStatus, 
-  getTrajectoryStatusColor,
-  formatHourlyRate 
+  getTrajectoryStatusColor
 } from "@/lib/trajectory-formatters";
 
 export default function CandidateDetail() {
@@ -624,23 +622,7 @@ export default function CandidateDetail() {
                               </Badge>
                             </div>
                             
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-                              <div className="flex items-center text-gray-600">
-                                <Calendar className="h-5 w-5 mr-3 text-green-600" />
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">Startdatum</p>
-                                  <p className="text-sm">{formatTrajectoryDate(trajectory.startDate)}</p>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center text-gray-600">
-                                <Briefcase className="h-5 w-5 mr-3 text-purple-600" />
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">Uurtarief</p>
-                                  <p className="text-sm">{formatHourlyRate(trajectory.hourlyRate)}</p>
-                                </div>
-                              </div>
-                              
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                               <div className="flex items-center text-gray-600">
                                 <Route className="h-5 w-5 mr-3 text-orange-600" />
                                 <div>

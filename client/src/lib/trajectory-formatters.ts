@@ -12,17 +12,7 @@ export const formatTrajectoryTitle = (trajectory: TrajectoryWithRelations): stri
   return `${jobTitle} – ${candidateName} bij ${clientName}`;
 };
 
-export const formatTrajectoryDate = (date: string | Date | null): string => {
-  if (!date) return "Geen datum";
-  
-  try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return "Ongeldige datum";
-    return format(dateObj, "d MMM yyyy", { locale: nl });
-  } catch (error) {
-    return "Ongeldige datum";
-  }
-};
+
 
 export const formatTrajectoryStatus = (status: string | null): string => {
   if (!status) return "Onbekend";
@@ -64,10 +54,7 @@ export const formatJobTitle = (trajectory: TrajectoryWithRelations): string => {
   return trajectory.jobTitle || "Onbekende functie";
 };
 
-export const formatHourlyRate = (hourlyRate: string | null): string => {
-  if (!hourlyRate) return "Niet opgegeven";
-  return `€${hourlyRate}`;
-};
+
 
 export const validateTrajectoryData = (trajectory: TrajectoryWithRelations | null): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
@@ -98,9 +85,8 @@ export const validateTrajectoryData = (trajectory: TrajectoryWithRelations | nul
 export const getTrajectorySubtitle = (trajectory: TrajectoryWithRelations): string => {
   const candidateName = formatCandidateName(trajectory);
   const clientName = formatClientName(trajectory);
-  const startDate = formatTrajectoryDate(trajectory.startDate);
   
-  return `${candidateName} bij ${clientName} • Start: ${startDate}`;
+  return `${candidateName} bij ${clientName}`;
 };
 
 // Candidate status formatters
