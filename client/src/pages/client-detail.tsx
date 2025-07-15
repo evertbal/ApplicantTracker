@@ -63,7 +63,7 @@ export default function ClientDetail() {
 
   // Trajectory filters state
   const [trajectoryFilters, setTrajectoryFilters] = useState({
-    status: '',
+    status: 'all',
     dateType: 'created',
     dateFrom: '',
     dateTo: ''
@@ -74,7 +74,7 @@ export default function ClientDetail() {
     queryKey: [`/api/trajectories/client/${id}`, trajectoryFilters],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (trajectoryFilters.status) params.append('status', trajectoryFilters.status);
+      if (trajectoryFilters.status && trajectoryFilters.status !== 'all') params.append('status', trajectoryFilters.status);
       if (trajectoryFilters.dateFrom) params.append('dateFrom', trajectoryFilters.dateFrom);
       if (trajectoryFilters.dateTo) params.append('dateTo', trajectoryFilters.dateTo);
       params.append('dateType', trajectoryFilters.dateType);
@@ -597,7 +597,7 @@ export default function ClientDetail() {
                             <SelectValue placeholder="Alle statussen" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Alle statussen</SelectItem>
+                            <SelectItem value="all">Alle statussen</SelectItem>
                             <SelectItem value="interview">In Gesprek</SelectItem>
                             <SelectItem value="proposed">Voorgesteld</SelectItem>
                             <SelectItem value="placed">Geplaatst</SelectItem>
@@ -638,18 +638,18 @@ export default function ClientDetail() {
                         />
                       </div>
                     </div>
-                    {(trajectoryFilters.status || trajectoryFilters.dateFrom || trajectoryFilters.dateTo) && (
+                    {(trajectoryFilters.status !== 'all' || trajectoryFilters.dateFrom || trajectoryFilters.dateTo) && (
                       <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <span className="text-sm text-gray-600 dark:text-gray-400">Actieve filters:</span>
-                          {trajectoryFilters.status && <Badge variant="secondary">{trajectoryFilters.status}</Badge>}
+                          {trajectoryFilters.status !== 'all' && <Badge variant="secondary">{trajectoryFilters.status}</Badge>}
                           {trajectoryFilters.dateFrom && <Badge variant="secondary">Van: {trajectoryFilters.dateFrom}</Badge>}
                           {trajectoryFilters.dateTo && <Badge variant="secondary">Tot: {trajectoryFilters.dateTo}</Badge>}
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setTrajectoryFilters({status: '', dateType: 'created', dateFrom: '', dateTo: ''})}
+                          onClick={() => setTrajectoryFilters({status: 'all', dateType: 'created', dateFrom: '', dateTo: ''})}
                         >
                           Filters wissen
                         </Button>
