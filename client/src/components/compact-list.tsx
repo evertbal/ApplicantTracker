@@ -87,18 +87,18 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   };
 
   const renderCandidateItem = (candidate: any) => (
-    <Card key={candidate.id} className="list-item-enhanced cursor-pointer group" onClick={() => onView(candidate)}>
-      <CardContent className="p-3 sm:p-4 pt-[0px] pb-[0px]">
+    <Card key={candidate.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(candidate)}>
+      <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-gray-100 dark:border-gray-700 group-hover:border-primary/20 transition-colors">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
               <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white font-semibold">
                 {candidate.name?.substring(0, 2).toUpperCase() || 'K'}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="heading-enhanced text-sm sm:text-base truncate">
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
                   {candidate.name}
                 </h3>
                 <span className={getStatusColor(candidate.status)}>
@@ -106,18 +106,15 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                 </span>
               </div>
               
-              {candidate.description && (
-                <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  <Briefcase className="w-3 h-3 text-primary" />
-                  <span className="font-medium">{candidate.description}</span>
-                </div>
-              )}
-              
-              <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                {candidate.email && (
+              <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                {candidate.description && (
                   <div className="flex items-center space-x-1">
-                    <span className="truncate max-w-48">{candidate.email}</span>
+                    <Briefcase className="w-3 h-3 text-primary" />
+                    <span className="font-medium">{candidate.description}</span>
                   </div>
+                )}
+                {candidate.email && (
+                  <span className="truncate max-w-48">{candidate.email}</span>
                 )}
                 {candidate.phone && (
                   <div className="flex items-center space-x-1 hidden sm:flex">
@@ -132,36 +129,20 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                   </div>
                 )}
                 {candidate.region && (
-                  <div className="flex items-center space-x-1 hidden lg:flex">
-                    <span>{candidate.region}</span>
-                  </div>
+                  <span className="hidden lg:inline">{candidate.region}</span>
                 )}
               </div>
             </div>
           </div>
           
           <div className="flex items-center space-x-2 ml-2">
-            <div className="hidden sm:flex items-center space-x-2">
-              {candidate.trajectories?.length > 0 && (
-                <Badge variant="outline" className="status-badge bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 text-xs">
-                  <Route className="w-3 h-3 mr-1" />
-                  {candidate.trajectories.length}
-                </Badge>
-              )}
-            </div>
-            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 p-0 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700" 
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem 
                   onClick={(e) => { e.stopPropagation(); onView(candidate); }}
                   className="cursor-pointer"
