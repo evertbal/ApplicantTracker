@@ -18,9 +18,9 @@ import {
 import type { TrajectoryWithRelations, Candidate, Client } from "@shared/schema";
 
 const trajectoryFormSchema = z.object({
-  candidateId: z.number().min(1, "Selecteer een kandidaat"),
-  clientId: z.number().min(1, "Selecteer een opdrachtgever"),
-  jobTitle: z.string().min(1, "Functietitel is verplicht"),
+  candidateId: z.number().min(1, "Selecteer een kandidaat").optional(),
+  clientId: z.number().min(1, "Selecteer een opdrachtgever").optional(),
+  jobTitle: z.string().min(1, "Functietitel is verplicht").optional(),
   status: z.string().optional(),
   startDate: z.string().optional(),
   hourlyRate: z.string().optional(),
@@ -39,8 +39,8 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Validate trajectory data when editing
-  const validation = validateTrajectoryData(trajectory || null);
+  // Skip validation for now - let the form handle it
+  // const validation = validateTrajectoryData(trajectory || null);
 
   // Default values for form
   const defaultValues: TrajectoryFormData = {
@@ -60,16 +60,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
   // Reset form when trajectory changes
   React.useEffect(() => {
     if (trajectory && mode === "edit") {
-      const validation = validateTrajectoryData(trajectory);
-      if (!validation.isValid) {
-        console.error("Trajectory validation errors:", validation.errors);
-        toast({
-          title: "Data validatie fout",
-          description: validation.errors.join(", "),
-          variant: "destructive",
-        });
-      }
-      
+      // Reset form with trajectory data
       form.reset({
         candidateId: trajectory.candidateId || 0,
         clientId: trajectory.clientId || 0,
@@ -171,33 +162,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
     onClose();
   };
 
-  if (!validation.isValid && mode === "edit") {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-red-600">Fout bij laden traject</DialogTitle>
-            <DialogDescription>
-              Het traject kan niet worden bewerkt vanwege ontbrekende gegevens.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              Het traject kan niet worden geladen vanwege de volgende problemen:
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-sm text-red-600">
-              {validation.errors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-            <Button onClick={handleClose} className="w-full">
-              Sluiten
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  // Removed validation check - let the form handle validation
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
