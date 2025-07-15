@@ -67,6 +67,17 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
     defaultValues,
   });
 
+  // Fetch candidates and clients
+  const { data: candidates = [] } = useQuery({
+    queryKey: ["/api/candidates"],
+    enabled: isOpen,
+  });
+
+  const { data: clients = [] } = useQuery({
+    queryKey: ["/api/clients"],
+    enabled: isOpen,
+  });
+
   // Reset form when trajectory changes
   React.useEffect(() => {
     if (trajectory && mode === "edit") {
@@ -109,17 +120,6 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
       setShowCandidateStatus(false);
     }
   }, [trajectory, mode, form, toast, candidates]);
-
-  // Fetch candidates and clients
-  const { data: candidates = [] } = useQuery({
-    queryKey: ["/api/candidates"],
-    enabled: isOpen,
-  });
-
-  const { data: clients = [] } = useQuery({
-    queryKey: ["/api/clients"],
-    enabled: isOpen,
-  });
 
   // Create/update trajectory mutation
   const saveTrajectoryMutation = useMutation({
