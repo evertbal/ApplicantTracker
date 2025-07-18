@@ -14,6 +14,28 @@ import type { ClientWithRelations } from "@shared/schema";
 
 import ClientForm from "./client-form";
 
+// Client status helpers
+const formatClientStatus = (status: string): string => {
+  const statusLabels = {
+    actief: "Actief",
+    lead: "Lead",
+    prospect: "Prospect", 
+    inactief: "Inactief"
+  };
+  return statusLabels[status as keyof typeof statusLabels] || status;
+};
+
+const getClientStatusColor = (status: string): string => {
+  const statusKey = status?.toLowerCase().replace(/\s+/g, '-');
+  const statusColors = {
+    'actief': "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50",
+    'lead': "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50",
+    'prospect': "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50",
+    'inactief': "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700/50"
+  };
+  return statusColors[statusKey as keyof typeof statusColors] || "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50";
+};
+
 export default function ClientsView() {
   const [search, setSearch] = useState("");
   const [selectedClient, setSelectedClient] = useState<ClientWithRelations | null>(null);
@@ -208,9 +230,9 @@ export default function ClientsView() {
                           <div className="text-right">
                             <div className="flex items-center space-x-2 mb-2">
                               {client.status && (
-                                <Badge variant="outline" className="text-xs">
-                                  {client.status}
-                                </Badge>
+                                <span className={getClientStatusColor(client.status)}>
+                                  {formatClientStatus(client.status)}
+                                </span>
                               )}
                               {client.workType && (
                                 <Badge variant="secondary" className="text-xs">

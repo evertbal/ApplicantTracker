@@ -67,6 +67,12 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
       'niet-geplaatst': "status-badge status-niet-geplaatst",
       'gestopt': "status-badge status-gestopt",
       
+      // Client statuses
+      'actief': "status-badge status-actief",
+      'lead': "status-badge status-lead",
+      'prospect': "status-badge status-prospect",
+      'inactief': "status-badge status-inactief",
+      
       // Legacy/fallback statuses
       'active': "status-badge status-active",
       'inactive': "status-badge status-inactive",
@@ -87,6 +93,28 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
 
   const getStatusLabel = (status: string) => {
     const labels = {
+      // Candidate statuses
+      nieuw: "Nieuw",
+      beschikbaar: "Beschikbaar",
+      'in-bemiddeling': "In bemiddeling",
+      werkend: "Werkend",
+      'nu-niet-beschikbaar': "Nu niet beschikbaar",
+      inactief: "Inactief",
+      
+      // Trajectory statuses
+      geaccepteerd: "Geaccepteerd",
+      'voorgesteld-aan-klant': "Voorgesteld aan klant",
+      'gesprek-met-klant': "Gesprek met klant",
+      geplaatst: "Geplaatst",
+      'niet-geplaatst': "Niet geplaatst",
+      gestopt: "Gestopt",
+      
+      // Client statuses
+      actief: "Actief",
+      lead: "Lead",
+      prospect: "Prospect",
+      
+      // Legacy statuses
       interview: "In Gesprek",
       proposed: "Voorgesteld", 
       placed: "Geplaatst",
@@ -188,9 +216,9 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                   {client.name}
                 </h3>
                 {client.status && (
-                  <Badge variant="outline" className="text-xs">
-                    {client.status}
-                  </Badge>
+                  <span className={getStatusColor(client.status)}>
+                    {getStatusLabel(client.status)}
+                  </span>
                 )}
                 {client.workType && (
                   <Badge variant="secondary" className="text-xs">

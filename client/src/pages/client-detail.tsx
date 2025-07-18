@@ -21,6 +21,28 @@ import ContactForm from "@/components/contact-form";
 import OneDriveLink from "@/components/onedrive-link";
 import { NoteEditor } from "@/components/note-editor";
 
+// Client status helpers
+const formatClientStatus = (status: string): string => {
+  const statusLabels = {
+    actief: "Actief",
+    lead: "Lead",
+    prospect: "Prospect", 
+    inactief: "Inactief"
+  };
+  return statusLabels[status as keyof typeof statusLabels] || status;
+};
+
+const getClientStatusColor = (status: string): string => {
+  const statusKey = status?.toLowerCase().replace(/\s+/g, '-');
+  const statusColors = {
+    'actief': "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50",
+    'lead': "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50",
+    'prospect': "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50",
+    'inactief': "bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700/50"
+  };
+  return statusColors[statusKey as keyof typeof statusColors] || "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50";
+};
+
 export default function ClientDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
@@ -315,9 +337,9 @@ export default function ClientDetail() {
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Status
                   </label>
-                  <Badge variant="outline" className="text-xs">
-                    {client.status || "Actief"}
-                  </Badge>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getClientStatusColor(client.status || "actief")}`}>
+                    {formatClientStatus(client.status || "actief")}
+                  </span>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
