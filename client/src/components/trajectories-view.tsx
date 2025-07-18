@@ -20,13 +20,14 @@ export default function TrajectoriesView() {
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["geaccepteerd", "voorgesteld_aan_klant"]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [sortBy, setSortBy] = useState<'created' | 'updated'>('created');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data: trajectories = [], isLoading, refetch } = useQuery({
-    queryKey: ['/api/trajectories', search, selectedStatuses],
+    queryKey: ['/api/trajectories', search, selectedStatuses, selectedClients],
     enabled: true,
   });
 
@@ -43,7 +44,10 @@ export default function TrajectoriesView() {
       // Status filter
       const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(trajectory.status);
       
-      return matchesSearch && matchesStatus;
+      // Client filter
+      const matchesClient = selectedClients.length === 0 || selectedClients.includes(trajectory.client?.id?.toString());
+      
+      return matchesSearch && matchesStatus && matchesClient;
     }) : [];
 
     // Sort trajectories
@@ -83,7 +87,8 @@ export default function TrajectoriesView() {
 
   const clearFilters = () => {
     setSearch("");
-    setSelectedStatuses(["interview", "proposed"]);
+    setSelectedStatuses(["geaccepteerd", "voorgesteld_aan_klant"]);
+    setSelectedClients([]);
   };
 
   const handleSort = (field: 'created' | 'updated') => {
@@ -102,6 +107,23 @@ export default function TrajectoriesView() {
       setSelectedStatuses(selectedStatuses.filter(s => s !== status));
     }
   };
+
+  const handleClientChange = (clientId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedClients([...selectedClients, clientId]);
+    } else {
+      setSelectedClients(selectedClients.filter(c => c !== clientId));
+    }
+  };
+
+  // Get unique clients from trajectories
+  const uniqueClients = Array.from(
+    new Map(
+      trajectories
+        .filter(t => t.client)
+        .map(t => [t.client!.id, t.client!])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const openEditForm = (trajectory: TrajectoryWithRelations) => {
     setEditingTrajectory(trajectory);
@@ -191,6 +213,30 @@ export default function TrajectoriesView() {
                     </Label>
                   </div>
                   <span className="text-xs text-gray-500">({status.count})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Client Filter */}
+          <div className="mb-6">
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Opdrachtgever</Label>
+            <div className="space-y-2">
+              {uniqueClients.map((client) => (
+                <div key={client.id} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`client-${client.id}`}
+                      checked={selectedClients.includes(client.id.toString())}
+                      onCheckedChange={(checked) => handleClientChange(client.id.toString(), checked as boolean)}
+                    />
+                    <Label htmlFor={`client-${client.id}`} className="text-sm">
+                      {client.name}
+                    </Label>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    ({trajectories.filter(t => t.client?.id === client.id).length})
+                  </span>
                 </div>
               ))}
             </div>

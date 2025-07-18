@@ -27,6 +27,7 @@ export default function TrajectoriesView() {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [editingTrajectory, setEditingTrajectory] = useState<TrajectoryWithRelations | null>(null);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'created' | 'updated'>('created');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -59,7 +60,9 @@ export default function TrajectoriesView() {
       
       const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(trajectory.status);
       
-      return matchesSearch && matchesStatus;
+      const matchesClient = selectedClients.length === 0 || selectedClients.includes(trajectory.client?.id?.toString());
+      
+      return matchesSearch && matchesStatus && matchesClient;
     }) : [];
 
     // Sort trajectories
@@ -85,7 +88,16 @@ export default function TrajectoriesView() {
   })();
 
   // Count active filters
-  const activeFiltersCount = selectedStatuses.length;
+  const activeFiltersCount = selectedStatuses.length + selectedClients.length;
+
+  // Get unique clients from trajectories
+  const uniqueClients = Array.from(
+    new Map(
+      trajectories
+        .filter(t => t.client)
+        .map(t => [t.client!.id, t.client!])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const handleSort = (field: 'created' | 'updated') => {
     if (sortBy === field) {
@@ -193,6 +205,29 @@ export default function TrajectoriesView() {
                     {statusOptions.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Client Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Opdrachtgever
+                </label>
+                <Select
+                  value={selectedClients.length === 1 ? selectedClients[0] : "all"}
+                  onValueChange={(value) => setSelectedClients(value === "all" ? [] : [value])}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Alle opdrachtgevers" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle opdrachtgevers</SelectItem>
+                    {uniqueClients.map((client) => (
+                      <SelectItem key={client.id} value={client.id.toString()}>
+                        {client.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
