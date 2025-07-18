@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Plus, Filter, Download, MoreHorizontal, Edit, Building, MapPin, User } from "lucide-react";
+import { Search, Plus, Filter, Download, Edit, Eye, Building, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -224,22 +224,26 @@ export default function ClientsView() {
                                 : 'Onbekend'}
                             </p>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                openEditForm(client);
-                              }}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Bewerken
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="flex items-center space-x-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 px-2 text-xs"
+                              onClick={(e) => { e.stopPropagation(); setSelectedClient(client); }}
+                            >
+                              <Eye className="w-3 h-3 mr-1" />
+                              Bekijk
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 px-2 text-xs"
+                              onClick={(e) => { e.stopPropagation(); openEditForm(client); }}
+                            >
+                              <Edit className="w-3 h-3 mr-1" />
+                              Bewerk
+                            </Button>
+                          </div>
                         </div>
                       </div>
                       

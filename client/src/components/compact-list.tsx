@@ -2,8 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Eye, FileText, Route, Building, BriefcaseIcon, User, MapPin, Phone, Calendar, Briefcase } from "lucide-react";
+import { Edit, Eye, FileText, Route, Building, BriefcaseIcon, User, MapPin, Phone, Calendar, Briefcase } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { 
@@ -133,30 +132,25 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 ml-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem 
-                  onClick={(e) => { e.stopPropagation(); onView(candidate); }}
-                  className="cursor-pointer"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Bekijk details
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={(e) => { e.stopPropagation(); onEdit(candidate); }}
-                  className="cursor-pointer"
-                >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Bewerk
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-center space-x-1 ml-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 text-xs"
+              onClick={(e) => { e.stopPropagation(); onView(candidate); }}
+            >
+              <Eye className="w-3 h-3 mr-1" />
+              Bekijk
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 text-xs"
+              onClick={(e) => { e.stopPropagation(); onEdit(candidate); }}
+            >
+              <Edit className="w-3 h-3 mr-1" />
+              Bewerk
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -197,24 +191,25 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 ml-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(client); }}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Bekijk details
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(client); }}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Bewerk
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-center space-x-1 ml-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 text-xs"
+              onClick={(e) => { e.stopPropagation(); onView(client); }}
+            >
+              <Eye className="w-3 h-3 mr-1" />
+              Bekijk
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 text-xs"
+              onClick={(e) => { e.stopPropagation(); onEdit(client); }}
+            >
+              <Edit className="w-3 h-3 mr-1" />
+              Bewerk
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -248,24 +243,25 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             </div>
           </div>
           
-          <div className="flex items-center space-x-2 ml-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(trajectory); }}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Bekijk details
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(trajectory); }}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Bewerk
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-center space-x-1 ml-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 text-xs"
+              onClick={(e) => { e.stopPropagation(); onView(trajectory); }}
+            >
+              <Eye className="w-3 h-3 mr-1" />
+              Bekijk
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 px-2 text-xs"
+              onClick={(e) => { e.stopPropagation(); onEdit(trajectory); }}
+            >
+              <Edit className="w-3 h-3 mr-1" />
+              Bewerk
+            </Button>
           </div>
         </div>
       </CardContent>
