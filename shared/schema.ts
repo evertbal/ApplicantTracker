@@ -148,10 +148,7 @@ export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   entityType: text("entity_type").notNull(), // candidate, trajectory, client
   entityId: integer("entity_id").notNull(),
-  filename: text("filename").notNull(),
-  storageUrl: text("storage_url").notNull(),
-  uploadedBy: varchar("uploaded_by").references(() => users.id),
-  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  url: text("url").notNull(), // OneDrive link
 });
 
 // Client agreements table
@@ -351,13 +348,10 @@ export const updateNoteSchema = createInsertSchema(notes).omit({
 
 export const insertDocumentSchema = createInsertSchema(documents).omit({
   id: true,
-  uploadedAt: true,
 }).extend({
-  entityType: z.string(),
-  entityId: z.number(),
-  filename: z.string(),
-  storageUrl: z.string(),
-  uploadedBy: z.string().optional()
+  entityType: z.string().min(1, "Entiteit type is verplicht"),
+  entityId: z.number().min(1, "Entiteit ID is verplicht"),
+  url: z.string().min(1, "OneDrive link is verplicht"),
 });
 
 export const upsertUserSchema = createInsertSchema(users);

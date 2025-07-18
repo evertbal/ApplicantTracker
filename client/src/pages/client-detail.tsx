@@ -18,8 +18,7 @@ import { nl } from "date-fns/locale";
 import type { ClientWithRelations, Note, Document } from "@shared/schema";
 import ClientForm from "@/components/client-form";
 import ContactForm from "@/components/contact-form";
-import DocumentUpload from "@/components/document-upload";
-import DocumentViewer from "@/components/document-viewer";
+import OneDriveLink from "@/components/onedrive-link";
 import { NoteEditor } from "@/components/note-editor";
 
 export default function ClientDetail() {
@@ -32,11 +31,9 @@ export default function ClientDetail() {
   const [isNewContactModalOpen, setIsNewContactModalOpen] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
-  const [showUploadForm, setShowUploadForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [editingContact, setEditingContact] = useState<any>(null);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
-  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
+
 
   // Fetch client data
   const { data: client, isLoading } = useQuery<ClientWithRelations>({
@@ -142,26 +139,7 @@ export default function ClientDetail() {
 
 
 
-  // Delete document mutation
-  const deleteDocumentMutation = useMutation({
-    mutationFn: async (documentId: number) => {
-      await apiRequest("DELETE", `/api/documents/${documentId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/documents/client/${id}`] });
-      toast({
-        title: "Document verwijderd",
-        description: "Het document is succesvol verwijderd.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Fout",
-        description: "Er is een fout opgetreden bij het verwijderen van het document.",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   const handleBack = () => {
     setLocation("/");
@@ -181,16 +159,7 @@ export default function ClientDetail() {
 
 
 
-  const handleDeleteDocument = (documentId: number) => {
-    if (confirm("Weet je zeker dat je dit document wilt verwijderen?")) {
-      deleteDocumentMutation.mutate(documentId);
-    }
-  };
 
-  const handleDocumentView = (document: Document) => {
-    setSelectedDocument(document);
-    setIsDocumentViewerOpen(true);
-  };
 
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return "-";
@@ -713,89 +682,12 @@ export default function ClientDetail() {
 
             <TabsContent value="documents" className="mt-6">
               <Card>
-                <CardHeader>
-                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
-                    <CardTitle>Documenten</CardTitle>
-                    <Button 
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => setShowUploadForm(!showUploadForm)}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Document uploaden
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {/* Document Upload Component - Show/Hide */}
-                  {showUploadForm && (
-                    <div className="mb-6">
-                      <DocumentUpload 
-                        entityType="client"
-                        entityId={parseInt(id!)}
-                        onUploadComplete={() => {
-                          setShowUploadForm(false);
-                          queryClient.invalidateQueries({ queryKey: [`/api/documents/client/${id}`] });
-                          toast({
-                            title: "Upload voltooid",
-                            description: "Het document is succesvol geüpload.",
-                          });
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div className="space-y-4">
-                    {documents.length > 0 ? (
-                      documents.map((document: Document) => (
-                        <div
-                          key={document.id}
-                          className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <FileText className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                {document.filename}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {formatDate(document.uploadedAt)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDocumentView(document)}
-                              title="Document bekijken"
-                            >
-                              <ZoomIn className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(document.storageUrl, "_blank")}
-                              title="Document downloaden"
-                            >
-                              <Download className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => deleteDocumentMutation.mutate(document.id)}
-                              disabled={deleteDocumentMutation.isPending}
-                              title="Document verwijderen"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Nog geen documenten geüpload.
-                      </p>
-                    )}
-                  </div>
+                <CardContent className="p-6">
+                  <OneDriveLink
+                    entityType="client"
+                    entityId={parseInt(id!)}
+                    documents={documents}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -842,17 +734,7 @@ export default function ClientDetail() {
 
 
 
-      {/* Document Viewer Modal */}
-      {selectedDocument && (
-        <DocumentViewer
-          document={selectedDocument}
-          isOpen={isDocumentViewerOpen}
-          onClose={() => {
-            setIsDocumentViewerOpen(false);
-            setSelectedDocument(null);
-          }}
-        />
-      )}
+
     </div>
   );
 }

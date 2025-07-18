@@ -15,8 +15,7 @@ import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import type { TrajectoryWithRelations, Note, Document } from "@shared/schema";
 import TrajectoryForm from "@/components/trajectory-form";
-import DocumentUpload from "@/components/document-upload";
-import DocumentViewer from "@/components/document-viewer";
+import OneDriveLink from "@/components/onedrive-link";
 import { NoteEditor } from "@/components/note-editor";
 
 import { 
@@ -34,9 +33,7 @@ export default function TrajectoryDetail() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
-  const [showUploadForm, setShowUploadForm] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
-  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
+
 
   // Fetch trajectory data
   const { data: trajectory, isLoading } = useQuery<TrajectoryWithRelations>({
@@ -90,26 +87,7 @@ export default function TrajectoryDetail() {
     }
   });
 
-  // Delete document mutation
-  const deleteDocumentMutation = useMutation({
-    mutationFn: async (docId: number) => {
-      return apiRequest('DELETE', `/api/documents/${docId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/documents/trajectory/${id}`] });
-      toast({
-        title: "Document verwijderd",
-        description: "Het document is succesvol verwijderd.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Fout bij verwijderen document",
-        description: error.message || "Er is een fout opgetreden.",
-        variant: "destructive",
-      });
-    }
-  });
+
 
   const getStatusBadge = (status: string) => {
     const color = getTrajectoryStatusColor(status);
@@ -125,20 +103,9 @@ export default function TrajectoryDetail() {
     addNoteMutation.mutate(newNote);
   };
 
-  const handleDeleteDocument = (docId: number) => {
-    if (confirm("Weet je zeker dat je dit document wilt verwijderen?")) {
-      deleteDocumentMutation.mutate(docId);
-    }
-  };
 
-  const handleDocumentUploaded = () => {
-    queryClient.invalidateQueries({ queryKey: [`/api/documents/trajectory/${id}`] });
-    setShowUploadForm(false);
-    toast({
-      title: "Document geüpload",
-      description: "Het document is succesvol geüpload.",
-    });
-  };
+
+
 
   if (isLoading) {
     return (
@@ -438,90 +405,12 @@ export default function TrajectoryDetail() {
 
             <TabsContent value="documents" className="mt-6">
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center">
-                      <FileText className="w-5 h-5 mr-2" />
-                      Documenten
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={() => setShowUploadForm(true)}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Document
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {showUploadForm && (
-                    <div className="mb-4">
-                      <DocumentUpload
-                        entityType="trajectory"
-                        entityId={parseInt(id!)}
-                        onUploadSuccess={handleDocumentUploaded}
-                        onCancel={() => setShowUploadForm(false)}
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="space-y-3">
-                    {documents.length === 0 ? (
-                      <p className="text-gray-500 text-center py-8">
-                        Geen documenten gevonden. Upload het eerste document.
-                      </p>
-                    ) : (
-                      documents.map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <FileText className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <p className="text-sm font-medium">{doc.filename}</p>
-                              <p className="text-xs text-gray-500">
-                                {doc.uploadedAt 
-                                  ? format(new Date(doc.uploadedAt), 'dd MMM yyyy HH:mm', { locale: nl })
-                                  : 'Onbekende datum'}
-                                {doc.uploadedBy && ` • ${doc.uploadedBy}`}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedDocument(doc);
-                                setIsDocumentViewerOpen(true);
-                              }}
-                            >
-                              <ZoomIn className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                const link = document.createElement('a');
-                                link.href = `/api/documents/${doc.id}/download`;
-                                link.download = doc.filename;
-                                link.click();
-                              }}
-                            >
-                              <Download className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteDocument(doc.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                <CardContent className="p-6">
+                  <OneDriveLink
+                    entityType="trajectory"
+                    entityId={parseInt(id!)}
+                    documents={documents}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -547,16 +436,7 @@ export default function TrajectoryDetail() {
         />
       )}
 
-      {/* Document Viewer */}
-      {isDocumentViewerOpen && selectedDocument && (
-        <DocumentViewer
-          document={selectedDocument}
-          onClose={() => {
-            setIsDocumentViewerOpen(false);
-            setSelectedDocument(null);
-          }}
-        />
-      )}
+
     </div>
   );
 }
