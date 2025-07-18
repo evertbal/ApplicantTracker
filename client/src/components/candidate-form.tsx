@@ -90,12 +90,27 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       onSuccess();
     },
     onError: (error: any) => {
-      const message = error.message || "Er is een fout opgetreden bij het toevoegen van de kandidaat.";
-      toast({
-        title: error.response?.data?.duplicate ? "Duplicaat gevonden" : "Fout",
-        description: message,
-        variant: "destructive",
-      });
+      console.error('Create candidate error:', error);
+      
+      // Handle duplicate candidate error specifically
+      if (error.response?.status === 400 && error.response?.data?.duplicate) {
+        const duplicate = error.response.data.duplicate;
+        const duplicateMessage = error.response.data.message || "Deze kandidaat bestaat al in het systeem.";
+        
+        toast({
+          title: "Duplicaat gevonden",
+          description: `${duplicateMessage}\n\nBestaande kandidaat: ${duplicate.name} (ID: ${duplicate.id})`,
+          variant: "destructive",
+        });
+      } else {
+        // Handle other errors
+        const message = error.response?.data?.message || error.message || "Er is een fout opgetreden bij het toevoegen van de kandidaat.";
+        toast({
+          title: "Fout bij toevoegen kandidaat",
+          description: message,
+          variant: "destructive",
+        });
+      }
     },
   });
 

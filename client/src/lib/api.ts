@@ -56,6 +56,17 @@ export const candidateApi = {
 
   create: async (data: InsertCandidate): Promise<Candidate> => {
     const response = await apiRequest('POST', '/api/candidates', data);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      const error = new Error(errorData.message || 'Failed to create candidate');
+      (error as any).response = {
+        status: response.status,
+        data: errorData
+      };
+      throw error;
+    }
+    
     return response.json();
   },
 
