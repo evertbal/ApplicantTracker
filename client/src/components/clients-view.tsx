@@ -206,11 +206,18 @@ export default function ClientsView() {
                         </div>
                         <div className="flex items-center space-x-4">
                           <div className="text-right">
-                            {client.workType && (
-                              <Badge variant="secondary" className="mb-2">
-                                {client.workType}
-                              </Badge>
-                            )}
+                            <div className="flex items-center space-x-2 mb-2">
+                              {client.status && (
+                                <Badge variant="outline" className="text-xs">
+                                  {client.status}
+                                </Badge>
+                              )}
+                              {client.workType && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {client.workType}
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-xs text-gray-500">
                               Toegevoegd: {client.createdAt 
                                 ? format(new Date(client.createdAt), 'dd MMM yyyy', { locale: nl })

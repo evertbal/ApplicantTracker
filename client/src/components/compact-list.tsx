@@ -178,9 +178,16 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
                   {client.name}
                 </h3>
-                <Badge variant="outline" className="text-xs">
-                  {client.workType}
-                </Badge>
+                {client.status && (
+                  <Badge variant="outline" className="text-xs">
+                    {client.status}
+                  </Badge>
+                )}
+                {client.workType && (
+                  <Badge variant="secondary" className="text-xs">
+                    {client.workType}
+                  </Badge>
+                )}
               </div>
               
               <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
