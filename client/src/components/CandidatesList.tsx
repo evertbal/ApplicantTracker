@@ -1,324 +1,356 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { Search, Plus, Filter, Download, Upload, RefreshCw, FileSpreadsheet, X, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Plus, MoreVertical, Edit, StickyNote, X } from "lucide-react";
-import { format } from "date-fns";
-import { nl } from "date-fns/locale";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import type { CandidateWithRelations } from "@shared/schema";
-import FilterPanel from "./FilterPanel";
-import DetailModal from "./DetailModal";
 import NewCandidateModal from "./NewCandidateModal";
+import CandidateForm from "./candidate-form";
+import CompactList from "./compact-list";
+import { usePersistedFilters } from "@/hooks/usePersistedFilters";
 
 export default function CandidatesList() {
-  const [search, setSearch] = useState("");
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateWithRelations | null>(null);
+  const { filters, updateFilters, clearAllFilters, hasActiveFilters } = usePersistedFilters();
   const [isNewCandidateModalOpen, setIsNewCandidateModalOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    status: [] as string[],
-    region: "",
-    drivingLicense: [] as string[],
-    dateFrom: "",
-    dateTo: "",
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
+  const [, setLocation] = useLocation();
+
+  const { data: candidates = [], isLoading, refetch } = useQuery({
+    queryKey: ['/api/candidates'],
+    enabled: true,
   });
 
-  const { data: candidates = [], isLoading } = useQuery({
-    queryKey: ["/api/candidates", { search, ...filters }],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (filters.status.length > 0) params.append("status", filters.status.join(","));
-      if (filters.region) params.append("region", filters.region);
-      if (filters.drivingLicense.length > 0) params.append("drivingLicense", filters.drivingLicense.join(","));
-      if (filters.dateFrom) params.append("dateFrom", filters.dateFrom);
-      if (filters.dateTo) params.append("dateTo", filters.dateTo);
-      
-      const response = await fetch(`/api/candidates?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch candidates");
-      return response.json() as Promise<CandidateWithRelations[]>;
-    },
+  // Type-safe access to candidates data
+  const candidatesArray = Array.isArray(candidates) ? candidates as any[] : [];
+
+  // Filter and sort candidates client-side
+  const filteredCandidates = candidatesArray.filter((candidate: any) => {
+    // Search filter
+    const matchesSearch = filters.search === "" || 
+      candidate.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      candidate.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      candidate.city?.toLowerCase().includes(filters.search.toLowerCase());
+
+    // Status filter
+    const matchesStatus = filters.selectedStatuses.length === 0 || filters.selectedStatuses.includes(candidate.status);
+
+    // Region filter
+    const matchesRegion = filters.selectedRegion === "" || filters.selectedRegion === "alle" || candidate.region === filters.selectedRegion;
+
+    // License filter
+    const matchesLicense = filters.selectedLicenses.length === 0 || 
+      (candidate.drivingLicenses && filters.selectedLicenses.some(license => 
+        candidate.drivingLicenses.includes(license)
+      ));
+
+    return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
+  }).sort((a: any, b: any) => {
+    let aValue, bValue;
+    
+    if (filters.sortBy === 'created') {
+      aValue = new Date(a.dateAdded || 0).getTime();
+      bValue = new Date(b.dateAdded || 0).getTime();
+    } else if (filters.sortBy === 'updated') {
+      aValue = new Date(a.updatedAt || a.dateAdded || 0).getTime();
+      bValue = new Date(b.updatedAt || b.dateAdded || 0).getTime();
+    }
+    
+    if (filters.sortOrder === 'desc') {
+      return bValue - aValue;
+    } else {
+      return aValue - bValue;
+    }
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "placed":
-        return "bg-blue-100 text-blue-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  // Extract filter options from data
+  const statusOptions = Array.from(new Set(candidatesArray.map((c: any) => c.status).filter(Boolean)));
+  const regionOptions = Array.from(new Set(candidatesArray.map((c: any) => c.region).filter(Boolean)));
+  const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
+
+  const handleSort = (field: 'created' | 'updated') => {
+    if (filters.sortBy === field) {
+      updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+    } else {
+      updateFilters({ sortBy: field, sortOrder: 'desc' });
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Actief";
-      case "placed":
-        return "Geplaatst";
-      case "inactive":
-        return "Inactief";
-      default:
-        return status;
-    }
+  const activeFiltersCount = 
+    filters.selectedStatuses.length + 
+    (filters.selectedRegion ? 1 : 0) + 
+    filters.selectedLicenses.length +
+    (filters.search ? 1 : 0);
+
+  const openEditForm = (candidate: CandidateWithRelations) => {
+    setEditingCandidate(candidate);
+    setShowForm(true);
   };
 
-  const getInitials = (name: string) => {
-    return name.split(" ").map(n => n[0]).join("").toUpperCase();
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingCandidate(null);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex overflow-hidden">
-        <FilterPanel onFiltersChange={setFilters} />
-        <div className="flex-1 p-6">
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <Skeleton className="w-12 h-12 rounded-full" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-1/3" />
-                      <Skeleton className="h-3 w-1/2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleFormSuccess = () => {
+    closeForm();
+    refetch();
+  };
 
   return (
     <>
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      {/* Mobile Header */}
+      <header className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">Kandidaten</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Kandidaten</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
               Beheer en volg alle kandidaten in het systeem
             </p>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="relative">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="relative flex-1 sm:flex-none">
               <Input
                 type="text"
                 placeholder="Zoeken..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-64 pl-10"
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value })}
+                className="w-full sm:w-64 pl-10"
               />
               <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
             </div>
             <Button
               onClick={() => setIsNewCandidateModalOpen(true)}
-              className="bg-primary hover:bg-primary-hover"
+              className="bg-primary hover:bg-primary-hover shrink-0"
+              size="sm"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Nieuwe Kandidaat
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Nieuwe</span>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <div className="flex-1 flex overflow-hidden">
-        <FilterPanel onFiltersChange={setFilters} />
-        
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6">
-            {/* Enhanced Results Counter */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-xl font-bold text-blue-900">
-                      {candidates.length}
-                    </h3>
-                    <span className="text-base text-blue-700">
-                      {candidates.length === 1 ? 'kandidaat gevonden' : 'kandidaten gevonden'}
-                    </span>
-                  </div>
-                  
-                  {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search || filters.dateFrom || filters.dateTo) && (
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-blue-800">Actieve filters:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {search && (
-                          <Badge variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
-                            Zoekterm: "{search}"
-                          </Badge>
-                        )}
-                        {filters.status.map(status => (
-                          <Badge key={status} variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
-                            Status: {status === 'active' ? 'Actief' : status === 'placed' ? 'Geplaatst' : 'Inactief'}
-                          </Badge>
-                        ))}
-                        {filters.region && (
-                          <Badge variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
-                            Regio: {filters.region}
-                          </Badge>
-                        )}
-                        {filters.drivingLicense.map(license => (
-                          <Badge key={license} variant="outline" className="text-xs bg-white border-blue-300 text-blue-700 font-mono">
-                            Rijbewijs: {license}
-                          </Badge>
-                        ))}
-                        {(filters.dateFrom || filters.dateTo) && (
-                          <Badge variant="outline" className="text-xs bg-white border-blue-300 text-blue-700">
-                            Datum: {filters.dateFrom || '...'} - {filters.dateTo || '...'}
-                          </Badge>
-                        )}
-                      </div>
+      {/* Main Content */}
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+        {/* Collapsible Filters */}
+        <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="mb-4 w-full sm:w-auto">
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Status
+                </label>
+                <div className="space-y-2">
+                  {statusOptions.map((status) => (
+                    <div key={status} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`status-${status}`}
+                        checked={filters.selectedStatuses.includes(status)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            updateFilters({ selectedStatuses: [...filters.selectedStatuses, status] });
+                          } else {
+                            updateFilters({ selectedStatuses: filters.selectedStatuses.filter(s => s !== status) });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`status-${status}`} className="text-sm">
+                        {status}
+                      </Label>
                     </div>
-                  )}
+                  ))}
                 </div>
-                
-                {(filters.status.length > 0 || filters.region || filters.drivingLicense.length > 0 || search || filters.dateFrom || filters.dateTo) && (
+              </div>
+
+              {/* Region Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Regio
+                </label>
+                <Select
+                  value={filters.selectedRegion || "alle"}
+                  onValueChange={(value) => updateFilters({ selectedRegion: value === "alle" ? "" : value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Alle regio's" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alle">Alle regio's</SelectItem>
+                    {regionOptions.map((region) => (
+                      <SelectItem key={region} value={region}>
+                        {region}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* License Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Rijbewijs
+                </label>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {licenseOptions.map((license) => (
+                    <div key={license} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`license-${license}`}
+                        checked={filters.selectedLicenses.includes(license)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            updateFilters({ selectedLicenses: [...filters.selectedLicenses, license] });
+                          } else {
+                            updateFilters({ selectedLicenses: filters.selectedLicenses.filter(l => l !== license) });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`license-${license}`} className="text-sm font-mono">
+                        {license}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort Options */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sorteren
+                </label>
+                <div className="space-y-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setSearch("");
-                      setFilters({
-                        status: [],
-                        region: "",
-                        drivingLicense: [],
-                        dateFrom: "",
-                        dateTo: "",
-                      });
-                    }}
-                    className="text-blue-700 border-blue-300 hover:bg-blue-100 flex-shrink-0"
+                    onClick={() => handleSort('created')}
+                    className={`w-full justify-start ${filters.sortBy === 'created' ? 'bg-primary/10' : ''}`}
                   >
-                    <X className="h-4 w-4 mr-1" />
-                    Alle filters wissen
+                    <ArrowUpDown className="w-3 h-3 mr-2" />
+                    Datum toegevoegd {filters.sortBy === 'created' && (filters.sortOrder === 'desc' ? '↓' : '↑')}
                   </Button>
-                )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSort('updated')}
+                    className={`w-full justify-start ${filters.sortBy === 'updated' ? 'bg-primary/10' : ''}`}
+                  >
+                    <ArrowUpDown className="w-3 h-3 mr-2" />
+                    Laatst gewijzigd {filters.sortBy === 'updated' && (filters.sortOrder === 'desc' ? '↓' : '↑')}
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Candidates List */}
-            <div className="space-y-4">
-              {candidates.length === 0 ? (
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <p className="text-gray-500">Geen kandidaten gevonden</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                candidates.map((candidate) => (
-                  <Card 
-                    key={candidate.id} 
-                    className="hover:shadow-md transition-shadow duration-200 cursor-pointer"
-                    onClick={() => setSelectedCandidate(candidate)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span className="text-gray-600 font-medium">
-                              {getInitials(candidate.name)}
-                            </span>
-                          </div>
-                          <div>
-                            {candidate.description && (
-                              <p className="text-sm font-medium text-blue-600 mb-1 bg-blue-50 px-2 py-1 rounded">
-                                {candidate.description}
-                              </p>
-                            )}
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {candidate.name}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              {candidate.city}, {candidate.region}
-                            </p>
-                            <div className="flex items-center mt-1 space-x-3">
-                              <span className="text-xs text-gray-500">
-                                {candidate.phone}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {candidate.email}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            <Badge className={getStatusColor(candidate.status || "")}>
-                              {getStatusLabel(candidate.status || "")}
-                            </Badge>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Laatst bijgewerkt: {format(new Date(candidate.updatedAt!), "d MMM yyyy", { locale: nl })}
-                            </p>
-                          </div>
-                          {candidate.drivingLicenses?.map((license: string) => (
-                            <Badge 
-                              key={license} 
-                              variant="secondary"
-                              className="text-xs bg-blue-100 text-blue-800"
-                            >
-                              {license}
-                            </Badge>
-                          ))}
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-6 text-sm text-gray-600">
-                            <span>
-                              {candidate.trajectories?.length || 0} trajecten
-                            </span>
-                            <span>
-                              Toegevoegd {format(new Date(candidate.dateAdded!), "d MMM yyyy", { locale: nl })}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <StickyNote className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <div className="pt-4 border-t">
+                <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-red-600 hover:text-red-700">
+                  <X className="w-4 h-4 mr-2" />
+                  Alle filters wissen
+                </Button>
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Results Counter */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-xl font-bold text-green-900">
+                  {filteredCandidates.length}
+                </h3>
+                <span className="text-base text-green-700">
+                  {filteredCandidates.length === 1 ? 'kandidaat gevonden' : 'kandidaten gevonden'}
+                </span>
+              </div>
+              
+              {hasActiveFilters && (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-green-800">Actieve filters:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {filters.search && (
+                      <Badge variant="outline" className="text-xs bg-white border-green-300 text-green-700">
+                        Zoekterm: "{filters.search}"
+                      </Badge>
+                    )}
+                    {filters.selectedStatuses.map(status => (
+                      <Badge key={status} variant="outline" className="text-xs bg-white border-green-300 text-green-700">
+                        Status: {status}
+                      </Badge>
+                    ))}
+                    {filters.selectedRegion && (
+                      <Badge variant="outline" className="text-xs bg-white border-green-300 text-green-700">
+                        Regio: {filters.selectedRegion}
+                      </Badge>
+                    )}
+                    {filters.selectedLicenses.map(license => (
+                      <Badge key={license} variant="outline" className="text-xs bg-white border-green-300 text-green-700 font-mono">
+                        Rijbewijs: {license}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
+            
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-green-600 hover:text-green-700 shrink-0">
+                <X className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Filters wissen</span>
+              </Button>
+            )}
           </div>
         </div>
+
+        {/* Candidates List */}
+        <CompactList
+          items={filteredCandidates}
+          type="candidates"
+          onView={(candidate) => setLocation(`/candidate/${candidate.id}`)}
+          onEdit={openEditForm}
+          isLoading={isLoading}
+        />
       </div>
 
-      {/* Detail Modal */}
-      {selectedCandidate && (
-        <DetailModal
-          entity={selectedCandidate}
-          entityType="candidate"
-          isOpen={!!selectedCandidate}
-          onClose={() => setSelectedCandidate(null)}
-        />
-      )}
-
-      {/* New Candidate Modal */}
+      {/* Modals */}
       <NewCandidateModal
         isOpen={isNewCandidateModalOpen}
         onClose={() => setIsNewCandidateModalOpen(false)}
+        onSuccess={() => {
+          setIsNewCandidateModalOpen(false);
+          refetch();
+        }}
       />
+
+      {showForm && (
+        <CandidateForm
+          candidate={editingCandidate || undefined}
+          isOpen={showForm}
+          onClose={closeForm}
+          onSuccess={handleFormSuccess}
+        />
+      )}
     </>
   );
 }

@@ -71,7 +71,6 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
       'actief': "status-badge status-actief",
       'lead': "status-badge status-lead",
       'prospect': "status-badge status-prospect",
-      'inactief': "status-badge status-inactief",
       
       // Legacy/fallback statuses
       'active': "status-badge status-active",
