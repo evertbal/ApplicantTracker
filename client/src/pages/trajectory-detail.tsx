@@ -66,9 +66,10 @@ export default function TrajectoryDetail() {
   // Add note mutation
   const addNoteMutation = useMutation({
     mutationFn: async (content: string) => {
-      return apiRequest(`/api/notes/trajectory/${id}`, {
-        method: 'POST',
-        body: { content }
+      return apiRequest('POST', '/api/notes', {
+        entityType: 'trajectory',
+        entityId: parseInt(id!),
+        content
       });
     },
     onSuccess: () => {
@@ -92,9 +93,7 @@ export default function TrajectoryDetail() {
   // Delete document mutation
   const deleteDocumentMutation = useMutation({
     mutationFn: async (docId: number) => {
-      return apiRequest(`/api/documents/${docId}`, {
-        method: 'DELETE',
-      });
+      return apiRequest('DELETE', `/api/documents/${docId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/documents/trajectory/${id}`] });
