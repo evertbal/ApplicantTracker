@@ -5,6 +5,8 @@ export interface FilterState {
   selectedRegion: string;
   selectedLicenses: string[];
   search: string;
+  sortBy: 'created' | 'updated';
+  sortOrder: 'asc' | 'desc';
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -12,6 +14,8 @@ const DEFAULT_FILTERS: FilterState = {
   selectedRegion: "",
   selectedLicenses: [],
   search: "",
+  sortBy: 'created',
+  sortOrder: 'desc',
 };
 
 export function usePersistedFilters(storageKey: string = "candidates-filters") {

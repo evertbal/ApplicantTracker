@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Search, Plus, Download, Upload, RefreshCw, FileSpreadsheet, X } from "lucide-react";
+import { Search, Plus, Download, Upload, RefreshCw, FileSpreadsheet, X, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -30,7 +30,7 @@ export default function CandidatesView() {
   // Type-safe access to candidates data
   const candidatesArray = Array.isArray(candidates) ? candidates as any[] : [];
 
-  // Filter candidates client-side
+  // Filter and sort candidates client-side
   const filteredCandidates = candidatesArray.filter((candidate: any) => {
     // Search filter
     const matchesSearch = filters.search === "" || 
@@ -51,12 +51,36 @@ export default function CandidatesView() {
       ));
 
     return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
+  }).sort((a: any, b: any) => {
+    let aValue, bValue;
+    
+    if (filters.sortBy === 'created') {
+      aValue = new Date(a.dateAdded || 0).getTime();
+      bValue = new Date(b.dateAdded || 0).getTime();
+    } else if (filters.sortBy === 'updated') {
+      aValue = new Date(a.updatedAt || a.dateAdded || 0).getTime();
+      bValue = new Date(b.updatedAt || b.dateAdded || 0).getTime();
+    }
+    
+    if (filters.sortOrder === 'desc') {
+      return bValue - aValue;
+    } else {
+      return aValue - bValue;
+    }
   });
 
   // Extract filter options from data
   const statusOptions = Array.from(new Set(candidatesArray.map((c: any) => c.status).filter(Boolean)));
   const regionOptions = Array.from(new Set(candidatesArray.map((c: any) => c.region).filter(Boolean)));
   const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
+
+  const handleSort = (field: 'created' | 'updated') => {
+    if (filters.sortBy === field) {
+      updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+    } else {
+      updateFilters({ sortBy: field, sortOrder: 'desc' });
+    }
+  };
 
   const activeFiltersCount = 
     filters.selectedStatuses.length + 
@@ -218,9 +242,16 @@ export default function CandidatesView() {
           selectedStatuses={filters.selectedStatuses}
           selectedRegion={filters.selectedRegion}
           selectedLicenses={filters.selectedLicenses}
+          dateFrom=""
+          dateTo=""
+          sortBy={filters.sortBy}
+          sortOrder={filters.sortOrder}
           onStatusChange={(statuses) => updateFilters({ selectedStatuses: statuses })}
           onRegionChange={(region) => updateFilters({ selectedRegion: region })}
           onLicenseChange={(licenses) => updateFilters({ selectedLicenses: licenses })}
+          onDateFromChange={() => {}}
+          onDateToChange={() => {}}
+          onSort={handleSort}
           activeFiltersCount={activeFiltersCount}
         />
 
