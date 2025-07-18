@@ -277,7 +277,7 @@ export default function CandidatesView() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto relative">
         {/* Collapsible Filters */}
         <CollapsibleFilters
           statusOptions={statusOptions}
