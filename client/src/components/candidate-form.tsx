@@ -71,6 +71,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       phase: candidate?.phase || "intake",
       drivingLicenses: candidate?.drivingLicenses || [],
       drivingLicenseNotes: candidate?.drivingLicenseNotes || "",
+      salaryIndication: candidate?.salaryIndication || "",
     },
   });
 
@@ -435,6 +436,25 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="salaryIndication"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salarisindicatie</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        value={field.value || ""} 
+                        placeholder="Bijvoorbeeld: €2500-€3000 per maand, €16 per uur..." 
+                        className="rounded-xl border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-primary/20 transition-colors"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

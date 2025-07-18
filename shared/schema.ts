@@ -71,6 +71,7 @@ export const candidates = pgTable("candidates", {
   email: text("email"),
   status: text("status").default("nieuw"), // nieuw, beschikbaar, in_bemiddeling, werkend, nu_niet_beschikbaar, inactief
   phase: text("phase").default("intake"), // intake, matching, placed
+  salaryIndication: text("salary_indication"),
   addedBy: varchar("added_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -256,6 +257,7 @@ export const insertCandidateSchema = createInsertSchema(candidates).omit({
   city: z.string().optional().nullable(),
   phase: z.string().optional().nullable(),
   marketing: z.string().optional().nullable(),
+  salaryIndication: z.string().optional().nullable(),
 });
 
 export const insertClientSchema = createInsertSchema(clients).omit({

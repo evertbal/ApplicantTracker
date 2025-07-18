@@ -304,6 +304,14 @@ export default function CandidateDetail() {
                       {candidate.marketing || "-"}
                     </p>
                   </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Salarisindicatie
+                    </Label>
+                    <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                      {candidate.salaryIndication || "-"}
+                    </p>
+                  </div>
                 </div>
 
 
