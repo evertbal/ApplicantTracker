@@ -77,22 +77,8 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
 
   const createMutation = useMutation({
     mutationFn: async (candidateData: InsertCandidate) => {
-      // First create the candidate
+      // Create the candidate with notes - server handles note creation
       const candidate = await candidateApi.create(candidateData);
-      
-      // Then create notes if any exist for new candidates
-      if (!isEditing && initialNotes.some(note => note.trim())) {
-        const notePromises = initialNotes
-          .filter(note => note.trim())
-          .map(note => notesApi.create({
-            entityType: "candidate",
-            entityId: candidate.id,
-            content: note.trim(),
-          }));
-        
-        await Promise.all(notePromises);
-      }
-      
       return candidate;
     },
     onSuccess: () => {
