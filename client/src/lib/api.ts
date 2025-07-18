@@ -157,6 +157,15 @@ export const notesApi = {
   create: async (data: InsertNote): Promise<Note> => {
     const response = await apiRequest('POST', '/api/notes', data);
     return response.json();
+  },
+
+  update: async (id: number, content: string): Promise<Note> => {
+    const response = await apiRequest('PUT', `/api/notes/${id}`, { content });
+    return response.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiRequest('DELETE', `/api/notes/${id}`);
   }
 };
 

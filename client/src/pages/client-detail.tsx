@@ -20,6 +20,7 @@ import ClientForm from "@/components/client-form";
 import ContactForm from "@/components/contact-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
+import { NoteEditor } from "@/components/note-editor";
 
 export default function ClientDetail() {
   const { id } = useParams();
@@ -545,21 +546,12 @@ export default function ClientDetail() {
                   <div className="space-y-4">
                     {notes.length > 0 ? (
                       notes.map((note) => (
-                        <div key={note.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <p className="text-sm text-gray-900 dark:text-white mb-2">
-                                {note.content}
-                              </p>
-                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium mr-2">
-                                  {getUserInitials(note.authorId)}
-                                </div>
-                                {formatDate(note.createdAt)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <NoteEditor
+                          key={note.id}
+                          note={note}
+                          entityType="client"
+                          entityId={parseInt(id!)}
+                        />
                       ))
                     ) : (
                       <p className="text-sm text-gray-500 dark:text-gray-400">

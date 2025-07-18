@@ -17,6 +17,7 @@ import type { TrajectoryWithRelations, Note, Document } from "@shared/schema";
 import TrajectoryForm from "@/components/trajectory-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
+import { NoteEditor } from "@/components/note-editor";
 
 import { 
   formatTrajectoryTitle, 
@@ -423,26 +424,12 @@ export default function TrajectoryDetail() {
                       </p>
                     ) : (
                       notes.map((note) => (
-                        <div key={note.id} className="p-3 border rounded-lg">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-medium">
-                                {note.createdBy?.slice(0, 2).toUpperCase() || 'UN'}
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium">{note.createdBy || 'Unknown'}</p>
-                                <p className="text-xs text-gray-500">
-                                  {note.createdAt 
-                                    ? format(new Date(note.createdAt), 'dd MMM yyyy HH:mm', { locale: nl })
-                                    : 'Onbekende datum'}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                            {note.content}
-                          </p>
-                        </div>
+                        <NoteEditor
+                          key={note.id}
+                          note={note}
+                          entityType="trajectory"
+                          entityId={parseInt(id!)}
+                        />
                       ))
                     )}
                   </div>

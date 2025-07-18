@@ -116,6 +116,8 @@ export interface IStorage {
   // Notes operations
   getNotes(entityType: string, entityId: number): Promise<Note[]>;
   createNote(note: InsertNote): Promise<Note>;
+  updateNote(id: number, content: string): Promise<Note>;
+  deleteNote(id: number): Promise<void>;
 
   // Documents operations
   getDocuments(entityType: string, entityId: number): Promise<Document[]>;
@@ -641,6 +643,19 @@ export class DatabaseStorage implements IStorage {
   async createNote(note: InsertNote): Promise<Note> {
     const [newNote] = await db.insert(notes).values(note).returning();
     return newNote;
+  }
+
+  async updateNote(id: number, content: string): Promise<Note> {
+    const [updatedNote] = await db
+      .update(notes)
+      .set({ content, updatedAt: new Date() })
+      .where(eq(notes.id, id))
+      .returning();
+    return updatedNote;
+  }
+
+  async deleteNote(id: number): Promise<void> {
+    await db.delete(notes).where(eq(notes.id, id));
   }
 
   // Documents operations

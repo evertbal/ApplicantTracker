@@ -137,6 +137,7 @@ export const notes = pgTable("notes", {
   content: text("content").notNull(),
   authorId: varchar("author_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Documents table
@@ -321,6 +322,18 @@ export const insertTrajectorySchema = createInsertSchema(trajectories).omit({
 export const insertNoteSchema = createInsertSchema(notes).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+});
+
+export const updateNoteSchema = createInsertSchema(notes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  entityType: true,
+  entityId: true,
+  authorId: true,
+}).extend({
+  content: z.string().min(1, "Inhoud is verplicht"),
 });
 
 export const insertDocumentSchema = createInsertSchema(documents).omit({

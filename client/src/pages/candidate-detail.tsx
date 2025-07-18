@@ -15,6 +15,7 @@ import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
 import DocumentUpload from "@/components/document-upload";
 import DocumentViewer from "@/components/document-viewer";
+import { NoteEditor } from "@/components/note-editor";
 
 import { 
   formatTrajectoryTitle, 
@@ -461,26 +462,12 @@ export default function CandidateDetail() {
                   <div className="space-y-4">
                     {notes.length > 0 ? (
                       notes.map((note: Note) => (
-                        <div
+                        <NoteEditor
                           key={note.id}
-                          className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                                  {getUserInitials(note.authorId)}
-                                </span>
-                              </div>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {formatDate(note.createdAt)}
-                              </span>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
-                            {note.content}
-                          </p>
-                        </div>
+                          note={note}
+                          entityType="candidate"
+                          entityId={parseInt(id!)}
+                        />
                       ))
                     ) : (
                       <p className="text-gray-500 dark:text-gray-400 text-center py-8">

@@ -1290,6 +1290,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/notes/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      
+      if (!content || typeof content !== 'string' || content.trim() === '') {
+        return res.status(400).json({ message: "Content is required" });
+      }
+      
+      const note = await storage.updateNote(parseInt(id), content.trim());
+      res.json(note);
+    } catch (error) {
+      console.error("Error updating note:", error);
+      res.status(500).json({ message: "Failed to update note" });
+    }
+  });
+
+  app.delete("/api/notes/:id", authenticateAny, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteNote(parseInt(id));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting note:", error);
+      res.status(500).json({ message: "Failed to delete note" });
+    }
+  });
+
   // Documents routes with proper authentication
   app.get("/api/documents/:entityType/:entityId", authenticateAny, async (req, res) => {
     try {

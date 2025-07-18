@@ -133,7 +133,8 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
-- July 16, 2025 (Latest). Added client filter to trajectory views - users can now filter trajectories by client/opdrachtgever in both desktop and mobile views
+- July 16, 2025 (Latest). Added edit/delete functionality for notes across all entity types (candidates, clients, trajectories) with inline icons and updatedAt timestamps
+- July 16, 2025. Added client filter to trajectory views - users can now filter trajectories by client/opdrachtgever in both desktop and mobile views
 - July 15, 2025. Updated trajectory status options to Dutch terms: geaccepteerd, voorgesteld aan klant, gesprek met klant, geplaatst, niet geplaatst, gestopt
 - July 15, 2025. Updated candidate status options to specific Dutch terms: Nieuw, Beschikbaar, In bemiddeling, Werkend, Nu niet beschikbaar, Inactief
 - July 15, 2025. Added automatic candidate status suggestion system with radio buttons that appear when trajectory status changes
