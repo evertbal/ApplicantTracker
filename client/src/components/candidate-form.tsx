@@ -92,21 +92,25 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
     onError: (error: any) => {
       console.error('Create candidate error:', error);
       
+      // Extract error data from different error structures
+      const errorData = error.response?.data || error.data || error;
+      const status = error.response?.status || error.status;
+      
       // Handle duplicate candidate error specifically
-      if (error.response?.status === 400 && error.response?.data?.duplicate) {
-        const duplicate = error.response.data.duplicate;
-        const duplicateMessage = error.response.data.message || "Deze kandidaat bestaat al in het systeem.";
+      if (status === 400 && errorData?.duplicate) {
+        const duplicate = errorData.duplicate;
+        const duplicateMessage = errorData.message || "Deze kandidaat bestaat al in het systeem.";
         
         toast({
-          title: "Duplicaat gevonden",
-          description: `${duplicateMessage}\n\nBestaande kandidaat: ${duplicate.name} (ID: ${duplicate.id})`,
+          title: "Kandidaat bestaat al",
+          description: `${duplicateMessage}\n\nBestaande kandidaat: ${duplicate.name}\nToegevoegd op: ${new Date(duplicate.dateAdded).toLocaleDateString('nl-NL')}`,
           variant: "destructive",
         });
       } else {
-        // Handle other errors
-        const message = error.response?.data?.message || error.message || "Er is een fout opgetreden bij het toevoegen van de kandidaat.";
+        // Handle other errors - check multiple possible error message locations
+        const message = errorData?.message || error.message || "Er is een fout opgetreden bij het toevoegen van de kandidaat.";
         toast({
-          title: "Fout bij toevoegen kandidaat",
+          title: "Fout bij toevoegen kandidaat", 
           description: message,
           variant: "destructive",
         });
