@@ -94,7 +94,7 @@ export default function ClientDetail() {
   // Add note mutation
   const addNoteMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await apiRequest("POST", `/api/notes/client/${id}`, {
+      const response = await apiRequest("POST", "/api/notes", {
         content,
         entityType: "client",
         entityId: parseInt(id!)
