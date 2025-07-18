@@ -126,6 +126,9 @@ export interface IStorage {
 
   // Audit operations
   logAudit(entityType: string, entityId: number, action: string, changes: any, userId: string): Promise<void>;
+
+  getCandidateByEmail(email: string): Promise<Candidate | null>;
+  getCandidateByNameAndPhone(name: string, phone: string): Promise<Candidate | null>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -268,7 +271,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(candidates)
       .leftJoin(users, eq(candidates.addedBy, users.id));
-    
+
     const conditions = [];
 
     if (filters?.search) {
@@ -299,7 +302,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     const candidateResults = await query.orderBy(desc(candidates.createdAt));
-    
+
     // Return candidates without relations for performance - relations can be loaded on detail page
     return candidateResults.map(result => ({
       ...result.candidates,
@@ -324,7 +327,7 @@ export class DatabaseStorage implements IStorage {
       .from(candidates)
       .leftJoin(users, eq(candidates.addedBy, users.id))
       .where(eq(candidates.id, id));
-      
+
     // Get updated by user information separately
     let updatedByUser = null;
     if (result && result.candidates.updatedBy) {
@@ -339,9 +342,9 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.id, result.candidates.updatedBy));
       updatedByUser = updatedBy;
     }
-      
+
     if (!result) return undefined;
-    
+
     const candidate = { ...result.candidates, addedByUser: result.addedByUser, updatedByUser };
 
     const candidateTrajectories = await db
@@ -368,9 +371,45 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async createCandidate(candidate: InsertCandidate): Promise<Candidate> {
-    const [newCandidate] = await db.insert(candidates).values(candidate).returning();
-    return newCandidate;
+  async getCandidateByEmail(email: string): Promise<Candidate | null> {
+    try {
+      const [candidate] = await db
+        .select()
+        .from(candidates)
+        .where(eq(candidates.email, email))
+        .limit(1);
+      return candidate || null;
+    } catch (error) {
+      console.error("Error getting candidate by email:", error);
+      return null;
+    }
+  }
+
+  async getCandidateByNameAndPhone(name: string, phone: string): Promise<Candidate | null> {
+    try {
+      const [candidate] = await db
+        .select()
+        .from(candidates)
+        .where(and(
+          eq(candidates.name, name),
+          eq(candidates.phone, phone)
+        ))
+        .limit(1);
+      return candidate || null;
+    } catch (error) {
+      console.error("Error getting candidate by name and phone:", error);
+      return null;
+    }
+  }
+
+  async createCandidate(candidateData: InsertCandidate): Promise<Candidate> {
+    try {
+      const [candidate] = await db.insert(candidates).values(candidateData).returning();
+      return candidate;
+    } catch (error) {
+      console.error("Error creating candidate:", error);
+      throw new Error("Failed to create candidate");
+    }
   }
 
   async updateCandidate(id: number, candidate: Partial<InsertCandidate>, updatedBy?: string): Promise<Candidate> {
@@ -413,14 +452,14 @@ export class DatabaseStorage implements IStorage {
     }
 
     const clientResults = await query.orderBy(desc(clients.createdAt));
-    
+
     // Load contacts for each client to ensure they're visible in the UI
     const clientsWithContacts = await Promise.all(
       clientResults.map(async (client) => {
         const contacts = await db.select().from(clientContacts)
           .where(eq(clientContacts.clientId, client.id))
           .orderBy(desc(clientContacts.createdAt));
-        
+
         return {
           ...client,
           trajectories: [],
@@ -431,7 +470,7 @@ export class DatabaseStorage implements IStorage {
         };
       })
     );
-    
+
     return clientsWithContacts;
   }
 
@@ -571,14 +610,14 @@ export class DatabaseStorage implements IStorage {
     }
 
     const trajectoryResults = await query.orderBy(desc(trajectories.createdAt));
-    
+
     // Load candidate and client relations for each trajectory
     const trajectoriesWithRelations: TrajectoryWithRelations[] = await Promise.all(
       trajectoryResults.map(async (trajectory) => {
         const candidate = trajectory.candidateId 
           ? await db.select().from(candidates).where(eq(candidates.id, trajectory.candidateId)).then(r => r[0])
           : undefined;
-        
+
         const client = trajectory.clientId
           ? await db.select().from(clients).where(eq(clients.id, trajectory.clientId)).then(r => r[0])
           : undefined;
@@ -603,7 +642,7 @@ export class DatabaseStorage implements IStorage {
     const candidate = trajectory.candidateId 
       ? await db.select().from(candidates).where(eq(candidates.id, trajectory.candidateId)).then(r => r[0])
       : undefined;
-    
+
     const client = trajectory.clientId
       ? await db.select().from(clients).where(eq(clients.id, trajectory.clientId)).then(r => r[0])
       : undefined;

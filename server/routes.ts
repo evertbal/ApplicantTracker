@@ -523,6 +523,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { trajectories, notes, ...candidateData } = req.body;
       const validatedCandidateData = insertCandidateSchema.parse(candidateData);
       
+      // Check for duplicates
+      if (validatedCandidateData.email) {
+        const existingByEmail = await storage.getCandidateByEmail(validatedCandidateData.email);
+        if (existingByEmail) {
+          return res.status(400).json({ 
+            message: "Een kandidaat met dit emailadres bestaat al",
+            duplicate: existingByEmail 
+          });
+        }
+      }
+      
+      // Check for name + phone combination if no email
+      if (!validatedCandidateData.email && validatedCandidateData.phone) {
+        const existingByNamePhone = await storage.getCandidateByNameAndPhone(
+          validatedCandidateData.name, 
+          validatedCandidateData.phone
+        );
+        if (existingByNamePhone) {
+          return res.status(400).json({ 
+            message: "Een kandidaat met deze naam en telefoonnummer bestaat al",
+            duplicate: existingByNamePhone 
+          });
+        }
+      }
+      
       // Normaliseer rijbewijs data als aanwezig
       if (validatedCandidateData.drivingLicenses && validatedCandidateData.drivingLicenses.length > 0) {
         const rawLicenseString = validatedCandidateData.drivingLicenses.join(', ');
@@ -714,6 +739,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (!candidateData.name || candidateData.name === '') {
             errors.push(`Rij ${index + 2}: Naam is verplicht`);
             continue;
+          }
+
+          // Check for duplicates before creating
+          if (candidateData.email) {
+            const existingByEmail = await storage.getCandidateByEmail(candidateData.email);
+            if (existingByEmail) {
+              errors.push(`Rij ${index + 2}: Email '${candidateData.email}' bestaat al (Kandidaat: ${existingByEmail.name})`);
+              continue;
+            }
+          }
+          
+          if (!candidateData.email && candidateData.phone) {
+            const existingByNamePhone = await storage.getCandidateByNameAndPhone(candidateData.name, candidateData.phone);
+            if (existingByNamePhone) {
+              errors.push(`Rij ${index + 2}: Kandidaat '${candidateData.name}' met telefoon '${candidateData.phone}' bestaat al`);
+              continue;
+            }
           }
 
           // Validate and create candidate

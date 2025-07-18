@@ -90,9 +90,10 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       onSuccess();
     },
     onError: (error: any) => {
+      const message = error.message || "Er is een fout opgetreden bij het toevoegen van de kandidaat.";
       toast({
-        title: "Fout",
-        description: error.message || "Er is een fout opgetreden bij het toevoegen van de kandidaat.",
+        title: error.response?.data?.duplicate ? "Duplicaat gevonden" : "Fout",
+        description: message,
         variant: "destructive",
       });
     },
