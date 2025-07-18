@@ -344,6 +344,14 @@ export default function ClientDetail() {
               <CardContent className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Status
+                  </label>
+                  <Badge variant="outline" className="text-xs">
+                    {client.status || "Actief"}
+                  </Badge>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Werktype
                   </label>
                   <Badge variant="outline" className="text-xs">

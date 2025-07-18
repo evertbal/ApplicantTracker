@@ -40,6 +40,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
       workType: client?.workType || "",
       adresHoofdlocatie: client?.adresHoofdlocatie || "",
       notities: client?.notities || "",
+      status: client?.status || "actief",
     },
   });
 
@@ -90,6 +91,7 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
       workType: data.workType || null,
       adresHoofdlocatie: data.adresHoofdlocatie || null,
       notities: data.notities || null,
+      status: data.status || null,
     };
 
     if (isEditing) {
@@ -191,6 +193,33 @@ export default function ClientForm({ client, onClose, onSuccess }: ClientFormPro
                           <SelectItem value="catering">Horeca</SelectItem>
                           <SelectItem value="healthcare">Zorg</SelectItem>
                           <SelectItem value="other">Anders</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecteer status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="clear">
+                            <span className="text-muted-foreground italic">Geen selectie</span>
+                          </SelectItem>
+                          <SelectItem value="actief">Actief</SelectItem>
+                          <SelectItem value="lead">Lead</SelectItem>
+                          <SelectItem value="prospect">Prospect</SelectItem>
+                          <SelectItem value="inactief">Inactief</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

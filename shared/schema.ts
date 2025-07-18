@@ -89,6 +89,7 @@ export const clients = pgTable("clients", {
   workType: text("work_type"),
   adresHoofdlocatie: text("adres_hoofdlocatie"),
   notities: text("notities"),
+  status: text("status").default("actief"), // actief, lead, prospect, inactief
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -271,6 +272,7 @@ export const insertClientSchema = createInsertSchema(clients).omit({
   workType: z.string().optional().nullable(),
   adresHoofdlocatie: z.string().optional().nullable(),
   notities: z.string().optional().nullable(),
+  status: z.string().optional().nullable(),
 });
 
 export const insertClientLocationSchema = createInsertSchema(clientLocations).omit({
