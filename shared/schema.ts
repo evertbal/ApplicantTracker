@@ -73,6 +73,7 @@ export const candidates = pgTable("candidates", {
   phase: text("phase").default("intake"), // intake, matching, placed
   salaryIndication: text("salary_indication"),
   addedBy: varchar("added_by").references(() => users.id),
+  updatedBy: varchar("updated_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -176,10 +177,18 @@ export const auditLog = pgTable("audit_log", {
 });
 
 // Relations
-export const candidatesRelations = relations(candidates, ({ many }) => ({
+export const candidatesRelations = relations(candidates, ({ many, one }) => ({
   trajectories: many(trajectories),
   notes: many(notes),
   documents: many(documents),
+  addedByUser: one(users, {
+    fields: [candidates.addedBy],
+    references: [users.id],
+  }),
+  updatedByUser: one(users, {
+    fields: [candidates.updatedBy],
+    references: [users.id],
+  }),
 }));
 
 export const clientsRelations = relations(clients, ({ many }) => ({
@@ -389,6 +398,18 @@ export type CandidateWithRelations = Candidate & {
   trajectories?: Trajectory[];
   notes?: Note[];
   documents?: Document[];
+  addedByUser?: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+  } | null;
+  updatedByUser?: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+  } | null;
   addedByUser?: {
     id: string;
     firstName: string | null;

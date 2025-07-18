@@ -598,10 +598,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         candidateData.drivingLicenses = normalized.licenses;
       }
       
-      const candidate = await storage.updateCandidate(id, candidateData);
+      // Get current user ID for tracking who updated the candidate
+      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      
+      const candidate = await storage.updateCandidate(id, candidateData, userId);
       
       // Log audit
-      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
       await storage.logAudit("candidate", id, "update", candidateData, userId);
       
       res.json(candidate);

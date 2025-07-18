@@ -363,6 +363,25 @@ export default function CandidateDetail() {
                     }
                   </p>
                 </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Datum laatst gewijzigd
+                  </Label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {candidate.updatedAt ? formatDate(candidate.updatedAt) : "-"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Laatst gewijzigd door
+                  </Label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {candidate.updatedByUser 
+                      ? `${candidate.updatedByUser.firstName || ''} ${candidate.updatedByUser.lastName || ''}`.trim() || candidate.updatedByUser.email || candidate.updatedByUser.id
+                      : "Onbekend"
+                    }
+                  </p>
+                </div>
               </CardContent>
             </Card>
 

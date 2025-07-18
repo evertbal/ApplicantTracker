@@ -70,7 +70,7 @@ export interface IStorage {
   }): Promise<CandidateWithRelations[]>;
   getCandidate(id: number): Promise<CandidateWithRelations | undefined>;
   createCandidate(candidate: InsertCandidate): Promise<Candidate>;
-  updateCandidate(id: number, candidate: Partial<InsertCandidate>): Promise<Candidate>;
+  updateCandidate(id: number, candidate: Partial<InsertCandidate>, updatedBy?: string): Promise<Candidate>;
   deleteCandidate(id: number): Promise<void>;
 
   // Client operations
@@ -325,9 +325,24 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(users, eq(candidates.addedBy, users.id))
       .where(eq(candidates.id, id));
       
+    // Get updated by user information separately
+    let updatedByUser = null;
+    if (result && result.candidates.updatedBy) {
+      const [updatedBy] = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        })
+        .from(users)
+        .where(eq(users.id, result.candidates.updatedBy));
+      updatedByUser = updatedBy;
+    }
+      
     if (!result) return undefined;
     
-    const candidate = { ...result.candidates, addedByUser: result.addedByUser };
+    const candidate = { ...result.candidates, addedByUser: result.addedByUser, updatedByUser };
 
     const candidateTrajectories = await db
       .select()
@@ -358,10 +373,10 @@ export class DatabaseStorage implements IStorage {
     return newCandidate;
   }
 
-  async updateCandidate(id: number, candidate: Partial<InsertCandidate>): Promise<Candidate> {
+  async updateCandidate(id: number, candidate: Partial<InsertCandidate>, updatedBy?: string): Promise<Candidate> {
     const [updatedCandidate] = await db
       .update(candidates)
-      .set({ ...candidate, updatedAt: new Date() })
+      .set({ ...candidate, updatedAt: new Date(), updatedBy })
       .where(eq(candidates.id, id))
       .returning();
     return updatedCandidate;
