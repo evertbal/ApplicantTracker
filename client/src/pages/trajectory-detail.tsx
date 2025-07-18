@@ -90,11 +90,11 @@ export default function TrajectoryDetail() {
 
 
   const getStatusBadge = (status: string) => {
-    const color = getTrajectoryStatusColor(status);
+    const colorClasses = getTrajectoryStatusColor(status);
     return (
-      <Badge className={`${color} text-white`}>
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${colorClasses}`}>
         {formatTrajectoryStatus(status)}
-      </Badge>
+      </span>
     );
   };
 

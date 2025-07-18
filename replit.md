@@ -133,7 +133,9 @@ The application implements a sophisticated dual authentication system:
 
 ```
 Changelog:
-- July 16, 2025 (Latest). Added edit/delete functionality for notes across all entity types (candidates, clients, trajectories) with inline icons and updatedAt timestamps
+- July 18, 2025 (Latest). Redesigned comprehensive status label color system with consistent green-based theme, logical color progression, and unified border styling across all entities
+- July 18, 2025. Replaced dropdown action menus with direct "Bekijk" and "Bewerk" buttons for faster navigation on all overview pages
+- July 16, 2025. Added edit/delete functionality for notes across all entity types (candidates, clients, trajectories) with inline icons and updatedAt timestamps
 - July 16, 2025. Added client filter to trajectory views - users can now filter trajectories by client/opdrachtgever in both desktop and mobile views
 - July 15, 2025. Updated trajectory status options to Dutch terms: geaccepteerd, voorgesteld aan klant, gesprek met klant, geplaatst, niet geplaatst, gestopt
 - July 15, 2025. Updated candidate status options to specific Dutch terms: Nieuw, Beschikbaar, In bemiddeling, Werkend, Nu niet beschikbaar, Inactief

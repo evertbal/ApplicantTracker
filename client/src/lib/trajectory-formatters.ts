@@ -30,16 +30,19 @@ export const formatTrajectoryStatus = (status: string | null): string => {
 };
 
 export const getTrajectoryStatusColor = (status: string | null): string => {
+  // Convert status to CSS class format matching the new system
+  const statusKey = status?.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+  
   const statusColors = {
-    geaccepteerd: "bg-blue-600",
-    voorgesteld_aan_klant: "bg-yellow-600",
-    gesprek_met_klant: "bg-orange-600",
-    geplaatst: "bg-green-600",
-    niet_geplaatst: "bg-red-600",
-    gestopt: "bg-gray-600"
+    'geaccepteerd': "text-teal-700 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-900/20 dark:border-teal-800/50",
+    'voorgesteld-aan-klant': "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/20 dark:border-blue-800/50",
+    'gesprek-met-klant': "text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-900/20 dark:border-indigo-800/50",
+    'geplaatst': "text-emerald-800 bg-emerald-100 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-700/50",
+    'niet-geplaatst': "text-red-700 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-800/50",
+    'gestopt': "text-gray-700 bg-gray-100 border-gray-300 dark:text-gray-300 dark:bg-gray-800/70 dark:border-gray-600/50"
   };
   
-  return statusColors[status?.toLowerCase() as keyof typeof statusColors] || "bg-gray-600";
+  return statusColors[statusKey as keyof typeof statusColors] || "text-teal-700 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-900/20 dark:border-teal-800/50";
 };
 
 export const formatCandidateName = (trajectory: TrajectoryWithRelations): string => {

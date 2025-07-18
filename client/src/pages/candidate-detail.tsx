@@ -527,9 +527,9 @@ export default function CandidateDetail() {
                                   </span>
                                 </div>
                               </div>
-                              <Badge className={`${getTrajectoryStatusColor(trajectory.status)} text-white px-3 py-1 text-sm font-medium`}>
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getTrajectoryStatusColor(trajectory.status)}`}>
                                 {formatTrajectoryStatus(trajectory.status)}
-                              </Badge>
+                              </span>
                             </div>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-100">

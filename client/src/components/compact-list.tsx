@@ -47,18 +47,33 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   }
 
   const getStatusColor = (status: string) => {
+    // Convert status to CSS class format
+    const statusKey = status?.toLowerCase().replace(/\s+/g, '-');
+    
     const colors = {
-      active: "status-badge status-active",
-      inactive: "status-badge status-inactive", 
-      pending: "status-badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      completed: "status-badge status-placed",
-      interview: "status-badge bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      proposed: "status-badge bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-      placed: "status-badge status-placed",
-      intake: "status-badge bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-      matching: "status-badge bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
+      // Candidate statuses
+      'nieuw': "status-badge status-nieuw",
+      'beschikbaar': "status-badge status-beschikbaar",
+      'in-bemiddeling': "status-badge status-in-bemiddeling",
+      'werkend': "status-badge status-werkend",
+      'nu-niet-beschikbaar': "status-badge status-nu-niet-beschikbaar",
+      'inactief': "status-badge status-inactief",
+      
+      // Trajectory statuses
+      'geaccepteerd': "status-badge status-geaccepteerd",
+      'voorgesteld-aan-klant': "status-badge status-voorgesteld-aan-klant",
+      'gesprek-met-klant': "status-badge status-gesprek-met-klant",
+      'geplaatst': "status-badge status-geplaatst",
+      'niet-geplaatst': "status-badge status-niet-geplaatst",
+      'gestopt': "status-badge status-gestopt",
+      
+      // Legacy/fallback statuses
+      'active': "status-badge status-active",
+      'inactive': "status-badge status-inactive",
+      'placed': "status-badge status-placed",
     };
-    return colors[status as keyof typeof colors] || "status-badge status-active";
+    
+    return colors[statusKey as keyof typeof colors] || "status-badge status-beschikbaar";
   };
 
   const getTypeIcon = (type: string) => {
@@ -236,9 +251,9 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
               
               {/* Status in subtle style */}
               <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <Badge variant="outline" className={`text-xs ${getTrajectoryStatusColor(trajectory.status)}`}>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getTrajectoryStatusColor(trajectory.status)}`}>
                   {formatTrajectoryStatus(trajectory.status)}
-                </Badge>
+                </span>
               </div>
             </div>
           </div>
