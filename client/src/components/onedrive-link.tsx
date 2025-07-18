@@ -24,14 +24,10 @@ export default function OneDriveLink({ entityType, entityId, documents }: OneDri
 
   const createDocumentMutation = useMutation({
     mutationFn: async (url: string) => {
-      return await apiRequest({
-        url: '/api/documents',
-        method: 'POST',
-        body: {
-          entityType,
-          entityId,
-          url
-        }
+      return await apiRequest('POST', '/api/documents', {
+        entityType,
+        entityId,
+        url
       });
     },
     onSuccess: () => {
@@ -57,10 +53,7 @@ export default function OneDriveLink({ entityType, entityId, documents }: OneDri
 
   const deleteDocumentMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest({
-        url: `/api/documents/${id}`,
-        method: 'DELETE'
-      });
+      return await apiRequest('DELETE', `/api/documents/${id}`);
     },
     onSuccess: () => {
       toast({
