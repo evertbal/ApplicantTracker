@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Download, Upload } from "lucide-react";
+import { Search, Plus, Download, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,10 @@ export default function CandidatesView() {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["active"]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedLicenses, setSelectedLicenses] = useState<string[]>([]);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState("dateAdded");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
@@ -29,7 +33,7 @@ export default function CandidatesView() {
   // Type-safe access to candidates data
   const candidatesArray = Array.isArray(candidates) ? candidates as any[] : [];
 
-  // Filter candidates client-side
+  // Filter and sort candidates client-side
   const filteredCandidates = candidatesArray.filter((candidate: any) => {
     // Search filter
     const matchesSearch = search === "" || 
@@ -47,7 +51,35 @@ export default function CandidatesView() {
     const matchesLicense = selectedLicenses.length === 0 || 
       (candidate.drivingLicenses && selectedLicenses.some(license => candidate.drivingLicenses.includes(license)));
 
-    return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
+    // Date filter
+    const matchesDate = (() => {
+      if (!dateFrom && !dateTo) return true;
+      
+      const candidateDate = new Date(candidate.dateAdded);
+      const fromDate = dateFrom ? new Date(dateFrom) : null;
+      const toDate = dateTo ? new Date(dateTo) : null;
+      
+      if (fromDate && candidateDate < fromDate) return false;
+      if (toDate && candidateDate > toDate) return false;
+      
+      return true;
+    })();
+
+    return matchesSearch && matchesStatus && matchesRegion && matchesLicense && matchesDate;
+  }).sort((a: any, b: any) => {
+    // Sort by date added
+    if (sortBy === "dateAdded") {
+      const dateA = new Date(a.dateAdded);
+      const dateB = new Date(b.dateAdded);
+      return sortOrder === "desc" ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+    }
+    
+    // Sort by name
+    if (sortBy === "name") {
+      return sortOrder === "desc" ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+    }
+    
+    return 0;
   });
 
   const getStatusBadge = (status: string) => {
@@ -82,6 +114,8 @@ export default function CandidatesView() {
     setSelectedStatuses([]);
     setSelectedRegion("");
     setSelectedLicenses([]);
+    setDateFrom("");
+    setDateTo("");
   };
 
   const handleStatusChange = (status: string, checked: boolean) => {
@@ -182,7 +216,9 @@ export default function CandidatesView() {
   const activeFiltersCount = 
     selectedStatuses.length + 
     (selectedRegion ? 1 : 0) + 
-    selectedLicenses.length;
+    selectedLicenses.length +
+    (dateFrom ? 1 : 0) +
+    (dateTo ? 1 : 0);
 
   return (
     <div className="flex flex-col h-full">
@@ -223,8 +259,8 @@ export default function CandidatesView() {
           </div>
         </div>
         
-        {/* Search Bar */}
-        <div className="mt-4">
+        {/* Search Bar and Date Filters */}
+        <div className="mt-4 space-y-4">
           <div className="relative">
             <Input
               type="text"
@@ -234,6 +270,62 @@ export default function CandidatesView() {
               className="w-full sm:w-80 pl-10"
             />
             <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+          </div>
+          
+          {/* Date filters and sorting */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Datum toegevoegd:</span>
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="w-auto text-sm"
+                  placeholder="Van"
+                />
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="w-auto text-sm"
+                  placeholder="Tot"
+                />
+                {(dateFrom || dateTo) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setDateFrom("");
+                      setDateTo("");
+                    }}
+                    className="px-2 h-8"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex gap-2 items-center">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sorteren:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                <option value="dateAdded">Datum toegevoegd</option>
+                <option value="name">Naam</option>
+              </select>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                <option value="desc">Nieuwste eerst</option>
+                <option value="asc">Oudste eerst</option>
+              </select>
+            </div>
           </div>
         </div>
       </header>
