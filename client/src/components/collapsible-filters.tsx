@@ -18,7 +18,7 @@ interface CollapsibleFiltersProps {
   selectedLicenses: string[];
   dateFrom: string;
   dateTo: string;
-  sortBy: string;
+  sortBy: 'created' | 'updated';
   sortOrder: "asc" | "desc";
   onStatusChange: (statuses: string[]) => void;
   onRegionChange: (region: string) => void;
