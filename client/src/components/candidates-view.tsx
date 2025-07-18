@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Download, Upload, X } from "lucide-react";
+import { Search, Plus, Download, Upload, X, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,8 @@ export default function CandidatesView() {
   const [selectedLicenses, setSelectedLicenses] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [sortBy, setSortBy] = useState("dateAdded");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState<'created' | 'updated'>('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateWithRelations | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
@@ -67,19 +67,21 @@ export default function CandidatesView() {
 
     return matchesSearch && matchesStatus && matchesRegion && matchesLicense && matchesDate;
   }).sort((a: any, b: any) => {
-    // Sort by date added
-    if (sortBy === "dateAdded") {
-      const dateA = new Date(a.dateAdded);
-      const dateB = new Date(b.dateAdded);
-      return sortOrder === "desc" ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+    let aValue, bValue;
+    
+    if (sortBy === 'created') {
+      aValue = new Date(a.dateAdded || 0).getTime();
+      bValue = new Date(b.dateAdded || 0).getTime();
+    } else if (sortBy === 'updated') {
+      aValue = new Date(a.updatedAt || a.dateAdded || 0).getTime();
+      bValue = new Date(b.updatedAt || b.dateAdded || 0).getTime();
     }
     
-    // Sort by name
-    if (sortBy === "name") {
-      return sortOrder === "desc" ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+    if (sortOrder === 'desc') {
+      return bValue - aValue;
+    } else {
+      return aValue - bValue;
     }
-    
-    return 0;
   });
 
   const getStatusBadge = (status: string) => {
@@ -107,6 +109,15 @@ export default function CandidatesView() {
   const formatPhoneNumber = (phone: string | null) => {
     if (!phone) return '';
     return phone.replace(/(\d{2})(\d{1})(\d{8})/, '+$1 $2 $3');
+  };
+
+  const handleSort = (field: 'created' | 'updated') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
   };
 
   const clearFilters = () => {
@@ -295,8 +306,7 @@ export default function CandidatesView() {
           onLicenseChange={setSelectedLicenses}
           onDateFromChange={setDateFrom}
           onDateToChange={setDateTo}
-          onSortByChange={setSortBy}
-          onSortOrderChange={setSortOrder}
+          onSort={handleSort}
           activeFiltersCount={activeFiltersCount}
         />
 

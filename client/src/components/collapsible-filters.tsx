@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, X, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,8 +25,7 @@ interface CollapsibleFiltersProps {
   onLicenseChange: (licenses: string[]) => void;
   onDateFromChange: (date: string) => void;
   onDateToChange: (date: string) => void;
-  onSortByChange: (sortBy: string) => void;
-  onSortOrderChange: (sortOrder: "asc" | "desc") => void;
+  onSort: (field: 'created' | 'updated') => void;
   activeFiltersCount: number;
 }
 
@@ -46,8 +45,7 @@ export default function CollapsibleFilters({
   onLicenseChange,
   onDateFromChange,
   onDateToChange,
-  onSortByChange,
-  onSortOrderChange,
+  onSort,
   activeFiltersCount,
 }: CollapsibleFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -191,28 +189,38 @@ export default function CollapsibleFilters({
               </div>
             </div>
 
-            {/* Sorting Options */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Sorteren</Label>
+            {/* Sort Section */}
+            <div className="border-t pt-4">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Sorteren</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Select value={sortBy} onValueChange={onSortByChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sorteer op" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dateAdded">Datum toegevoegd</SelectItem>
-                    <SelectItem value="name">Naam</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={sortOrder} onValueChange={onSortOrderChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Volgorde" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="desc">Nieuwste eerst</SelectItem>
-                    <SelectItem value="asc">Oudste eerst</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Button
+                  variant={sortBy === 'created' ? 'default' : 'outline'}
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => onSort('created')}
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  Datum aangemaakt
+                  {sortBy === 'created' && (
+                    <span className="ml-auto text-xs">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  variant={sortBy === 'updated' ? 'default' : 'outline'}
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => onSort('updated')}
+                >
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  Datum gewijzigd
+                  {sortBy === 'updated' && (
+                    <span className="ml-auto text-xs">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </Button>
               </div>
             </div>
           </CardContent>
