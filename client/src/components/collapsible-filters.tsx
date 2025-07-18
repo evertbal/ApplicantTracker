@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Filter, ChevronDown, ChevronUp } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,9 +16,17 @@ interface CollapsibleFiltersProps {
   selectedStatuses: string[];
   selectedRegion: string;
   selectedLicenses: string[];
+  dateFrom: string;
+  dateTo: string;
+  sortBy: string;
+  sortOrder: "asc" | "desc";
   onStatusChange: (statuses: string[]) => void;
   onRegionChange: (region: string) => void;
   onLicenseChange: (licenses: string[]) => void;
+  onDateFromChange: (date: string) => void;
+  onDateToChange: (date: string) => void;
+  onSortByChange: (sortBy: string) => void;
+  onSortOrderChange: (sortOrder: "asc" | "desc") => void;
   activeFiltersCount: number;
 }
 
@@ -28,9 +37,17 @@ export default function CollapsibleFilters({
   selectedStatuses,
   selectedRegion,
   selectedLicenses,
+  dateFrom,
+  dateTo,
+  sortBy,
+  sortOrder,
   onStatusChange,
   onRegionChange,
   onLicenseChange,
+  onDateFromChange,
+  onDateToChange,
+  onSortByChange,
+  onSortOrderChange,
   activeFiltersCount,
 }: CollapsibleFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -137,6 +154,65 @@ export default function CollapsibleFilters({
                     </Label>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Date Range Filter */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Datum Toegevoegd</Label>
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => onDateFromChange(e.target.value)}
+                  className="w-auto text-sm"
+                  placeholder="Van"
+                />
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => onDateToChange(e.target.value)}
+                  className="w-auto text-sm"
+                  placeholder="Tot"
+                />
+                {(dateFrom || dateTo) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      onDateFromChange("");
+                      onDateToChange("");
+                    }}
+                    className="px-2 h-8"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Sorting Options */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Sorteren</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Select value={sortBy} onValueChange={onSortByChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sorteer op" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dateAdded">Datum toegevoegd</SelectItem>
+                    <SelectItem value="name">Naam</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sortOrder} onValueChange={onSortOrderChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Volgorde" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">Nieuwste eerst</SelectItem>
+                    <SelectItem value="asc">Oudste eerst</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>

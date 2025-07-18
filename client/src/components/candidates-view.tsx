@@ -272,61 +272,7 @@ export default function CandidatesView() {
             <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
           </div>
           
-          {/* Date filters and sorting */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Datum toegevoegd:</span>
-              <div className="flex gap-2 items-center">
-                <Input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-auto text-sm"
-                  placeholder="Van"
-                />
-                <Input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="w-auto text-sm"
-                  placeholder="Tot"
-                />
-                {(dateFrom || dateTo) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setDateFrom("");
-                      setDateTo("");
-                    }}
-                    className="px-2 h-8"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex gap-2 items-center">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sorteren:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                <option value="dateAdded">Datum toegevoegd</option>
-                <option value="name">Naam</option>
-              </select>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                <option value="desc">Nieuwste eerst</option>
-                <option value="asc">Oudste eerst</option>
-              </select>
-            </div>
-          </div>
+
         </div>
       </header>
 
@@ -340,9 +286,17 @@ export default function CandidatesView() {
           selectedStatuses={selectedStatuses}
           selectedRegion={selectedRegion}
           selectedLicenses={selectedLicenses}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
           onStatusChange={setSelectedStatuses}
           onRegionChange={setSelectedRegion}
           onLicenseChange={setSelectedLicenses}
+          onDateFromChange={setDateFrom}
+          onDateToChange={setDateTo}
+          onSortByChange={setSortBy}
+          onSortOrderChange={setSortOrder}
           activeFiltersCount={activeFiltersCount}
         />
 
