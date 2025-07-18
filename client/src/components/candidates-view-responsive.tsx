@@ -11,12 +11,10 @@ import type { CandidateWithRelations } from "@shared/schema";
 import CandidateForm from "./candidate-form";
 import CollapsibleFilters from "./collapsible-filters";
 import CompactList from "./compact-list";
+import { usePersistedFilters } from "@/hooks/usePersistedFilters";
 
 export default function CandidatesView() {
-  const [search, setSearch] = useState("");
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedLicenses, setSelectedLicenses] = useState<string[]>([]);
+  const { filters, updateFilters, clearAllFilters, hasActiveFilters } = usePersistedFilters();
   const [showForm, setShowForm] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<CandidateWithRelations | null>(null);
   const [showExcelTemplateModal, setShowExcelTemplateModal] = useState(false);
@@ -35,20 +33,20 @@ export default function CandidatesView() {
   // Filter candidates client-side
   const filteredCandidates = candidatesArray.filter((candidate: any) => {
     // Search filter
-    const matchesSearch = search === "" || 
-      candidate.name?.toLowerCase().includes(search.toLowerCase()) ||
-      candidate.email?.toLowerCase().includes(search.toLowerCase()) ||
-      candidate.city?.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = filters.search === "" || 
+      candidate.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      candidate.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      candidate.city?.toLowerCase().includes(filters.search.toLowerCase());
 
     // Status filter
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(candidate.status);
+    const matchesStatus = filters.selectedStatuses.length === 0 || filters.selectedStatuses.includes(candidate.status);
 
     // Region filter
-    const matchesRegion = selectedRegion === "" || selectedRegion === "alle" || candidate.region === selectedRegion;
+    const matchesRegion = filters.selectedRegion === "" || filters.selectedRegion === "alle" || candidate.region === filters.selectedRegion;
 
     // License filter
-    const matchesLicense = selectedLicenses.length === 0 || 
-      (candidate.drivingLicenses && selectedLicenses.some(license => 
+    const matchesLicense = filters.selectedLicenses.length === 0 || 
+      (candidate.drivingLicenses && filters.selectedLicenses.some(license => 
         candidate.drivingLicenses.includes(license)
       ));
 
@@ -61,9 +59,10 @@ export default function CandidatesView() {
   const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
 
   const activeFiltersCount = 
-    selectedStatuses.length + 
-    (selectedRegion ? 1 : 0) + 
-    selectedLicenses.length;
+    filters.selectedStatuses.length + 
+    (filters.selectedRegion ? 1 : 0) + 
+    filters.selectedLicenses.length +
+    (filters.search ? 1 : 0);
 
   const openEditForm = (candidate: CandidateWithRelations) => {
     setEditingCandidate(candidate);
@@ -200,8 +199,8 @@ export default function CandidatesView() {
             <Input
               type="text"
               placeholder="Zoeken..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={filters.search}
+              onChange={(e) => updateFilters({ search: e.target.value })}
               className="w-full sm:w-80 pl-10"
             />
             <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
@@ -216,17 +215,17 @@ export default function CandidatesView() {
           statusOptions={statusOptions}
           regionOptions={regionOptions}
           licenseOptions={licenseOptions}
-          selectedStatuses={selectedStatuses}
-          selectedRegion={selectedRegion}
-          selectedLicenses={selectedLicenses}
-          onStatusChange={setSelectedStatuses}
-          onRegionChange={setSelectedRegion}
-          onLicenseChange={setSelectedLicenses}
+          selectedStatuses={filters.selectedStatuses}
+          selectedRegion={filters.selectedRegion}
+          selectedLicenses={filters.selectedLicenses}
+          onStatusChange={(statuses) => updateFilters({ selectedStatuses: statuses })}
+          onRegionChange={(region) => updateFilters({ selectedRegion: region })}
+          onLicenseChange={(licenses) => updateFilters({ selectedLicenses: licenses })}
           activeFiltersCount={activeFiltersCount}
         />
 
         {/* Results Counter - only show when filters are active */}
-        {activeFiltersCount > 0 && (
+        {hasActiveFilters() && (
           <div className="mt-6 mb-4 transition-all duration-300 ease-in-out">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
               <div className="flex items-center justify-between">
@@ -244,11 +243,7 @@ export default function CandidatesView() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setSelectedStatuses([]);
-                    setSelectedRegion("");
-                    setSelectedLicenses([]);
-                  }}
+                  onClick={clearAllFilters}
                   className="text-green-700 border-green-300 hover:bg-green-50 dark:text-green-300 dark:border-green-600 dark:hover:bg-green-900/20"
                 >
                   Alle filters wissen
