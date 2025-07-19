@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { candidates, trajectories } from "@shared/schema";
+import { sql, and, gte, lte, eq } from "drizzle-orm";
 import session from "express-session";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
@@ -479,6 +482,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Authentication failed - no valid method found');
     return res.status(401).json({ message: "Unauthorized" });
   };
+
+  // Reports routes
+  app.get('/api/reports/quarterly-kpi', authenticateAny, async (req, res) => {
+    try {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      
+      // Calculate Q1 and Q2 date ranges
+      const q1Start = new Date(currentYear, 0, 1); // January 1
+      const q1End = new Date(currentYear, 2, 31, 23, 59, 59); // March 31
+      const q2Start = new Date(currentYear, 3, 1); // April 1
+      const q2End = new Date(currentYear, 5, 30, 23, 59, 59); // June 30
+      
+      // Get Q1 and Q2 data for candidates added
+      const q1CandidatesResult = await db.select({ count: sql`count(*)` })
+        .from(candidates)
+        .where(and(
+          gte(candidates.dateAdded, q1Start.toISOString()),
+          lte(candidates.dateAdded, q1End.toISOString())
+        ));
+      
+      const q2CandidatesResult = await db.select({ count: sql`count(*)` })
+        .from(candidates)
+        .where(and(
+          gte(candidates.dateAdded, q2Start.toISOString()),
+          lte(candidates.dateAdded, q2End.toISOString())
+        ));
+      
+      // Get Q1 and Q2 data for trajectories created
+      const q1TrajectoriesResult = await db.select({ count: sql`count(*)` })
+        .from(trajectories)
+        .where(and(
+          gte(trajectories.createdAt, q1Start.toISOString()),
+          lte(trajectories.createdAt, q1End.toISOString())
+        ));
+      
+      const q2TrajectoriesResult = await db.select({ count: sql`count(*)` })
+        .from(trajectories)
+        .where(and(
+          gte(trajectories.createdAt, q2Start.toISOString()),
+          lte(trajectories.createdAt, q2End.toISOString())
+        ));
+      
+      // Get Q1 and Q2 data for candidates proposed (status = 'voorgesteld aan klant')
+      const q1ProposedResult = await db.select({ count: sql`count(*)` })
+        .from(trajectories)
+        .where(and(
+          eq(trajectories.status, 'voorgesteld aan klant'),
+          gte(trajectories.updatedAt, q1Start.toISOString()),
+          lte(trajectories.updatedAt, q1End.toISOString())
+        ));
+      
+      const q2ProposedResult = await db.select({ count: sql`count(*)` })
+        .from(trajectories)
+        .where(and(
+          eq(trajectories.status, 'voorgesteld aan klant'),
+          gte(trajectories.updatedAt, q2Start.toISOString()),
+          lte(trajectories.updatedAt, q2End.toISOString())
+        ));
+      
+      // Extract counts and convert to numbers
+      const q1Candidates = Number(q1CandidatesResult[0]?.count || 0);
+      const q2Candidates = Number(q2CandidatesResult[0]?.count || 0);
+      const q1Trajectories = Number(q1TrajectoriesResult[0]?.count || 0);
+      const q2Trajectories = Number(q2TrajectoriesResult[0]?.count || 0);
+      const q1Proposed = Number(q1ProposedResult[0]?.count || 0);
+      const q2Proposed = Number(q2ProposedResult[0]?.count || 0);
+      
+      // Calculate changes and percentages
+      const candidatesChange = q1Candidates - q2Candidates;
+      const candidatesChangePercentage = q2Candidates > 0 ? (candidatesChange / q2Candidates) * 100 : 0;
+      
+      const trajectoriesChange = q1Trajectories - q2Trajectories;
+      const trajectoriesChangePercentage = q2Trajectories > 0 ? (trajectoriesChange / q2Trajectories) * 100 : 0;
+      
+      const proposedChange = q1Proposed - q2Proposed;
+      const proposedChangePercentage = q2Proposed > 0 ? (proposedChange / q2Proposed) * 100 : 0;
+      
+      const kpiData = {
+        candidatesAdded: {
+          current: q1Candidates,
+          previous: q2Candidates,
+          change: candidatesChange,
+          changePercentage: candidatesChangePercentage
+        },
+        trajectoriesCreated: {
+          current: q1Trajectories,
+          previous: q2Trajectories,
+          change: trajectoriesChange,
+          changePercentage: trajectoriesChangePercentage
+        },
+        candidatesProposed: {
+          current: q1Proposed,
+          previous: q2Proposed,
+          change: proposedChange,
+          changePercentage: proposedChangePercentage
+        }
+      };
+      
+      res.json(kpiData);
+    } catch (error) {
+      console.error('Error fetching quarterly KPI data:', error);
+      res.status(500).json({ message: 'Failed to fetch quarterly KPI data' });
+    }
+  });
 
   // Candidate routes
   app.get("/api/candidates", authenticateAny, async (req, res) => {

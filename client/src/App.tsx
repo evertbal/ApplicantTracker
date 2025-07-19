@@ -13,6 +13,7 @@ import ClientDetail from "@/pages/client-detail";
 import TrajectoryDetail from "@/pages/trajectory-detail";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
+import Reports from "@/pages/reports";
 
 function Router() {
   const { isAuthenticated, isLoading } = useCombinedAuth();
@@ -41,6 +42,7 @@ function Router() {
           <Route path="/trajectory/:id" component={TrajectoryDetail} />
           <Route path="/trajectories" component={Dashboard} />
           <Route path="/clients" component={Dashboard} />
+          <Route path="/reports" component={Reports} />
         </>
       )}
       <Route component={NotFound} />

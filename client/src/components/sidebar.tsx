@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import type { User, Candidate, Trajectory, Client } from "@shared/schema";
 
 interface SidebarProps {
@@ -15,6 +16,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeSection, onSectionChange, isOpen, onClose }: SidebarProps) {
   const { user } = useAuth() as { user: User | undefined };
+  const [, setLocation] = useLocation();
 
   // Fetch actual counts from API
   const { data: candidates = [] } = useQuery<Candidate[]>({
@@ -151,7 +153,20 @@ export default function Sidebar({ activeSection, onSectionChange, isOpen, onClos
               <li key={item.id}>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start space-x-3 px-4 py-2 h-auto text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className={cn(
+                    "w-full justify-start space-x-3 px-4 py-2 h-auto",
+                    activeSection === item.id
+                      ? "bg-primary text-white hover:bg-primary/90"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  )}
+                  onClick={() => {
+                    if (item.id === 'reports') {
+                      setLocation('/reports');
+                      onClose();
+                    } else {
+                      onSectionChange(item.id);
+                    }
+                  }}
                 >
                   <item.icon className="w-5 h-5" />
                   <span>{item.label}</span>

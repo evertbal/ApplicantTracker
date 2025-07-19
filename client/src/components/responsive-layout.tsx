@@ -43,6 +43,7 @@ export default function ResponsiveLayout({ children, activeSection, onSectionCha
               {activeSection === 'candidates' && 'Kandidaten'}
               {activeSection === 'trajectories' && 'Trajecten'}
               {activeSection === 'clients' && 'Opdrachtgevers'}
+              {activeSection === 'reports' && 'Rapportages'}
             </h1>
             <div className="w-10" /> {/* Spacer for alignment */}
           </div>
