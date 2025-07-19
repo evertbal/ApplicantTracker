@@ -489,66 +489,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const now = new Date();
       const currentYear = now.getFullYear();
       
-      // Calculate Q1 and Q2 date ranges
-      const q1Start = new Date(currentYear, 0, 1); // January 1
-      const q1End = new Date(currentYear, 2, 31, 23, 59, 59); // March 31
-      const q2Start = new Date(currentYear, 3, 1); // April 1
-      const q2End = new Date(currentYear, 5, 30, 23, 59, 59); // June 30
+      // Calculate Q1 and Q2 date ranges as ISO strings
+      const q1Start = `${currentYear}-01-01T00:00:00.000Z`; // January 1
+      const q1End = `${currentYear}-03-31T23:59:59.999Z`; // March 31
+      const q2Start = `${currentYear}-04-01T00:00:00.000Z`; // April 1
+      const q2End = `${currentYear}-06-30T23:59:59.999Z`; // June 30
       
       // Get Q1 and Q2 data for candidates added
-      const q1CandidatesResult = await db.select({ count: sql`count(*)` })
-        .from(candidates)
-        .where(and(
-          gte(candidates.dateAdded, q1Start.toISOString()),
-          lte(candidates.dateAdded, q1End.toISOString())
-        ));
+      const q1CandidatesResult = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM candidates 
+        WHERE date_added >= ${q1Start} AND date_added <= ${q1End}
+      `);
       
-      const q2CandidatesResult = await db.select({ count: sql`count(*)` })
-        .from(candidates)
-        .where(and(
-          gte(candidates.dateAdded, q2Start.toISOString()),
-          lte(candidates.dateAdded, q2End.toISOString())
-        ));
+      const q2CandidatesResult = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM candidates 
+        WHERE date_added >= ${q2Start} AND date_added <= ${q2End}
+      `);
       
       // Get Q1 and Q2 data for trajectories created
-      const q1TrajectoriesResult = await db.select({ count: sql`count(*)` })
-        .from(trajectories)
-        .where(and(
-          gte(trajectories.createdAt, q1Start.toISOString()),
-          lte(trajectories.createdAt, q1End.toISOString())
-        ));
+      const q1TrajectoriesResult = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM trajectories 
+        WHERE created_at >= ${q1Start} AND created_at <= ${q1End}
+      `);
       
-      const q2TrajectoriesResult = await db.select({ count: sql`count(*)` })
-        .from(trajectories)
-        .where(and(
-          gte(trajectories.createdAt, q2Start.toISOString()),
-          lte(trajectories.createdAt, q2End.toISOString())
-        ));
+      const q2TrajectoriesResult = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM trajectories 
+        WHERE created_at >= ${q2Start} AND created_at <= ${q2End}
+      `);
       
       // Get Q1 and Q2 data for candidates proposed (status = 'voorgesteld aan klant')
-      const q1ProposedResult = await db.select({ count: sql`count(*)` })
-        .from(trajectories)
-        .where(and(
-          eq(trajectories.status, 'voorgesteld aan klant'),
-          gte(trajectories.updatedAt, q1Start.toISOString()),
-          lte(trajectories.updatedAt, q1End.toISOString())
-        ));
+      const q1ProposedResult = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM trajectories 
+        WHERE status = 'voorgesteld aan klant' 
+        AND updated_at >= ${q1Start} AND updated_at <= ${q1End}
+      `);
       
-      const q2ProposedResult = await db.select({ count: sql`count(*)` })
-        .from(trajectories)
-        .where(and(
-          eq(trajectories.status, 'voorgesteld aan klant'),
-          gte(trajectories.updatedAt, q2Start.toISOString()),
-          lte(trajectories.updatedAt, q2End.toISOString())
-        ));
+      const q2ProposedResult = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM trajectories 
+        WHERE status = 'voorgesteld aan klant' 
+        AND updated_at >= ${q2Start} AND updated_at <= ${q2End}
+      `);
       
       // Extract counts and convert to numbers
-      const q1Candidates = Number(q1CandidatesResult[0]?.count || 0);
-      const q2Candidates = Number(q2CandidatesResult[0]?.count || 0);
-      const q1Trajectories = Number(q1TrajectoriesResult[0]?.count || 0);
-      const q2Trajectories = Number(q2TrajectoriesResult[0]?.count || 0);
-      const q1Proposed = Number(q1ProposedResult[0]?.count || 0);
-      const q2Proposed = Number(q2ProposedResult[0]?.count || 0);
+      const q1Candidates = Number(q1CandidatesResult.rows[0]?.count || 0);
+      const q2Candidates = Number(q2CandidatesResult.rows[0]?.count || 0);
+      const q1Trajectories = Number(q1TrajectoriesResult.rows[0]?.count || 0);
+      const q2Trajectories = Number(q2TrajectoriesResult.rows[0]?.count || 0);
+      const q1Proposed = Number(q1ProposedResult.rows[0]?.count || 0);
+      const q2Proposed = Number(q2ProposedResult.rows[0]?.count || 0);
       
       // Calculate changes and percentages
       const candidatesChange = q1Candidates - q2Candidates;
