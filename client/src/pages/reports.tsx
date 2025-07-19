@@ -165,7 +165,7 @@ const Reports = () => {
         {/* KPI Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <KPICard
-            title="Toegevoegde kandidaten (laatste kwartaal)"
+            title="Toegevoegde kandidaten"
             icon={<Users className="w-4 h-4" />}
             current={kpiData.candidatesAdded.current}
             previous={kpiData.candidatesAdded.previous}
@@ -174,7 +174,7 @@ const Reports = () => {
           />
           
           <KPICard
-            title="Nieuw aangemaakte trajecten (laatste kwartaal)"
+            title="Nieuw aangemaakte trajecten"
             icon={<Briefcase className="w-4 h-4" />}
             current={kpiData.trajectoriesCreated.current}
             previous={kpiData.trajectoriesCreated.previous}
@@ -183,7 +183,7 @@ const Reports = () => {
           />
           
           <KPICard
-            title="Kandidaten voorgesteld in traject (laatste kwartaal)"
+            title="Kandidaten voorgesteld in traject"
             icon={<UserCheck className="w-4 h-4" />}
             current={kpiData.candidatesProposed.current}
             previous={kpiData.candidatesProposed.previous}
