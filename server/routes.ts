@@ -488,6 +488,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const now = new Date();
       const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth(); // 0-based (0 = January, 6 = July)
+      
+      // Determine which quarter is the latest completed one
+      let latestQuarter: number;
+      if (currentMonth >= 6) { // July or later - Q2 is latest completed
+        latestQuarter = 2;
+      } else if (currentMonth >= 3) { // April-June - Q1 is latest completed
+        latestQuarter = 1;
+      } else { // January-March - Q4 of previous year is latest completed
+        latestQuarter = 4;
+      }
       
       // Calculate Q1 and Q2 date ranges as ISO strings
       const q1Start = `${currentYear}-01-01T00:00:00.000Z`; // January 1
@@ -544,32 +555,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const q1Proposed = Number(q1ProposedResult.rows[0]?.count || 0);
       const q2Proposed = Number(q2ProposedResult.rows[0]?.count || 0);
       
-      // Calculate changes and percentages
-      const candidatesChange = q1Candidates - q2Candidates;
-      const candidatesChangePercentage = q2Candidates > 0 ? (candidatesChange / q2Candidates) * 100 : 0;
+      // Calculate changes and percentages - latest quarter compared to previous quarter
+      // Since we're in Q3 (July), Q2 is latest completed, Q1 is previous
+      const candidatesChange = q2Candidates - q1Candidates;
+      const candidatesChangePercentage = q1Candidates > 0 ? (candidatesChange / q1Candidates) * 100 : 0;
       
-      const trajectoriesChange = q1Trajectories - q2Trajectories;
-      const trajectoriesChangePercentage = q2Trajectories > 0 ? (trajectoriesChange / q2Trajectories) * 100 : 0;
+      const trajectoriesChange = q2Trajectories - q1Trajectories;
+      const trajectoriesChangePercentage = q1Trajectories > 0 ? (trajectoriesChange / q1Trajectories) * 100 : 0;
       
-      const proposedChange = q1Proposed - q2Proposed;
-      const proposedChangePercentage = q2Proposed > 0 ? (proposedChange / q2Proposed) * 100 : 0;
+      const proposedChange = q2Proposed - q1Proposed;
+      const proposedChangePercentage = q1Proposed > 0 ? (proposedChange / q1Proposed) * 100 : 0;
       
       const kpiData = {
         candidatesAdded: {
-          current: q1Candidates,
-          previous: q2Candidates,
+          current: q2Candidates, // Latest quarter (Q2) in big numbers
+          previous: q1Candidates, // Previous quarter (Q1) for comparison
           change: candidatesChange,
           changePercentage: candidatesChangePercentage
         },
         trajectoriesCreated: {
-          current: q1Trajectories,
-          previous: q2Trajectories,
+          current: q2Trajectories, // Latest quarter (Q2) in big numbers
+          previous: q1Trajectories, // Previous quarter (Q1) for comparison
           change: trajectoriesChange,
           changePercentage: trajectoriesChangePercentage
         },
         candidatesProposed: {
-          current: q1Proposed,
-          previous: q2Proposed,
+          current: q2Proposed, // Latest quarter (Q2) in big numbers
+          previous: q1Proposed, // Previous quarter (Q1) for comparison
           change: proposedChange,
           changePercentage: proposedChangePercentage
         }

@@ -158,14 +158,14 @@ const Reports = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rapportages</h1>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-            Kwartaal overzicht en KPI metrics (Q-1 vs Q-2)
+            Kwartaal overzicht en KPI metrics (laatste kwartaal vs vorige kwartaal)
           </p>
         </div>
 
         {/* KPI Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <KPICard
-            title="Toegevoegde kandidaten Q-1"
+            title="Toegevoegde kandidaten (laatste kwartaal)"
             icon={<Users className="w-4 h-4" />}
             current={kpiData.candidatesAdded.current}
             previous={kpiData.candidatesAdded.previous}
@@ -174,7 +174,7 @@ const Reports = () => {
           />
           
           <KPICard
-            title="Nieuw aangemaakte trajecten Q-1"
+            title="Nieuw aangemaakte trajecten (laatste kwartaal)"
             icon={<Briefcase className="w-4 h-4" />}
             current={kpiData.trajectoriesCreated.current}
             previous={kpiData.trajectoriesCreated.previous}
@@ -183,7 +183,7 @@ const Reports = () => {
           />
           
           <KPICard
-            title="Kandidaten voorgesteld in traject Q-1"
+            title="Kandidaten voorgesteld in traject (laatste kwartaal)"
             icon={<UserCheck className="w-4 h-4" />}
             current={kpiData.candidatesProposed.current}
             previous={kpiData.candidatesProposed.previous}
@@ -202,12 +202,12 @@ const Reports = () => {
           <CardContent>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               <p className="mb-2">
-                <strong>Q-1 Prestaties:</strong> {formatNumber(kpiData.candidatesAdded.current)} nieuwe kandidaten toegevoegd, 
+                <strong>Laatste kwartaal prestaties:</strong> {formatNumber(kpiData.candidatesAdded.current)} nieuwe kandidaten toegevoegd, 
                 {formatNumber(kpiData.trajectoriesCreated.current)} trajecten aangemaakt, en 
                 {formatNumber(kpiData.candidatesProposed.current)} kandidaten voorgesteld.
               </p>
               <p>
-                <strong>Trend:</strong> Vergeleken met Q-2 zien we een 
+                <strong>Trend:</strong> Vergeleken met het vorige kwartaal zien we een 
                 {kpiData.candidatesAdded.change >= 0 ? ' positieve' : ' negatieve'} ontwikkeling 
                 in kandidaat toevoegingen ({kpiData.candidatesAdded.changePercentage > 0 ? '+' : ''}{kpiData.candidatesAdded.changePercentage.toFixed(1)}%).
               </p>
