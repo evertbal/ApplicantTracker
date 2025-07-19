@@ -188,16 +188,16 @@ export default function CandidatesView() {
               Beheer en volg alle kandidaten in het systeem
             </p>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="relative flex-1 sm:flex-none">
+          <div className="flex items-center gap-1 sm:gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 min-w-0">
               <Input
                 type="text"
                 placeholder="Zoeken..."
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="w-full sm:w-64 pl-10"
+                className="w-full h-8 sm:h-10 pl-8 sm:pl-10 text-sm pr-2"
               />
-              <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+              <Search className="w-3 h-3 sm:w-4 sm:h-4 absolute left-2 sm:left-3 top-2.5 sm:top-3 text-gray-400" />
             </div>
             <input
               type="file"
@@ -210,26 +210,26 @@ export default function CandidatesView() {
               variant="outline"
               size="sm"
               onClick={() => setShowExcelTemplateModal(true)}
-              className="hidden sm:flex shrink-0"
+              className="shrink-0 h-8 sm:h-10 px-2 sm:px-3"
             >
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Import
+              <FileSpreadsheet className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Import</span>
             </Button>
             
             <Button
               size="sm"
               onClick={() => setShowForm(true)}
-              className="bg-primary hover:bg-primary-hover text-white shrink-0"
+              className="bg-primary hover:bg-primary-hover text-white shrink-0 h-8 sm:h-10 px-2 sm:px-3"
             >
-              <Plus className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Nieuwe</span>
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Nieuw</span>
             </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+      <div className="flex-1 p-2 sm:p-6 overflow-y-auto max-w-full">
         {/* Collapsible Filters */}
         <CollapsibleFilters
           statusOptions={statusOptions}

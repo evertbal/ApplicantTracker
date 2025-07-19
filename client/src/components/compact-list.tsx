@@ -126,72 +126,69 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   };
 
   const renderCandidateItem = (candidate: any) => (
-    <Card key={candidate.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(candidate)}>
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white font-semibold">
+    <Card key={candidate.id} className="hover:shadow-md transition-shadow cursor-pointer w-full" onClick={() => onView(candidate)}>
+      <CardContent className="p-2 sm:p-4">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
+            <Avatar className="w-7 h-7 sm:w-10 sm:h-10 shrink-0">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white font-semibold text-xs sm:text-sm">
                 {candidate.name?.substring(0, 2).toUpperCase() || 'K'}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1 flex-wrap">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate min-w-0">
                   {candidate.name}
                 </h3>
-                <span className={getStatusColor(candidate.status)}>
+                <span className={`${getStatusColor(candidate.status)} shrink-0`}>
                   {getStatusLabel(candidate.status)}
                 </span>
               </div>
               
-              <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-1 sm:gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex-wrap">
                 {candidate.description && (
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <Briefcase className="w-3 h-3 text-primary" />
-                    <span className="font-medium">{candidate.description}</span>
+                    <span className="font-medium truncate max-w-20 sm:max-w-none">{candidate.description}</span>
                   </div>
                 )}
                 {candidate.email && (
-                  <span className="truncate max-w-24 sm:max-w-48">{candidate.email}</span>
+                  <span className="truncate max-w-16 sm:max-w-32">{candidate.email}</span>
                 )}
                 {candidate.phone && (
-                  <div className="flex items-center space-x-1 hidden sm:flex">
+                  <div className="flex items-center gap-1 hidden sm:flex shrink-0">
                     <Phone className="w-3 h-3" />
-                    <span>{candidate.phone}</span>
+                    <span className="truncate">{candidate.phone}</span>
                   </div>
                 )}
                 {candidate.city && (
-                  <div className="flex items-center space-x-1 hidden md:flex">
+                  <div className="flex items-center gap-1 hidden md:flex shrink-0">
                     <MapPin className="w-3 h-3" />
-                    <span>{candidate.city}</span>
+                    <span className="truncate">{candidate.city}</span>
                   </div>
-                )}
-                {candidate.region && (
-                  <span className="hidden lg:inline">{candidate.region}</span>
                 )}
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-1 ml-2 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-1 sm:px-2 text-xs"
+              className="h-7 w-7 sm:h-8 sm:w-auto px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onView(candidate); }}
             >
-              <Eye className="w-3 h-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bekijk</span>
+              <Eye className="w-3 h-3" />
+              <span className="hidden sm:inline ml-1">Bekijk</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-1 sm:px-2 text-xs"
+              className="h-7 w-7 sm:h-8 sm:w-auto px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onEdit(candidate); }}
             >
-              <Edit className="w-3 h-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bewerk</span>
+              <Edit className="w-3 h-3" />
+              <span className="hidden sm:inline ml-1">Bewerk</span>
             </Button>
           </div>
         </div>
@@ -200,57 +197,57 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   );
 
   const renderClientItem = (client: any) => (
-    <Card key={client.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(client)}>
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+    <Card key={client.id} className="hover:shadow-md transition-shadow cursor-pointer w-full" onClick={() => onView(client)}>
+      <CardContent className="p-2 sm:p-4">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
+            <Avatar className="w-7 h-7 sm:w-10 sm:h-10 shrink-0">
               <AvatarFallback className="bg-blue-500 text-white">
-                <Building className="w-4 h-4" />
+                <Building className="w-3 h-3 sm:w-4 sm:h-4" />
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1 flex-wrap">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate min-w-0">
                   {client.name}
                 </h3>
                 {client.status && (
-                  <span className={getStatusColor(client.status)}>
+                  <span className={`${getStatusColor(client.status)} shrink-0`}>
                     {getStatusLabel(client.status)}
                   </span>
                 )}
                 {client.workType && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs shrink-0">
                     {client.workType}
                   </Badge>
                 )}
               </div>
               
-              <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <span className="truncate">{client.contactPerson}</span>
-                <span className="hidden sm:inline">{client.location}</span>
+              <div className="flex items-center gap-1 sm:gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex-wrap">
+                <span className="truncate max-w-24 sm:max-w-none">{client.contactPerson}</span>
+                <span className="hidden sm:inline truncate">{client.location}</span>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-1 ml-2 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-1 sm:px-2 text-xs"
+              className="h-7 w-7 sm:h-8 sm:w-auto px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onView(client); }}
             >
-              <Eye className="w-3 h-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bekijk</span>
+              <Eye className="w-3 h-3" />
+              <span className="hidden sm:inline ml-1">Bekijk</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-1 sm:px-2 text-xs"
+              className="h-7 w-7 sm:h-8 sm:w-auto px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onEdit(client); }}
             >
-              <Edit className="w-3 h-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bewerk</span>
+              <Edit className="w-3 h-3" />
+              <span className="hidden sm:inline ml-1">Bewerk</span>
             </Button>
           </div>
         </div>
@@ -259,50 +256,48 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   );
 
   const renderTrajectoryItem = (trajectory: any) => (
-    <Card key={trajectory.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onView(trajectory)}>
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+    <Card key={trajectory.id} className="hover:shadow-md transition-shadow cursor-pointer w-full" onClick={() => onView(trajectory)}>
+      <CardContent className="p-2 sm:p-4">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 overflow-hidden">
+            <Avatar className="w-7 h-7 sm:w-10 sm:h-10 shrink-0">
               <AvatarFallback className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                <BriefcaseIcon className="w-4 h-4" />
+                <BriefcaseIcon className="w-3 h-3 sm:w-4 sm:h-4" />
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              {/* Main trajectory info in one line */}
-              <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate min-w-0">
                   {formatTrajectoryTitle(trajectory)}
                 </h3>
               </div>
               
-              {/* Status in subtle style */}
-              <div className="flex items-center space-x-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getTrajectoryStatusColor(trajectory.status)}`}>
+              <div className="flex items-center gap-1 sm:gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <span className={`inline-flex items-center px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium border ${getTrajectoryStatusColor(trajectory.status)} shrink-0`}>
                   {formatTrajectoryStatus(trajectory.status)}
                 </span>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-1 ml-2 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-1 sm:px-2 text-xs"
+              className="h-7 w-7 sm:h-8 sm:w-auto px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onView(trajectory); }}
             >
-              <Eye className="w-3 h-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bekijk</span>
+              <Eye className="w-3 h-3" />
+              <span className="hidden sm:inline ml-1">Bekijk</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-1 sm:px-2 text-xs"
+              className="h-7 w-7 sm:h-8 sm:w-auto px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onEdit(trajectory); }}
             >
-              <Edit className="w-3 h-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bewerk</span>
+              <Edit className="w-3 h-3" />
+              <span className="hidden sm:inline ml-1">Bewerk</span>
             </Button>
           </div>
         </div>
@@ -311,7 +306,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
   );
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full overflow-hidden">
       {items.map((item) => {
         switch (type) {
           case 'candidates':
@@ -326,7 +321,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
       })}
       
       {items.length === 0 && (
-        <Card>
+        <Card className="w-full">
           <CardContent className="p-8 text-center">
             <p className="text-gray-500 dark:text-gray-400">
               Geen {type === 'candidates' ? 'kandidaten' : type === 'clients' ? 'opdrachtgevers' : 'trajecten'} gevonden
