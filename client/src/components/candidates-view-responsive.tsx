@@ -179,16 +179,26 @@ export default function CandidatesView() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Mobile Header */}
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Kandidaten</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
               Beheer en volg alle kandidaten in het systeem
             </p>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="relative flex-1 sm:flex-none">
+              <Input
+                type="text"
+                placeholder="Zoeken..."
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value })}
+                className="w-full sm:w-64 pl-10"
+              />
+              <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+            </div>
             <input
               type="file"
               accept=".xlsx,.xls,.csv"
@@ -200,34 +210,20 @@ export default function CandidatesView() {
               variant="outline"
               size="sm"
               onClick={() => setShowExcelTemplateModal(true)}
-              className="hidden sm:flex"
+              className="hidden sm:flex shrink-0"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Import Excel
+              Import
             </Button>
             
             <Button
               size="sm"
               onClick={() => setShowForm(true)}
-              className="bg-primary hover:bg-primary-hover text-white"
+              className="bg-primary hover:bg-primary-hover text-white shrink-0"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Nieuw
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Nieuwe</span>
             </Button>
-          </div>
-        </div>
-        
-        {/* Search Bar */}
-        <div className="mt-4">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Zoeken..."
-              value={filters.search}
-              onChange={(e) => updateFilters({ search: e.target.value })}
-              className="w-full sm:w-80 pl-10"
-            />
-            <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
           </div>
         </div>
       </header>
@@ -257,27 +253,33 @@ export default function CandidatesView() {
 
         {/* Results Counter - only show when filters are active */}
         {hasActiveFilters() && (
-          <div className="mt-6 mb-4 transition-all duration-300 ease-in-out">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="text-lg font-semibold text-green-900 dark:text-green-100">
-                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'kandidaat' : 'kandidaten'} gevonden
+          <div className="mb-6 transition-all duration-300 ease-in-out">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-bold text-green-900 dark:text-green-100">
+                      {filteredCandidates.length}
+                    </h3>
+                    <span className="text-base text-green-700 dark:text-green-300">
+                      {filteredCandidates.length === 1 ? 'kandidaat gevonden' : 'kandidaten gevonden'}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-green-700 dark:text-green-300">met</span>
+                    <span className="text-sm text-green-800 dark:text-green-200">Actieve filters:</span>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                      {activeFiltersCount} {activeFiltersCount === 1 ? 'filter' : 'filters'}
+                      {activeFiltersCount}
                     </Badge>
                   </div>
                 </div>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={clearAllFilters}
-                  className="text-green-700 border-green-300 hover:bg-green-50 dark:text-green-300 dark:border-green-600 dark:hover:bg-green-900/20"
+                  className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 shrink-0"
                 >
-                  Alle filters wissen
+                  <X className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Filters wissen</span>
                 </Button>
               </div>
             </div>
