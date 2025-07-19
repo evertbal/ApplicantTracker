@@ -158,19 +158,19 @@ export default function CollapsibleFilters({
             {/* Date Range Filter */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Datum Toegevoegd</Label>
-              <div className="flex gap-2 items-center">
+              <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                 <Input
                   type="date"
                   value={dateFrom}
                   onChange={(e) => onDateFromChange(e.target.value)}
-                  className="w-auto text-sm"
+                  className="flex-1 text-sm"
                   placeholder="Van"
                 />
                 <Input
                   type="date"
                   value={dateTo}
                   onChange={(e) => onDateToChange(e.target.value)}
-                  className="w-auto text-sm"
+                  className="flex-1 text-sm"
                   placeholder="Tot"
                 />
                 {(dateFrom || dateTo) && (
@@ -181,7 +181,7 @@ export default function CollapsibleFilters({
                       onDateFromChange("");
                       onDateToChange("");
                     }}
-                    className="px-2 h-8"
+                    className="px-2 h-8 shrink-0"
                   >
                     <X className="h-4 w-4" />
                   </Button>

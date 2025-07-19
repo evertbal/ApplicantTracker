@@ -153,7 +153,7 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                   </div>
                 )}
                 {candidate.email && (
-                  <span className="truncate max-w-48">{candidate.email}</span>
+                  <span className="truncate max-w-24 sm:max-w-48">{candidate.email}</span>
                 )}
                 {candidate.phone && (
                   <div className="flex items-center space-x-1 hidden sm:flex">
@@ -174,24 +174,24 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             </div>
           </div>
           
-          <div className="flex items-center space-x-1 ml-2">
+          <div className="flex items-center space-x-1 ml-2 shrink-0">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-2 text-xs"
+              className="h-8 px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onView(candidate); }}
             >
-              <Eye className="w-3 h-3 mr-1" />
-              Bekijk
+              <Eye className="w-3 h-3 sm:mr-1" />
+              <span className="hidden sm:inline">Bekijk</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-2 text-xs"
+              className="h-8 px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onEdit(candidate); }}
             >
-              <Edit className="w-3 h-3 mr-1" />
-              Bewerk
+              <Edit className="w-3 h-3 sm:mr-1" />
+              <span className="hidden sm:inline">Bewerk</span>
             </Button>
           </div>
         </div>
@@ -233,24 +233,24 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             </div>
           </div>
           
-          <div className="flex items-center space-x-1 ml-2">
+          <div className="flex items-center space-x-1 ml-2 shrink-0">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-2 text-xs"
+              className="h-8 px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onView(client); }}
             >
-              <Eye className="w-3 h-3 mr-1" />
-              Bekijk
+              <Eye className="w-3 h-3 sm:mr-1" />
+              <span className="hidden sm:inline">Bekijk</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-2 text-xs"
+              className="h-8 px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onEdit(client); }}
             >
-              <Edit className="w-3 h-3 mr-1" />
-              Bewerk
+              <Edit className="w-3 h-3 sm:mr-1" />
+              <span className="hidden sm:inline">Bewerk</span>
             </Button>
           </div>
         </div>
@@ -285,24 +285,24 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
             </div>
           </div>
           
-          <div className="flex items-center space-x-1 ml-2">
+          <div className="flex items-center space-x-1 ml-2 shrink-0">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-2 text-xs"
+              className="h-8 px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onView(trajectory); }}
             >
-              <Eye className="w-3 h-3 mr-1" />
-              Bekijk
+              <Eye className="w-3 h-3 sm:mr-1" />
+              <span className="hidden sm:inline">Bekijk</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 px-2 text-xs"
+              className="h-8 px-1 sm:px-2 text-xs"
               onClick={(e) => { e.stopPropagation(); onEdit(trajectory); }}
             >
-              <Edit className="w-3 h-3 mr-1" />
-              Bewerk
+              <Edit className="w-3 h-3 sm:mr-1" />
+              <span className="hidden sm:inline">Bewerk</span>
             </Button>
           </div>
         </div>
