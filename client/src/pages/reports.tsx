@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Users, Briefcase, UserCheck } from 'lucide-react';
 import ResponsiveLayout from '@/components/responsive-layout';
+import { useLocation } from 'wouter';
 
 interface KPIData {
   candidatesAdded: {
@@ -25,9 +26,30 @@ interface KPIData {
 }
 
 const Reports = () => {
+  const [, setLocation] = useLocation();
+  
   const { data: kpiData, isLoading } = useQuery<KPIData>({
     queryKey: ['/api/reports/quarterly-kpi'],
   });
+
+  const handleSectionChange = (section: string) => {
+    switch (section) {
+      case 'candidates':
+        setLocation('/');
+        break;
+      case 'trajectories':
+        setLocation('/trajectories');
+        break;
+      case 'clients':
+        setLocation('/clients');
+        break;
+      case 'reports':
+        setLocation('/reports');
+        break;
+      default:
+        break;
+    }
+  };
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('nl-NL').format(num);
@@ -99,7 +121,7 @@ const Reports = () => {
 
   if (isLoading) {
     return (
-      <ResponsiveLayout activeSection="reports" onSectionChange={() => {}}>
+      <ResponsiveLayout activeSection="reports" onSectionChange={handleSectionChange}>
         <div className="p-6">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rapportages</h1>
@@ -131,7 +153,7 @@ const Reports = () => {
 
   if (!kpiData) {
     return (
-      <ResponsiveLayout activeSection="reports" onSectionChange={() => {}}>
+      <ResponsiveLayout activeSection="reports" onSectionChange={handleSectionChange}>
         <div className="p-6">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rapportages</h1>
@@ -153,7 +175,7 @@ const Reports = () => {
   }
 
   return (
-    <ResponsiveLayout activeSection="reports" onSectionChange={() => {}}>
+    <ResponsiveLayout activeSection="reports" onSectionChange={handleSectionChange}>
       <div className="p-6 max-w-7xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rapportages</h1>
