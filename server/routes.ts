@@ -637,29 +637,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { trajectories, notes, ...candidateData } = req.body;
       const validatedCandidateData = insertCandidateSchema.parse(candidateData);
       
-      // Check for duplicates
+      // Check for duplicate email
       if (validatedCandidateData.email) {
         const existingByEmail = await storage.getCandidateByEmail(validatedCandidateData.email);
         if (existingByEmail) {
-          return res.status(400).json({ 
+          return res.status(400).json({
             message: "Een kandidaat met dit emailadres bestaat al",
-            duplicate: existingByEmail 
+            duplicate: existingByEmail
           });
         }
       }
-      
-      // Check for name + phone combination if no email
-      if (!validatedCandidateData.email && validatedCandidateData.phone) {
-        const existingByNamePhone = await storage.getCandidateByNameAndPhone(
-          validatedCandidateData.name, 
-          validatedCandidateData.phone
-        );
-        if (existingByNamePhone) {
-          return res.status(400).json({ 
-            message: "Een kandidaat met deze naam en telefoonnummer bestaat al",
-            duplicate: existingByNamePhone 
-          });
-        }
+
+      // Always check for duplicate name
+      const existingByName = await storage.getCandidateByName(validatedCandidateData.name);
+      if (existingByName) {
+        return res.status(400).json({
+          message: "Een kandidaat met deze naam bestaat al",
+          duplicate: existingByName
+        });
       }
       
       // Normaliseer rijbewijs data als aanwezig
@@ -863,13 +858,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               continue;
             }
           }
-          
-          if (!candidateData.email && candidateData.phone) {
-            const existingByNamePhone = await storage.getCandidateByNameAndPhone(candidateData.name, candidateData.phone);
-            if (existingByNamePhone) {
-              errors.push(`Rij ${index + 2}: Kandidaat '${candidateData.name}' met telefoon '${candidateData.phone}' bestaat al`);
-              continue;
-            }
+
+          const existingByName = await storage.getCandidateByName(candidateData.name);
+          if (existingByName) {
+            errors.push(`Rij ${index + 2}: Kandidaat '${candidateData.name}' bestaat al`);
+            continue;
           }
 
           // Validate and create candidate

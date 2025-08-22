@@ -128,6 +128,7 @@ export interface IStorage {
   logAudit(entityType: string, entityId: number, action: string, changes: any, userId: string): Promise<void>;
 
   getCandidateByEmail(email: string): Promise<Candidate | null>;
+  getCandidateByName(name: string): Promise<Candidate | null>;
   getCandidateByNameAndPhone(name: string, phone: string): Promise<Candidate | null>;
 }
 
@@ -381,6 +382,20 @@ export class DatabaseStorage implements IStorage {
       return candidate || null;
     } catch (error) {
       console.error("Error getting candidate by email:", error);
+      return null;
+    }
+  }
+
+  async getCandidateByName(name: string): Promise<Candidate | null> {
+    try {
+      const [candidate] = await db
+        .select()
+        .from(candidates)
+        .where(eq(candidates.name, name))
+        .limit(1);
+      return candidate || null;
+    } catch (error) {
+      console.error("Error getting candidate by name:", error);
       return null;
     }
   }
