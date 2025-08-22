@@ -1358,13 +1358,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/trajectories", authenticateAny, async (req: any, res) => {
     try {
-      const trajectoryData = insertTrajectorySchema.parse(req.body);
+      const { note, ...trajectoryBody } = req.body;
+      const trajectoryData = insertTrajectorySchema.parse(trajectoryBody);
       const trajectory = await storage.createTrajectory(trajectoryData);
-      
+
       // Log audit
-      const userId = req.user?.claims?.sub || req.user?.id || 'unknown';
+      const userId = req.user?.claims?.sub || req.user?.id || req.adminUser?.id?.toString() || 'unknown';
       await storage.logAudit("trajectory", trajectory.id, "create", trajectoryData, userId);
-      
+
+      if (typeof note === "string" && note.trim()) {
+        await storage.createNote({
+          entityType: "trajectory",
+          entityId: trajectory.id,
+          content: note,
+          authorId: userId,
+        });
+      }
+
       res.status(201).json(trajectory);
     } catch (error) {
       if (error instanceof z.ZodError) {

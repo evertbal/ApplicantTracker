@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
-import { X } from "lucide-react";
-import { insertTrajectorySchema, type InsertTrajectory, type Candidate, type Client } from "@shared/schema";
+import { z } from "zod";
+import { insertTrajectorySchema, type Candidate, type Client } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,11 +22,18 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<InsertTrajectory>({
-    resolver: zodResolver(insertTrajectorySchema),
+  const newTrajectorySchema = insertTrajectorySchema.extend({
+    note: z.string().optional(),
+  });
+
+  type NewTrajectoryFormData = z.infer<typeof newTrajectorySchema>;
+
+  const form = useForm<NewTrajectoryFormData>({
+    resolver: zodResolver(newTrajectorySchema),
     defaultValues: {
       status: "geaccepteerd",
       jobTitle: "",
+      note: "",
     },
   });
 
@@ -42,8 +48,12 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
   });
 
   const createTrajectoryMutation = useMutation({
-    mutationFn: async (data: InsertTrajectory) => {
-      return apiRequest("POST", "/api/trajectories", data);
+    mutationFn: async (data: NewTrajectoryFormData) => {
+      const { note, ...trajectoryData } = data;
+      return apiRequest("POST", "/api/trajectories", {
+        ...trajectoryData,
+        ...(note ? { note } : {}),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/trajectories"] });
@@ -63,7 +73,7 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
     },
   });
 
-  const onSubmit = (data: InsertTrajectory) => {
+  const onSubmit = (data: NewTrajectoryFormData) => {
     createTrajectoryMutation.mutate(data);
   };
 
@@ -144,14 +154,21 @@ export default function NewTrajectoryModal({ isOpen, onClose }: NewTrajectoryMod
             </div>
           </div>
 
-
+          <div>
+            <Label htmlFor="note">Notitie</Label>
+            <Textarea
+              id="note"
+              {...form.register("note")}
+              className="mt-1"
+            />
+          </div>
 
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline" onClick={onClose}>
               Annuleren
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={createTrajectoryMutation.isPending}
               className="bg-primary hover:bg-primary-hover"
             >
