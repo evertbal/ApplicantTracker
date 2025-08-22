@@ -138,7 +138,7 @@ export default function TrajectoriesView() {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       {/* Mobile Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -172,7 +172,7 @@ export default function TrajectoriesView() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-w-full">
         {/* Collapsible Filters */}
         <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
           <CollapsibleTrigger asChild>
@@ -336,6 +336,6 @@ export default function TrajectoriesView() {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
