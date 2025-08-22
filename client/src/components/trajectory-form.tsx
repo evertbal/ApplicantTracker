@@ -39,6 +39,7 @@ interface TrajectoryFormProps {
   trajectory?: TrajectoryWithRelations | null;
   mode?: "create" | "edit";
   onSuccess?: () => void;
+  candidateId?: number;
 }
 
 export default function TrajectoryForm({
@@ -47,6 +48,7 @@ export default function TrajectoryForm({
   trajectory,
   mode = trajectory ? "edit" : "create",
   onSuccess,
+  candidateId,
 }: TrajectoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -58,7 +60,7 @@ export default function TrajectoryForm({
 
   // Default values for form
   const defaultValues: TrajectoryFormData = {
-    candidateId: trajectory?.candidateId || 0,
+    candidateId: candidateId || trajectory?.candidateId || 0,
     clientId: trajectory?.clientId || 0,
     jobTitle: trajectory?.jobTitle || "",
     status: trajectory?.status || "geaccepteerd",
@@ -111,17 +113,22 @@ export default function TrajectoryForm({
       }
     } else if (mode === "create") {
       form.reset({
-        candidateId: 0,
+        candidateId: candidateId || 0,
         clientId: 0,
         jobTitle: "",
         status: "geaccepteerd",
         candidateStatus: "",
         note: "",
       });
-      setSelectedCandidate(null);
+      if (candidateId && candidates.length > 0) {
+        const candidate = candidates.find((c: Candidate) => c.id === candidateId);
+        setSelectedCandidate(candidate || null);
+      } else {
+        setSelectedCandidate(null);
+      }
       setShowCandidateStatus(false);
     }
-  }, [trajectory, mode, form, toast, candidates]);
+  }, [trajectory, mode, form, toast, candidates, candidateId]);
 
   // Create/update trajectory mutation
   const saveTrajectoryMutation = useMutation({
@@ -319,46 +326,55 @@ export default function TrajectoryForm({
             />
 
             {/* Candidate Selection */}
-            <FormField
-              control={form.control}
-              name="candidateId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kandidaat *</FormLabel>
-                  <Select 
-                    value={field.value ? field.value.toString() : ""} 
-                    onValueChange={(value) => {
-                      const candidateId = value ? parseInt(value, 10) : 0;
-                      field.onChange(candidateId);
-                      
-                      // Find selected candidate and show status selection if trajectory status is set
-                      const candidate = candidates.find((c: Candidate) => c.id === candidateId);
-                      setSelectedCandidate(candidate || null);
-                      
-                      if (candidateId && form.watch('status')) {
-                        setShowCandidateStatus(true);
-                        const suggestedStatus = getSuggestedCandidateStatus(form.watch('status'));
-                        form.setValue('candidateStatus', suggestedStatus);
-                      }
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecteer kandidaat" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {(candidates as Candidate[]).map((candidate: Candidate) => (
-                        <SelectItem key={candidate.id} value={candidate.id.toString()}>
-                          {candidate.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {!candidateId && (
+              <FormField
+                control={form.control}
+                name="candidateId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kandidaat *</FormLabel>
+                    <Select
+                      value={field.value ? field.value.toString() : ""}
+                      onValueChange={(value) => {
+                        const candidateId = value ? parseInt(value, 10) : 0;
+                        field.onChange(candidateId);
+
+                        // Find selected candidate and show status selection if trajectory status is set
+                        const candidate = candidates.find((c: Candidate) => c.id === candidateId);
+                        setSelectedCandidate(candidate || null);
+
+                        if (candidateId && form.watch('status')) {
+                          setShowCandidateStatus(true);
+                          const suggestedStatus = getSuggestedCandidateStatus(form.watch('status'));
+                          form.setValue('candidateStatus', suggestedStatus);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecteer kandidaat" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(candidates as Candidate[]).map((candidate: Candidate) => (
+                          <SelectItem key={candidate.id} value={candidate.id.toString()}>
+                            {candidate.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {candidateId && selectedCandidate && (
+              <div>
+                <Label className="text-sm font-medium">Kandidaat</Label>
+                <p className="mt-1 text-sm">{selectedCandidate.name}</p>
+              </div>
+            )}
 
             {/* Candidate Status Selection - shows when trajectory status changes */}
             {showCandidateStatus && selectedCandidate && (
