@@ -257,7 +257,6 @@ export const insertCandidateSchema = createInsertSchema(candidates).omit({
   email: z.string().email("Ongeldig e-mailadres").optional().nullable(),
   dateAdded: z.date().optional().nullable(),
   region: z.string().optional().nullable(),
-  status: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   drivingLicenses: z.array(z.string()).optional().nullable(),
   drivingLicenseNotes: z.string().optional().nullable(),

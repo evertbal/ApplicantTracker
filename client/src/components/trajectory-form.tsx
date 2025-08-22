@@ -13,12 +13,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { 
+import {
   validateTrajectoryData,
   getTrajectoryStatusOptions,
-  getCandidateStatusOptions,
-  getSuggestedCandidateStatus,
-  formatCandidateStatus
+  getCandidatePhaseOptions,
+  getSuggestedCandidatePhase,
+  formatCandidatePhase
 } from "@/lib/trajectory-formatters";
 import type { TrajectoryWithRelations, Candidate, Client } from "@shared/schema";
 
@@ -27,7 +27,7 @@ const trajectoryFormSchema = z.object({
   clientId: z.number().min(1, "Selecteer een opdrachtgever"),
   jobTitle: z.string().min(1, "Functietitel is verplicht"),
   status: z.string().optional(),
-  candidateStatus: z.string().optional(),
+  candidatePhase: z.string().optional(),
   note: z.string().optional(),
 });
 
@@ -52,7 +52,7 @@ export default function TrajectoryForm({
 }: TrajectoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [showCandidateStatus, setShowCandidateStatus] = useState(false);
+  const [showCandidatePhase, setShowCandidatePhase] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   // Validate trajectory data when editing
@@ -64,7 +64,7 @@ export default function TrajectoryForm({
     clientId: trajectory?.clientId || 0,
     jobTitle: trajectory?.jobTitle || "",
     status: trajectory?.status || "geaccepteerd",
-    candidateStatus: "",
+    candidatePhase: "",
     note: "",
   };
 
@@ -102,7 +102,7 @@ export default function TrajectoryForm({
         clientId: trajectory.clientId || 0,
         jobTitle: trajectory.jobTitle || "",
         status: trajectory.status || "geaccepteerd",
-        candidateStatus: "",
+        candidatePhase: "",
         note: "",
       });
       
@@ -117,7 +117,7 @@ export default function TrajectoryForm({
         clientId: 0,
         jobTitle: "",
         status: "geaccepteerd",
-        candidateStatus: "",
+        candidatePhase: "",
         note: "",
       });
       if (candidateId && candidates.length > 0) {
@@ -126,7 +126,7 @@ export default function TrajectoryForm({
       } else {
         setSelectedCandidate(null);
       }
-      setShowCandidateStatus(false);
+      setShowCandidatePhase(false);
     }
   }, [trajectory, mode, form, toast, candidates, candidateId]);
 
@@ -162,15 +162,15 @@ export default function TrajectoryForm({
       
       const result = await response.json();
       
-      // Update candidate status if provided
-      if (data.candidateStatus && data.candidateId) {
+      // Update candidate phase if provided
+      if (data.candidatePhase && data.candidateId) {
         try {
           await apiRequest("PUT", `/api/candidates/${data.candidateId}`, {
-            status: data.candidateStatus
+            phase: data.candidatePhase
           });
         } catch (error) {
-          console.error("Failed to update candidate status:", error);
-          // Don't fail the trajectory update if candidate status update fails
+          console.error("Failed to update candidate phase:", error);
+          // Don't fail the trajectory update if candidate phase update fails
         }
       }
       
@@ -189,7 +189,7 @@ export default function TrajectoryForm({
       });
       
       form.reset();
-      setShowCandidateStatus(false);
+      setShowCandidatePhase(false);
       onClose();
       onSuccess?.();
     },
@@ -294,15 +294,15 @@ export default function TrajectoryForm({
                     value={field.value || ""} 
                     onValueChange={(value) => {
                       field.onChange(value);
-                      // Show candidate status selection when trajectory status changes
+                      // Show candidate phase selection when trajectory status changes
                       const candidateId = form.watch('candidateId');
                       if (value && candidateId && candidates.length > 0) {
                         const candidate = candidates.find((c: Candidate) => c.id === candidateId);
                         if (candidate) {
                           setSelectedCandidate(candidate);
-                          setShowCandidateStatus(true);
-                          const suggestedStatus = getSuggestedCandidateStatus(value);
-                          form.setValue('candidateStatus', suggestedStatus);
+                          setShowCandidatePhase(true);
+                          const suggestedPhase = getSuggestedCandidatePhase(value);
+                          form.setValue('candidatePhase', suggestedPhase);
                         }
                       }
                     }}
@@ -339,14 +339,14 @@ export default function TrajectoryForm({
                         const candidateId = value ? parseInt(value, 10) : 0;
                         field.onChange(candidateId);
 
-                        // Find selected candidate and show status selection if trajectory status is set
+                        // Find selected candidate and show phase selection if trajectory status is set
                         const candidate = candidates.find((c: Candidate) => c.id === candidateId);
                         setSelectedCandidate(candidate || null);
 
                         if (candidateId && form.watch('status')) {
-                          setShowCandidateStatus(true);
-                          const suggestedStatus = getSuggestedCandidateStatus(form.watch('status'));
-                          form.setValue('candidateStatus', suggestedStatus);
+                          setShowCandidatePhase(true);
+                          const suggestedPhase = getSuggestedCandidatePhase(form.watch('status'));
+                          form.setValue('candidatePhase', suggestedPhase);
                         }
                       }}
                     >
@@ -376,19 +376,19 @@ export default function TrajectoryForm({
               </div>
             )}
 
-            {/* Candidate Status Selection - shows when trajectory status changes */}
-            {showCandidateStatus && selectedCandidate && (
+            {/* Candidate Phase Selection - shows when trajectory status changes */}
+            {showCandidatePhase && selectedCandidate && (
               <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-3">
                 <Label className="text-sm font-medium">
-                  Wijzig status van kandidaat: {selectedCandidate.name}
+                  Wijzig fase van kandidaat: {selectedCandidate.name}
                 </Label>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Huidige status: {formatCandidateStatus(selectedCandidate.status)}
+                  Huidige fase: {formatCandidatePhase(selectedCandidate.phase)}
                 </p>
-                
+
                 <FormField
                   control={form.control}
-                  name="candidateStatus"
+                  name="candidatePhase"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -397,7 +397,7 @@ export default function TrajectoryForm({
                           onValueChange={field.onChange}
                           className="grid grid-cols-1 gap-2"
                         >
-                          {getCandidateStatusOptions().map((option) => (
+                          {getCandidatePhaseOptions().map((option) => (
                             <div key={option.value} className="flex items-center space-x-2">
                               <RadioGroupItem value={option.value} id={option.value} />
                               <Label htmlFor={option.value} className="text-sm cursor-pointer">

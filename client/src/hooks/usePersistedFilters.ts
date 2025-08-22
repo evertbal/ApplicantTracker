@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export interface FilterState {
-  selectedStatuses: string[];
+  selectedPhases: string[];
   selectedRegion: string;
   selectedLicenses: string[];
   search: string;
@@ -10,7 +10,7 @@ export interface FilterState {
 }
 
 const DEFAULT_FILTERS: FilterState = {
-  selectedStatuses: [],
+  selectedPhases: [],
   selectedRegion: "",
   selectedLicenses: [],
   search: "",
@@ -58,8 +58,8 @@ export function usePersistedFilters(storageKey: string = "candidates-filters") {
 
   // Check if any filters are active
   const hasActiveFilters = () => {
-    return filters.selectedStatuses.length > 0 || 
-           filters.selectedRegion !== "" || 
+    return filters.selectedPhases.length > 0 ||
+           filters.selectedRegion !== "" ||
            filters.selectedLicenses.length > 0 ||
            filters.search !== "";
   };

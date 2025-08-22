@@ -62,7 +62,7 @@ export interface IStorage {
   // Candidate operations
   getCandidates(filters?: {
     search?: string;
-    status?: string[];
+    phase?: string[];
     region?: string;
     drivingLicenses?: string[];
     dateFrom?: Date;
@@ -254,7 +254,7 @@ export class DatabaseStorage implements IStorage {
   // Candidate operations
   async getCandidates(filters?: {
     search?: string;
-    status?: string[];
+    phase?: string[];
     region?: string;
     drivingLicenses?: string[];
     dateFrom?: Date;
@@ -286,8 +286,8 @@ export class DatabaseStorage implements IStorage {
       );
     }
 
-    if (filters?.status?.length) {
-      conditions.push(eq(candidates.status, filters.status[0])); // Simplified for now
+    if (filters?.phase?.length) {
+      conditions.push(eq(candidates.phase, filters.phase[0])); // Simplified for now
     }
 
     if (filters?.region) {

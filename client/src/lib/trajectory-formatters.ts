@@ -92,57 +92,48 @@ export const getTrajectorySubtitle = (trajectory: TrajectoryWithRelations): stri
   return `${candidateName} bij ${clientName}`;
 };
 
-// Candidate status formatters
-export const formatCandidateStatus = (status: string | null): string => {
-  if (!status) return "Onbekend";
-  
-  const statusLabels = {
-    nieuw: "Nieuw",
-    beschikbaar: "Beschikbaar",
-    in_bemiddeling: "In bemiddeling",
-    werkend: "Werkend",
-    nu_niet_beschikbaar: "Nu niet beschikbaar",
-    inactief: "Inactief"
+// Candidate phase formatters
+export const formatCandidatePhase = (phase: string | null): string => {
+  if (!phase) return "Onbekend";
+
+  const phaseLabels = {
+    intake: "Intake",
+    matching: "Matching",
+    placed: "Geplaatst",
   };
-  
-  return statusLabels[status as keyof typeof statusLabels] || status;
+
+  return phaseLabels[phase as keyof typeof phaseLabels] || phase;
 };
 
-export const getCandidateStatusColor = (status: string | null): string => {
-  const statusColors = {
-    nieuw: "bg-purple-600",
-    beschikbaar: "bg-green-600",
-    in_bemiddeling: "bg-blue-600",
-    werkend: "bg-indigo-600",
-    nu_niet_beschikbaar: "bg-orange-600",
-    inactief: "bg-gray-600"
+export const getCandidatePhaseColor = (phase: string | null): string => {
+  const phaseColors = {
+    intake: "bg-purple-600",
+    matching: "bg-amber-600",
+    placed: "bg-green-600",
   };
-  
-  return statusColors[status?.toLowerCase() as keyof typeof statusColors] || "bg-gray-600";
+
+  return phaseColors[phase?.toLowerCase() as keyof typeof phaseColors] || "bg-gray-600";
 };
 
-// Get suggested candidate status based on trajectory status
-export const getSuggestedCandidateStatus = (trajectoryStatus: string | null): string => {
-  const statusMapping = {
-    geaccepteerd: "in_bemiddeling",
-    voorgesteld_aan_klant: "in_bemiddeling",
-    gesprek_met_klant: "in_bemiddeling",
-    geplaatst: "werkend",
-    niet_geplaatst: "beschikbaar",
-    gestopt: "beschikbaar"
+// Get suggested candidate phase based on trajectory status
+export const getSuggestedCandidatePhase = (trajectoryStatus: string | null): string => {
+  const phaseMapping = {
+    geaccepteerd: "matching",
+    voorgesteld_aan_klant: "matching",
+    gesprek_met_klant: "matching",
+    geplaatst: "placed",
+    niet_geplaatst: "intake",
+    gestopt: "intake",
   };
-  
-  return statusMapping[trajectoryStatus as keyof typeof statusMapping] || "beschikbaar";
+
+  return phaseMapping[trajectoryStatus as keyof typeof phaseMapping] || "intake";
 };
 
-// Get all candidate status options in order
-export const getCandidateStatusOptions = () => [
-  { value: "nieuw", label: "Nieuw" },
-  { value: "beschikbaar", label: "Beschikbaar" },
-  { value: "in_bemiddeling", label: "In bemiddeling" },
-  { value: "werkend", label: "Werkend" },
-  { value: "nu_niet_beschikbaar", label: "Nu niet beschikbaar" },
-  { value: "inactief", label: "Inactief" }
+// Get all candidate phase options in order
+export const getCandidatePhaseOptions = () => [
+  { value: "intake", label: "Intake" },
+  { value: "matching", label: "Matching" },
+  { value: "placed", label: "Geplaatst" },
 ];
 
 // Get all trajectory status options

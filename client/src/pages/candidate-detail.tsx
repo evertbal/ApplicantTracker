@@ -133,12 +133,16 @@ export default function CandidateDetail() {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active": return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
-      case "placed": return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
-      case "inactive": return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
+  const getStatusColor = (phase: string) => {
+    switch (phase) {
+      case "intake":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
+      case "matching":
+        return "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400";
+      case "placed":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
     }
   };
 
@@ -299,26 +303,18 @@ export default function CandidateDetail() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Status & Fase</CardTitle>
+                <CardTitle>Fase</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Status
-                  </Label>
-                  <div className="mt-1">
-                    <Badge className={getStatusColor(candidate.status || "")}>
-                      {candidate.status || "Onbekend"}
-                    </Badge>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     Fase
                   </Label>
-                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
-                    {candidate.phase || "-"}
-                  </p>
+                  <div className="mt-1">
+                    <Badge className={getStatusColor(candidate.phase || "")}>
+                      {candidate.phase || "Onbekend"}
+                    </Badge>
+                  </div>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">

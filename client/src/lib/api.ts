@@ -30,7 +30,7 @@ function getRequestHeaders() {
 export const candidateApi = {
   getAll: (filters?: {
     search?: string;
-    status?: string[];
+    phase?: string[];
     region?: string;
     drivingLicenses?: string[];
     dateFrom?: Date;
@@ -38,7 +38,7 @@ export const candidateApi = {
   }) => {
     const params = new URLSearchParams();
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.status?.length) params.append('status', filters.status.join(','));
+    if (filters?.phase?.length) params.append('phase', filters.phase.join(','));
     if (filters?.region) params.append('region', filters.region);
     if (filters?.drivingLicenses?.length) params.append('drivingLicenses', filters.drivingLicenses.join(','));
     if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom.toISOString());
