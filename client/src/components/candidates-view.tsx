@@ -12,7 +12,7 @@ import CompactList from "./compact-list";
 
 export default function CandidatesView() {
   const [search, setSearch] = useState("");
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["active"]);
+  const [selectedPhases, setSelectedPhases] = useState<string[]>(["intake"]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedLicenses, setSelectedLicenses] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState("");
@@ -41,8 +41,8 @@ export default function CandidatesView() {
       candidate.email?.toLowerCase().includes(search.toLowerCase()) ||
       candidate.city?.toLowerCase().includes(search.toLowerCase());
 
-    // Status filter
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(candidate.status);
+    // Phase filter
+    const matchesPhase = selectedPhases.length === 0 || selectedPhases.includes(candidate.phase);
 
     // Region filter
     const matchesRegion = selectedRegion === "" || selectedRegion === "alle" || candidate.region === selectedRegion;
@@ -65,7 +65,7 @@ export default function CandidatesView() {
       return true;
     })();
 
-    return matchesSearch && matchesStatus && matchesRegion && matchesLicense && matchesDate;
+    return matchesSearch && matchesPhase && matchesRegion && matchesLicense && matchesDate;
   }).sort((a: any, b: any) => {
     let aValue, bValue;
     
@@ -122,20 +122,13 @@ export default function CandidatesView() {
 
   const clearFilters = () => {
     setSearch("");
-    setSelectedStatuses([]);
+    setSelectedPhases([]);
     setSelectedRegion("");
     setSelectedLicenses([]);
     setDateFrom("");
     setDateTo("");
   };
 
-  const handleStatusChange = (status: string, checked: boolean) => {
-    if (checked) {
-      setSelectedStatuses([...selectedStatuses, status]);
-    } else {
-      setSelectedStatuses(selectedStatuses.filter(s => s !== status));
-    }
-  };
 
   const handleLicenseChange = (license: string, checked: boolean) => {
     if (checked) {
@@ -212,20 +205,20 @@ export default function CandidatesView() {
   }
 
   // Extract filter options from data
-  const statusSet = new Set<string>();
+  const phaseSet = new Set<string>();
   const regionSet = new Set<string>();
-  
+
   candidatesArray.forEach((c: any) => {
-    if (c.status) statusSet.add(c.status);
+    if (c.phase) phaseSet.add(c.phase);
     if (c.region) regionSet.add(c.region);
   });
-  
-  const statusOptions = Array.from(statusSet);
+
+  const phaseOptions = Array.from(phaseSet);
   const regionOptions = Array.from(regionSet);
   const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
 
   const activeFiltersCount = 
-    selectedStatuses.length + 
+    selectedPhases.length +
     (selectedRegion ? 1 : 0) + 
     selectedLicenses.length +
     (dateFrom ? 1 : 0) +
@@ -291,17 +284,17 @@ export default function CandidatesView() {
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto relative">
         {/* Collapsible Filters */}
         <CollapsibleFilters
-          statusOptions={statusOptions}
+          phaseOptions={phaseOptions}
           regionOptions={regionOptions}
           licenseOptions={licenseOptions}
-          selectedStatuses={selectedStatuses}
+          selectedPhases={selectedPhases}
           selectedRegion={selectedRegion}
           selectedLicenses={selectedLicenses}
           dateFrom={dateFrom}
           dateTo={dateTo}
           sortBy={sortBy}
           sortOrder={sortOrder}
-          onStatusChange={setSelectedStatuses}
+          onPhaseChange={setSelectedPhases}
           onRegionChange={setSelectedRegion}
           onLicenseChange={setSelectedLicenses}
           onDateFromChange={setDateFrom}

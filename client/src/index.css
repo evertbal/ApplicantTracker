@@ -91,7 +91,20 @@
   .status-badge {
     @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium tracking-wide border;
   }
-  
+
+  /* Candidate Phases */
+  .status-intake {
+    @apply bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/50;
+  }
+
+  .status-matching {
+    @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50;
+  }
+
+  .status-placed {
+    @apply bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700/50;
+  }
+
   /* Candidate Statuses */
   .status-nieuw {
     @apply bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50;

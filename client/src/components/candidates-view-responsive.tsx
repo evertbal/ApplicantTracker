@@ -38,8 +38,8 @@ export default function CandidatesView() {
       candidate.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
       candidate.city?.toLowerCase().includes(filters.search.toLowerCase());
 
-    // Status filter
-    const matchesStatus = filters.selectedStatuses.length === 0 || filters.selectedStatuses.includes(candidate.status);
+    // Phase filter
+    const matchesPhase = filters.selectedPhases.length === 0 || filters.selectedPhases.includes(candidate.phase);
 
     // Region filter
     const matchesRegion = filters.selectedRegion === "" || filters.selectedRegion === "alle" || candidate.region === filters.selectedRegion;
@@ -50,7 +50,7 @@ export default function CandidatesView() {
         candidate.drivingLicenses.includes(license)
       ));
 
-    return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
+    return matchesSearch && matchesPhase && matchesRegion && matchesLicense;
   }).sort((a: any, b: any) => {
     let aValue, bValue;
     
@@ -70,7 +70,7 @@ export default function CandidatesView() {
   });
 
   // Extract filter options from data
-  const statusOptions = Array.from(new Set(candidatesArray.map((c: any) => c.status).filter(Boolean)));
+  const phaseOptions = Array.from(new Set(candidatesArray.map((c: any) => c.phase).filter(Boolean)));
   const regionOptions = Array.from(new Set(candidatesArray.map((c: any) => c.region).filter(Boolean)));
   const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
 
@@ -82,8 +82,8 @@ export default function CandidatesView() {
     }
   };
 
-  const activeFiltersCount = 
-    filters.selectedStatuses.length + 
+  const activeFiltersCount =
+    filters.selectedPhases.length +
     (filters.selectedRegion ? 1 : 0) + 
     filters.selectedLicenses.length +
     (filters.search ? 1 : 0);
@@ -232,17 +232,17 @@ export default function CandidatesView() {
       <div className="flex-1 p-2 sm:p-6 overflow-y-auto max-w-full">
         {/* Collapsible Filters */}
         <CollapsibleFilters
-          statusOptions={statusOptions}
+          phaseOptions={phaseOptions}
           regionOptions={regionOptions}
           licenseOptions={licenseOptions}
-          selectedStatuses={filters.selectedStatuses}
+          selectedPhases={filters.selectedPhases}
           selectedRegion={filters.selectedRegion}
           selectedLicenses={filters.selectedLicenses}
           dateFrom=""
           dateTo=""
           sortBy={filters.sortBy}
           sortOrder={filters.sortOrder}
-          onStatusChange={(statuses) => updateFilters({ selectedStatuses: statuses })}
+          onPhaseChange={(phases) => updateFilters({ selectedPhases: phases })}
           onRegionChange={(region) => updateFilters({ selectedRegion: region })}
           onLicenseChange={(licenses) => updateFilters({ selectedLicenses: licenses })}
           onDateFromChange={() => {}}

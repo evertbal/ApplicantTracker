@@ -75,7 +75,6 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
       ...data,
       drivingLicenses: drivingLicenses,
     } as any;
-    delete candidateData.status;
     createCandidateMutation.mutate(candidateData);
   };
 
@@ -158,13 +157,13 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
             </Select>
           </div>
           <div>
-            <Label htmlFor="phase">Status</Label>
+            <Label htmlFor="phase">Fase</Label>
             <Select
               value={form.watch("phase")}
               onValueChange={(value) => form.setValue("phase", value)}
             >
               <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Selecteer status" />
+                <SelectValue placeholder="Selecteer fase" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="intake">Intake</SelectItem>

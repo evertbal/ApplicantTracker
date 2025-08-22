@@ -10,17 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface CollapsibleFiltersProps {
-  statusOptions: string[];
+  phaseOptions: string[];
   regionOptions: string[];
   licenseOptions: string[];
-  selectedStatuses: string[];
+  selectedPhases: string[];
   selectedRegion: string;
   selectedLicenses: string[];
   dateFrom: string;
   dateTo: string;
   sortBy: 'created' | 'updated';
   sortOrder: "asc" | "desc";
-  onStatusChange: (statuses: string[]) => void;
+  onPhaseChange: (phases: string[]) => void;
   onRegionChange: (region: string) => void;
   onLicenseChange: (licenses: string[]) => void;
   onDateFromChange: (date: string) => void;
@@ -30,17 +30,17 @@ interface CollapsibleFiltersProps {
 }
 
 export default function CollapsibleFilters({
-  statusOptions,
+  phaseOptions,
   regionOptions,
   licenseOptions,
-  selectedStatuses,
+  selectedPhases,
   selectedRegion,
   selectedLicenses,
   dateFrom,
   dateTo,
   sortBy,
   sortOrder,
-  onStatusChange,
+  onPhaseChange,
   onRegionChange,
   onLicenseChange,
   onDateFromChange,
@@ -83,28 +83,28 @@ export default function CollapsibleFilters({
       >
         <Card className="shadow-lg border-2">
           <CardContent className="p-4 space-y-4">
-            {/* Status Filter */}
+            {/* Phase Filter */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Status</Label>
+              <Label className="text-sm font-medium">Fase</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {statusOptions.map((status) => (
-                  <div key={status} className="flex items-center space-x-2">
+                {phaseOptions.map((phase) => (
+                  <div key={phase} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`status-${status}`}
-                      checked={selectedStatuses.includes(status)}
+                      id={`phase-${phase}`}
+                      checked={selectedPhases.includes(phase)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          onStatusChange([...selectedStatuses, status]);
+                          onPhaseChange([...selectedPhases, phase]);
                         } else {
-                          onStatusChange(selectedStatuses.filter(s => s !== status));
+                          onPhaseChange(selectedPhases.filter(s => s !== phase));
                         }
                       }}
                     />
                     <Label
-                      htmlFor={`status-${status}`}
+                      htmlFor={`phase-${phase}`}
                       className="text-sm capitalize cursor-pointer"
                     >
-                      {status}
+                      {phase}
                     </Label>
                   </div>
                 ))}

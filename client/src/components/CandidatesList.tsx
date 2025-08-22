@@ -40,7 +40,7 @@ export default function CandidatesList() {
       candidate.city?.toLowerCase().includes(filters.search.toLowerCase());
 
     // Status filter
-    const matchesStatus = filters.selectedStatuses.length === 0 || filters.selectedStatuses.includes(candidate.status);
+    const matchesPhase = filters.selectedPhases.length === 0 || filters.selectedPhases.includes(candidate.phase);
 
     // Region filter
     const matchesRegion = filters.selectedRegion === "" || filters.selectedRegion === "alle" || candidate.region === filters.selectedRegion;
@@ -51,7 +51,7 @@ export default function CandidatesList() {
         candidate.drivingLicenses.includes(license)
       ));
 
-    return matchesSearch && matchesStatus && matchesRegion && matchesLicense;
+    return matchesSearch && matchesPhase && matchesRegion && matchesLicense;
   }).sort((a: any, b: any) => {
     let aValue, bValue;
     
@@ -71,7 +71,7 @@ export default function CandidatesList() {
   });
 
   // Extract filter options from data
-  const statusOptions = Array.from(new Set(candidatesArray.map((c: any) => c.status).filter(Boolean)));
+  const phaseOptions = Array.from(new Set(candidatesArray.map((c: any) => c.phase).filter(Boolean)));
   const regionOptions = Array.from(new Set(candidatesArray.map((c: any) => c.region).filter(Boolean)));
   const licenseOptions = ['A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'];
 
@@ -84,7 +84,7 @@ export default function CandidatesList() {
   };
 
   const activeFiltersCount = 
-    filters.selectedStatuses.length + 
+    filters.selectedPhases.length +
     (filters.selectedRegion ? 1 : 0) + 
     filters.selectedLicenses.length +
     (filters.search ? 1 : 0);
@@ -155,27 +155,27 @@ export default function CandidatesList() {
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4 mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Status Filter */}
+              {/* Phase Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Status
+                  Fase
                 </label>
                 <div className="space-y-2">
-                  {statusOptions.map((status) => (
-                    <div key={status} className="flex items-center space-x-2">
+                  {phaseOptions.map((phase) => (
+                    <div key={phase} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`status-${status}`}
-                        checked={filters.selectedStatuses.includes(status)}
+                        id={`status-${phase}`}
+                        checked={filters.selectedPhases.includes(phase)}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            updateFilters({ selectedStatuses: [...filters.selectedStatuses, status] });
+                            updateFilters({ selectedPhases: [...filters.selectedPhases, phase] });
                           } else {
-                            updateFilters({ selectedStatuses: filters.selectedStatuses.filter(s => s !== status) });
+                            updateFilters({ selectedPhases: filters.selectedPhases.filter(s => s !== phase) });
                           }
                         }}
                       />
-                      <Label htmlFor={`status-${status}`} className="text-sm">
-                        {status}
+                      <Label htmlFor={`status-${phase}`} className="text-sm">
+                        {phase}
                       </Label>
                     </div>
                   ))}
@@ -294,9 +294,9 @@ export default function CandidatesList() {
                         Zoekterm: "{filters.search}"
                       </Badge>
                     )}
-                    {filters.selectedStatuses.map(status => (
-                      <Badge key={status} variant="outline" className="text-xs bg-white border-green-300 text-green-700">
-                        Status: {status}
+                    {filters.selectedPhases.map(phase => (
+                      <Badge key={phase} variant="outline" className="text-xs bg-white border-green-300 text-green-700">
+                        Fase: {phase}
                       </Badge>
                     ))}
                     {filters.selectedRegion && (

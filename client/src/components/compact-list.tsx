@@ -51,13 +51,10 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
     const statusKey = status?.toLowerCase().replace(/\s+/g, '-');
     
     const colors = {
-      // Candidate statuses
-      'nieuw': "status-badge status-nieuw",
-      'beschikbaar': "status-badge status-beschikbaar",
-      'in-bemiddeling': "status-badge status-in-bemiddeling",
-      'werkend': "status-badge status-werkend",
-      'nu-niet-beschikbaar': "status-badge status-nu-niet-beschikbaar",
-      'inactief': "status-badge status-inactief",
+      // Candidate phases
+      'intake': "status-badge status-intake",
+      'matching': "status-badge status-matching",
+      'placed': "status-badge status-placed",
       
       // Trajectory statuses
       'geaccepteerd': "status-badge status-geaccepteerd",
@@ -92,13 +89,10 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
 
   const getStatusLabel = (status: string) => {
     const labels = {
-      // Candidate statuses
-      nieuw: "Nieuw",
-      beschikbaar: "Beschikbaar",
-      'in-bemiddeling': "In bemiddeling",
-      werkend: "Werkend",
-      'nu-niet-beschikbaar': "Nu niet beschikbaar",
-      inactief: "Inactief",
+      // Candidate phases
+      intake: "Intake",
+      matching: "Matching",
+      placed: "Geplaatst",
       
       // Trajectory statuses
       geaccepteerd: "Geaccepteerd",
@@ -140,8 +134,8 @@ export default function CompactList({ items, type, onView, onEdit, isLoading }: 
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate min-w-0">
                   {candidate.name}
                 </h3>
-                <span className={`${getStatusColor(candidate.status)} shrink-0`}>
-                  {getStatusLabel(candidate.status)}
+                <span className={`${getStatusColor(candidate.phase)} shrink-0`}>
+                  {getStatusLabel(candidate.phase)}
                 </span>
               </div>
               

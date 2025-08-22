@@ -147,7 +147,6 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       marketing: data.marketing || null,
       description: data.description || null,
     };
-    delete cleanedData.status;
 
     if (isEditing) {
       updateMutation.mutate(cleanedData);

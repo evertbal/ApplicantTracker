@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 
 interface FilterPanelProps {
   onFiltersChange: (filters: {
-    status: string[];
+    phase: string[];
     region: string;
     drivingLicense: string[];
     dateFrom: string;
@@ -21,7 +21,7 @@ interface FilterPanelProps {
 
 export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
   const [filters, setFilters] = useState({
-    status: [] as string[],
+    phase: [] as string[],
     region: "",
     drivingLicense: [] as string[],
     dateFrom: "",
@@ -33,9 +33,9 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
     queryKey: ["/api/candidates"],
   });
 
-  const getStatusCount = (status: string) => {
+  const getPhaseCount = (phase: string) => {
     if (!Array.isArray(allCandidates)) return 0;
-    return (allCandidates as any[]).filter((candidate: any) => candidate.status === status).length;
+    return (allCandidates as any[]).filter((candidate: any) => candidate.phase === phase).length;
   };
 
   const getDrivingLicenseCount = (license: string) => {
@@ -45,12 +45,12 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
     ).length;
   };
 
-  const handleStatusChange = (status: string, checked: boolean) => {
-    const newStatus = checked
-      ? [...filters.status, status]
-      : filters.status.filter(s => s !== status);
-    
-    const newFilters = { ...filters, status: newStatus };
+  const handlePhaseChange = (phase: string, checked: boolean) => {
+    const newPhase = checked
+      ? [...filters.phase, phase]
+      : filters.phase.filter(s => s !== phase);
+
+    const newFilters = { ...filters, phase: newPhase };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
@@ -79,7 +79,7 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
 
   const clearFilters = () => {
     const clearedFilters = {
-      status: [],
+      phase: [],
       region: "",
       drivingLicense: [],
       dateFrom: "",
@@ -96,27 +96,27 @@ export default function FilterPanel({ onFiltersChange }: FilterPanelProps) {
       <div className="flex-1 space-y-4 sm:space-y-6 min-h-0 overflow-y-auto">
         {/* Status Filter */}
         <div className="flex-shrink-0">
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Status</Label>
+          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Fase</Label>
           <div className="space-y-1 sm:space-y-2">
             {[
-              { value: "active", label: "Actief" },
+              { value: "intake", label: "Intake" },
+              { value: "matching", label: "Matching" },
               { value: "placed", label: "Geplaatst" },
-              { value: "inactive", label: "Inactief" },
-            ].map((status) => (
-              <div key={status.value} className="flex items-center justify-between min-w-0">
+            ].map((phase) => (
+              <div key={phase.value} className="flex items-center justify-between min-w-0">
                 <div className="flex items-center space-x-2 min-w-0 flex-1">
                   <Checkbox
-                    id={status.value}
-                    checked={filters.status.includes(status.value)}
-                    onCheckedChange={(checked) => handleStatusChange(status.value, checked as boolean)}
+                    id={phase.value}
+                    checked={filters.phase.includes(phase.value)}
+                    onCheckedChange={(checked) => handlePhaseChange(phase.value, checked as boolean)}
                     className="flex-shrink-0"
                   />
-                  <Label htmlFor={status.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate">
-                    {status.label}
+                  <Label htmlFor={phase.value} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate">
+                    {phase.label}
                   </Label>
                 </div>
                 <Badge variant="secondary" className="text-xs ml-2 flex-shrink-0">
-                  {getStatusCount(status.value)}
+                  {getPhaseCount(phase.value)}
                 </Badge>
               </div>
             ))}

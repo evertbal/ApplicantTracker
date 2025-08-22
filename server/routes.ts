@@ -599,7 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const filters = {
         search: req.query.search as string,
-        status: req.query.status ? (req.query.status as string).split(',') : undefined,
+        phase: req.query.phase ? (req.query.phase as string).split(',') : undefined,
         region: req.query.region as string,
         drivingLicenses: req.query.drivingLicenses ? (req.query.drivingLicenses as string).split(',') : undefined,
         dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom as string) : undefined,
@@ -830,7 +830,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             phone: String(rowData.Telefoonnummer || rowData.telefoon || rowData.Phone || rowData.TELEFOON || '').trim() || null,
             city: String(rowData.Woonplaats || rowData.stad || rowData.City || rowData.STAD || '').trim() || null,
             region: String(rowData.Regio || rowData.regio || rowData.Region || rowData.REGIO || '').trim() || null,
-            status: String(rowData.Status || rowData.status || rowData.STATUS || 'active').trim(),
+            phase: String(rowData.Phase || rowData.phase || rowData.PHASE || 'intake').trim(),
             drivingLicenses: (() => {
               const rawLicense = rowData.Rijbewijs || rowData.rijbewijs || rowData['Rijbewijs type'] || rowData['Rijbewijzen'] || '';
               if (!rawLicense) return [];
