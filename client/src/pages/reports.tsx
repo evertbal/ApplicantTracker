@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Users, Briefcase, UserCheck } from 'lucide-react';
 import ResponsiveLayout from '@/components/responsive-layout';
 import { useLocation } from 'wouter';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 
 interface KPIData {
   candidatesAdded: {
@@ -27,6 +31,16 @@ interface KPIData {
 
 const Reports = () => {
   const [, setLocation] = useLocation();
+
+  const [trendOptions, setTrendOptions] = useState({
+    candidates: true,
+    trajectories: true,
+    proposals: true,
+  });
+
+  const toggleTrendOption = (option: keyof typeof trendOptions) => {
+    setTrendOptions((prev) => ({ ...prev, [option]: !prev[option] }));
+  };
   
   const { data: kpiData, isLoading } = useQuery<KPIData>({
     queryKey: ['/api/reports/quarterly-kpi'],
@@ -183,6 +197,50 @@ const Reports = () => {
             Kwartaal overzicht en KPI metrics (laatste kwartaal vs vorige kwartaal)
           </p>
         </div>
+
+        <Progress value={66} className="mb-8" />
+
+        <Card className="border-0 shadow-lg mb-8">
+          <CardHeader>
+            <CardTitle className="text-lg text-gray-900 dark:text-white">
+              Trends &amp; patronen - grafiek opties
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="trend-candidates"
+                  checked={trendOptions.candidates}
+                  onCheckedChange={() => toggleTrendOption('candidates')}
+                />
+                <Label htmlFor="trend-candidates" className="text-sm">
+                  Toegevoegde kandidaten
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="trend-trajectories"
+                  checked={trendOptions.trajectories}
+                  onCheckedChange={() => toggleTrendOption('trajectories')}
+                />
+                <Label htmlFor="trend-trajectories" className="text-sm">
+                  Nieuw aangemaakte trajecten
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="trend-proposals"
+                  checked={trendOptions.proposals}
+                  onCheckedChange={() => toggleTrendOption('proposals')}
+                />
+                <Label htmlFor="trend-proposals" className="text-sm">
+                  Kandidaten voorgesteld in traject
+                </Label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* KPI Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
