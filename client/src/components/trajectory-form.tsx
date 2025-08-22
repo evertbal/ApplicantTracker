@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -28,18 +28,26 @@ const trajectoryFormSchema = z.object({
   jobTitle: z.string().min(1, "Functietitel is verplicht"),
   status: z.string().optional(),
   candidateStatus: z.string().optional(),
+  note: z.string().optional(),
 });
 
 type TrajectoryFormData = z.infer<typeof trajectoryFormSchema>;
 
 interface TrajectoryFormProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   trajectory?: TrajectoryWithRelations | null;
-  mode: "create" | "edit";
+  mode?: "create" | "edit";
+  onSuccess?: () => void;
 }
 
-export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: TrajectoryFormProps) {
+export default function TrajectoryForm({
+  isOpen = true,
+  onClose,
+  trajectory,
+  mode = trajectory ? "edit" : "create",
+  onSuccess,
+}: TrajectoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showCandidateStatus, setShowCandidateStatus] = useState(false);
@@ -55,6 +63,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
     jobTitle: trajectory?.jobTitle || "",
     status: trajectory?.status || "geaccepteerd",
     candidateStatus: "",
+    note: "",
   };
 
   const form = useForm<TrajectoryFormData>({
@@ -91,9 +100,8 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         clientId: trajectory.clientId || 0,
         jobTitle: trajectory.jobTitle || "",
         status: trajectory.status || "geaccepteerd",
-        startDate: trajectory.startDate || "",
-        hourlyRate: trajectory.hourlyRate || "",
         candidateStatus: "",
+        note: "",
       });
       
       // Set the selected candidate for edit mode
@@ -107,9 +115,8 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
         clientId: 0,
         jobTitle: "",
         status: "geaccepteerd",
-        startDate: "",
-        hourlyRate: "",
         candidateStatus: "",
+        note: "",
       });
       setSelectedCandidate(null);
       setShowCandidateStatus(false);
@@ -122,12 +129,18 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
       const url = mode === "edit" ? `/api/trajectories/${trajectory?.id}` : "/api/trajectories";
       const method = mode === "edit" ? "PUT" : "POST";
       
-      const response = await apiRequest(method, url, {
+      const body: any = {
         candidateId: data.candidateId,
         clientId: data.clientId,
         jobTitle: data.jobTitle,
         status: data.status || "geaccepteerd",
-      });
+      };
+
+      if (mode === "create" && data.note) {
+        body.note = data.note;
+      }
+
+      const response = await apiRequest(method, url, body);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -171,6 +184,7 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
       form.reset();
       setShowCandidateStatus(false);
       onClose();
+      onSuccess?.();
     },
     onError: (error: Error) => {
       toast({
@@ -412,15 +426,32 @@ export default function TrajectoryForm({ isOpen, onClose, trajectory, mode }: Tr
                 </FormItem>
               )}
             />
-
-
+            {mode === "create" && (
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notitie</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Voeg een notitie toe..."
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* Form Actions */}
             <div className="flex justify-end space-x-3 pt-6">
               <Button type="button" variant="outline" onClick={handleClose}>
                 Annuleren
               </Button>
-              <Button 
+              <Button
                 type="submit" 
                 disabled={saveTrajectoryMutation.isPending}
                 className="bg-primary hover:bg-primary-hover"
