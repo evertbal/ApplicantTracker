@@ -67,7 +67,6 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       region: candidate?.region || "",
       marketing: candidate?.marketing || "",
       description: candidate?.description || "",
-      status: candidate?.status || "active",
       phase: candidate?.phase || "intake",
       drivingLicenses: candidate?.drivingLicenses || [],
       drivingLicenseNotes: candidate?.drivingLicenseNotes || "",
@@ -148,6 +147,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
       marketing: data.marketing || null,
       description: data.description || null,
     };
+    delete cleanedData.status;
 
     if (isEditing) {
       updateMutation.mutate(cleanedData);
@@ -362,23 +362,26 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 />
                 <FormField
                   control={form.control}
-                  name="status"
+                  name="phase"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
+                      <Select
+                        onValueChange={(value) => field.onChange(value === "clear" ? "" : value)}
+                        defaultValue={field.value || ""}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="Selecteer status" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="clear">
                             <span className="text-muted-foreground italic">Geen selectie</span>
                           </SelectItem>
-                          <SelectItem value="active">Actief</SelectItem>
+                          <SelectItem value="intake">Intake</SelectItem>
+                          <SelectItem value="matching">Matching</SelectItem>
                           <SelectItem value="placed">Geplaatst</SelectItem>
-                          <SelectItem value="inactive">Inactief</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -387,37 +390,7 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 />
               </div>
 
-              <div className={`grid gap-4 ${isEditing ? "grid-cols-1" : "grid-cols-2"}`}>
-                {!isEditing && (
-                  <FormField
-                    control={form.control}
-                    name="phase"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Fase</FormLabel>
-                        <Select
-                          onValueChange={(value) => field.onChange(value === "clear" ? "" : value)}
-                          defaultValue={field.value || ""}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecteer fase" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="clear">
-                              <span className="text-muted-foreground italic">Geen selectie</span>
-                            </SelectItem>
-                            <SelectItem value="intake">Intake</SelectItem>
-                            <SelectItem value="matching">Matching</SelectItem>
-                            <SelectItem value="placed">Geplaatst</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+              <div className="grid gap-4 grid-cols-1">
                 <FormField
                   control={form.control}
                   name="marketing"

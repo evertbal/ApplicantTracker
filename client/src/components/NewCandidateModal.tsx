@@ -34,7 +34,6 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
       region: "",
       marketing: "",
       description: "",
-      status: "active",
       phase: "intake",
       drivingLicenses: [],
     },
@@ -74,8 +73,9 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
   const onSubmit = (data: InsertCandidate) => {
     const candidateData = {
       ...data,
-      drivingLicenses: drivingLicenses
-    };
+      drivingLicenses: drivingLicenses,
+    } as any;
+    delete candidateData.status;
     createCandidateMutation.mutate(candidateData);
   };
 
@@ -142,40 +142,59 @@ export default function NewCandidateModal({ isOpen, onClose }: NewCandidateModal
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="region">Regio</Label>
-              <Select onValueChange={(value) => form.setValue("region", value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selecteer regio" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
-                  <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
-                  <SelectItem value="Utrecht">Utrecht</SelectItem>
-                  <SelectItem value="Gelderland">Gelderland</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="marketing">Marketing Bron</Label>
-              <Select onValueChange={(value) => form.setValue("marketing", value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selecteer bron" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                  <SelectItem value="indeed">Indeed</SelectItem>
-                  <SelectItem value="referral">Doorverwijzing</SelectItem>
-                  <SelectItem value="website">Website</SelectItem>
-                  <SelectItem value="other">Anders</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">Rijbewijs</Label>
+            <Label htmlFor="region">Regio</Label>
+            <Select onValueChange={(value) => form.setValue("region", value)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Selecteer regio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Noord-Holland">Noord-Holland</SelectItem>
+                <SelectItem value="Zuid-Holland">Zuid-Holland</SelectItem>
+                <SelectItem value="Utrecht">Utrecht</SelectItem>
+                <SelectItem value="Gelderland">Gelderland</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="phase">Status</Label>
+            <Select
+              value={form.watch("phase")}
+              onValueChange={(value) => form.setValue("phase", value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Selecteer status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="intake">Intake</SelectItem>
+                <SelectItem value="matching">Matching</SelectItem>
+                <SelectItem value="placed">Geplaatst</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <Label htmlFor="marketing">Marketing Bron</Label>
+            <Select onValueChange={(value) => form.setValue("marketing", value)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Selecteer bron" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+                <SelectItem value="indeed">Indeed</SelectItem>
+                <SelectItem value="referral">Doorverwijzing</SelectItem>
+                <SelectItem value="website">Website</SelectItem>
+                <SelectItem value="other">Anders</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium text-gray-700 mb-2 block">Rijbewijs</Label>
             <div className="grid grid-cols-3 gap-4">
               {[
                 'A', 'AM', 'B', 'BE', 'C', 'CE', 'D', 'DE', 'T'
