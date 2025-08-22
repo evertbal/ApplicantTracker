@@ -15,6 +15,7 @@ import type { CandidateWithRelations, Note, Document } from "@shared/schema";
 import CandidateForm from "@/components/candidate-form";
 import OneDriveLink from "@/components/onedrive-link";
 import { NoteEditor } from "@/components/note-editor";
+import TrajectoryForm from "@/components/trajectory-form";
 
 import { 
   formatTrajectoryTitle, 
@@ -31,6 +32,7 @@ export default function CandidateDetail() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [showTrajectoryForm, setShowTrajectoryForm] = useState(false);
 
 
   // Fetch candidate data
@@ -493,69 +495,85 @@ export default function CandidateDetail() {
             </TabsContent>
 
             <TabsContent value="trajectories" className="mt-6">
-              <div className="space-y-4">
-                {trajectoriesLoading ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
+                    <CardTitle>Trajecten</CardTitle>
+                    <Button
+                      size="sm"
+                      onClick={() => setShowTrajectoryForm(true)}
+                      className="bg-primary hover:bg-primary-hover text-white w-full md:w-auto"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Nieuw Traject
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {trajectoriesLoading ? (
+                    <div className="p-8 text-center">
                       <p className="text-gray-500">Trajecten laden...</p>
-                    </CardContent>
-                  </Card>
-                ) : (candidateTrajectories as any[]).length === 0 ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
+                    </div>
+                  ) : (candidateTrajectories as any[]).length === 0 ? (
+                    <div className="p-8 text-center">
                       <Route className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500 font-medium">Geen trajecten gevonden</p>
                       <p className="text-sm text-gray-400 mt-1">Deze kandidaat heeft nog geen trajecten</p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  (candidateTrajectories as any[]).map((trajectory: any) => (
-                    <Card key={trajectory.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500"
-                          onClick={() => setLocation(`/trajectory/${trajectory.id}`)}>
-                      <CardContent className="p-6">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                          <div className="flex-1 space-y-4">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                  {trajectory.jobTitle || "Onbekende functie"}
-                                </h3>
-                                <div className="flex items-center text-gray-600 mb-3">
-                                  <Users className="h-5 w-5 mr-2 text-blue-600" />
-                                  <span className="font-medium">
-                                    {trajectory.client?.name || "Onbekende opdrachtgever"}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {(candidateTrajectories as any[]).map((trajectory: any) => (
+                        <Card
+                          key={trajectory.id}
+                          className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500"
+                          onClick={() => setLocation(`/trajectory/${trajectory.id}`)}
+                        >
+                          <CardContent className="p-6">
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                              <div className="flex-1 space-y-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                      {trajectory.jobTitle || "Onbekende functie"}
+                                    </h3>
+                                    <div className="flex items-center text-gray-600 mb-3">
+                                      <Users className="h-5 w-5 mr-2 text-blue-600" />
+                                      <span className="font-medium">
+                                        {trajectory.client?.name || "Onbekende opdrachtgever"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getTrajectoryStatusColor(trajectory.status)}`}>
+                                    {formatTrajectoryStatus(trajectory.status)}
                                   </span>
                                 </div>
-                              </div>
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getTrajectoryStatusColor(trajectory.status)}`}>
-                                {formatTrajectoryStatus(trajectory.status)}
-                              </span>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-                              <div className="flex items-center text-gray-600">
-                                <Route className="h-5 w-5 mr-3 text-orange-600" />
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">Traject ID</p>
-                                  <p className="text-sm">#{trajectory.id}</p>
-                                </div>
-                              </div>
-                            </div>
 
-                            {trajectory.description && (
-                              <div className="mt-4 pt-4 border-t border-gray-100">
-                                <p className="text-sm text-gray-600 leading-relaxed">
-                                  {trajectory.description}
-                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                                  <div className="flex items-center text-gray-600">
+                                    <Route className="h-5 w-5 mr-3 text-orange-600" />
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-900">Traject ID</p>
+                                      <p className="text-sm">#{trajectory.id}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {trajectory.description && (
+                                  <div className="mt-4 pt-4 border-t border-gray-100">
+                                    <p className="text-sm text-gray-600 leading-relaxed">
+                                      {trajectory.description}
+                                    </p>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
-              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
@@ -569,6 +587,18 @@ export default function CandidateDetail() {
           onSuccess={() => {
             setShowEditForm(false);
             queryClient.invalidateQueries({ queryKey: ["/api/candidates", id] });
+          }}
+        />
+      )}
+
+      {showTrajectoryForm && (
+        <TrajectoryForm
+          isOpen={showTrajectoryForm}
+          onClose={() => setShowTrajectoryForm(false)}
+          candidateId={parseInt(id!)}
+          onSuccess={() => {
+            setShowTrajectoryForm(false);
+            queryClient.invalidateQueries({ queryKey: [`/api/trajectories/candidate/${id}`] });
           }}
         />
       )}
