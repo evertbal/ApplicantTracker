@@ -75,12 +75,14 @@ export default function CollapsibleFilters({
       </Button>
 
       {/* Collapsible Filter Panel */}
-      <div className={cn(
-        "transition-all duration-300 ease-in-out overflow-hidden relative z-10",
-        isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
-      )}>
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out relative z-10",
+          isOpen ? "opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        )}
+      >
         <Card className="shadow-lg border-2">
-          <CardContent className="p-4 space-y-4 max-h-[700px] overflow-y-auto">
+          <CardContent className="p-4 space-y-4">
             {/* Status Filter */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Status</Label>
