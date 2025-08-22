@@ -387,39 +387,47 @@ export default function CandidateForm({ candidate, onClose, onSuccess }: Candida
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="phase"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fase</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecteer fase" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="clear">
-                            <span className="text-muted-foreground italic">Geen selectie</span>
-                          </SelectItem>
-                          <SelectItem value="intake">Intake</SelectItem>
-                          <SelectItem value="matching">Matching</SelectItem>
-                          <SelectItem value="placed">Geplaatst</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className={`grid gap-4 ${isEditing ? "grid-cols-1" : "grid-cols-2"}`}>
+                {!isEditing && (
+                  <FormField
+                    control={form.control}
+                    name="phase"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fase</FormLabel>
+                        <Select
+                          onValueChange={(value) => field.onChange(value === "clear" ? "" : value)}
+                          defaultValue={field.value || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecteer fase" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="clear">
+                              <span className="text-muted-foreground italic">Geen selectie</span>
+                            </SelectItem>
+                            <SelectItem value="intake">Intake</SelectItem>
+                            <SelectItem value="matching">Matching</SelectItem>
+                            <SelectItem value="placed">Geplaatst</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="marketing"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Marketing Bron</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value === "clear" ? "" : value)} defaultValue={field.value || ""}>
+                      <Select
+                        onValueChange={(value) => field.onChange(value === "clear" ? "" : value)}
+                        defaultValue={field.value || ""}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecteer bron" />
